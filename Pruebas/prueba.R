@@ -5,6 +5,9 @@ library(usethis)
 library(devtools)
 #install.packages("fcaR", dependencies = TRUE)
 library(fcaR)
+library(ggplot2)
+#install.packages("useful", dependencies = TRUE)
+library(useful)
 library(Matrix)
 library(R6)
 
@@ -24,6 +27,20 @@ A
 
 # Creamos matriz dispersa
 A_Dispersa <- Matrix(A, sparse = TRUE)
+
+dim(A_Dispersa) == dim(A_Dispersa) | all(A_Dispersa == A_Dispersa)
+X <- list(A_Dispersa)
+Y <- list(A_Dispersa)
+all(X==Y)
+library(useful)
+useful::compare.list(X,Y)
+
+
+for (ind in 1:0){
+  print(ind)
+}
+
+length(NULL)
 
 # STR = func que muestra de una variable todos los campos internos
 # str(A_Dispersa)
@@ -101,8 +118,23 @@ implicaciones <- fc$implications
 implicaciones$is_empty()
 A <-implicaciones[1]$get_RHS_matrix()
 B <-implicaciones[3]$get_LHS_matrix()
+implicaciones$add(A,A)
+C <- append(C,B )
+str(C)
+
+Delocos <- cbind(implicaciones$get_LHS_matrix(), A)
+Delocos <- Matrix(Delocos[,12],sparse=TRUE)
+.matrixEquals(Delocos, A)
+
+sum((A == B)@x) == length((A == B)@x)
+#.matrixEquals(A,B)
+library(useful)
+.matrixEquals(implicaciones$get_LHS_matrix(), implicaciones$get_RHS_matrix())
+
 A * B
 sum(A*B)
+
+
 
 # Obtener la matriz de las partes izquierdas
 lh <- implicaciones$get_LHS_matrix()

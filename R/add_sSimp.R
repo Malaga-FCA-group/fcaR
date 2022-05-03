@@ -1,53 +1,79 @@
-#' Title
+#' @Title
+#' Application of the add_sSimp function in the SLgetdo algorithm
 #'
 #' @param A
+#' Antecedent in the implication A -> B, represented by a sparse matrix
+#'
 #' @param B
+#' Consequent in the implication A -> B, represented by a sparse matrix
+#'
 #' @param C
+#' Antecedent in the implication C -> D, represented by a sparse matrix
+#'
 #' @param D
-#' @param sigma
+#' Consequent in the implication C -> D, represented by a sparse matrix
+#'
+#' @param sigma_lhs
+#' List of lhs of the set of implications
+#'
+#' @param sigma_rhs
+#' List of rhs of the set of implications
 #'
 #' @return
-#' @export
+#' A list of lhs and rhs "E -> F"
 #'
 #' @examples
-#'
+#' TODO
 #'
 #' CTRL + SHIFT + ALT + R
 #  CBIND NULL + LHS
 #  isredundant
 
 
-.add_sSimp <- function(A, B, C, D, sigma) {
-
-  # Implication1 = A -> B
-  # Implication2 = c -> D
-  # sigma = Implication set
-
-
-
-  solution <- NULL
+.add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs) {
 
   # Check if arguments are correct
-  if (is.null(implicacion1) | is.null(implicacion2) | is.null(sigma) ) {
-
+  if (is.null(implicacion1) || is.null(implicacion2) || is.null(sigma) ) {
     stop("Some argument introduced in Add_sSimp is NULL")
-
   }
 
 
+  inters <- B*C
+  diff_aux <- .difference2( D, (.union(A,B)) )
+
+  if ( !( .subset(A,C) ) && ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) && ( .matrixEquals(inters, diff_aux) ) ) {
+
+    E <- .union(A, .difference2(C,B))
+    F <- diff_aux
 
 
+    for (ind in (1:length(sigma_lhs))) {
 
+      X <- Matrix(sigma_lhs[,ind], sparse = TRUE)
+      Y <- Matrix(sigma_rhs[,ind], sparse = TRUE)
 
-  # Attribute in the left part of the first implication in form of Sparse Matrix
-  A <- implication1$get_LHS_matrix()
-  B <- implication1$get_RHS_matrix()
-  C <- implication2$get_LHS_matrix()
-  D <- implication2$get_RHS_matrix()
+      # .subset = equals or contains
+      if ( .subset(X,E) ) {
 
+          if( .subset(F,Y) ) {
 
+            return(NULL) # NULL = Empty
 
-  if (!(.subset(A,C)) & (sum(B*C) != 0)) {}
+          } else {
+
+            E <- .difference2(E,Y)
+            F <- .difference2(F,Y)
+
+          }
+
+      }
+    }
+
+    # Return a list with lhs and rhs instead of a implication
+    return (list(E,F))
+
+  }
+
 
   return(NULL)
 }
