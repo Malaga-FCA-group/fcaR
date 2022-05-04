@@ -27,18 +27,20 @@
   }
 
 
-  # 1 Plantearlo de nuevo sigma no es una lista sino una matriz lhs y rhs
-  sigma_prim_lhs <- list()
-  sigma_prim_rhs <- list()
+  # 1
+  sigma_prim_lhs <- NULL
+  sigma_prim_rhs <- NULL
 
-  for ( ind in (1:length(sigma_lhs)) ) {
+  numImplicaciones <- dim(sigma_lhs)[2]
+
+  for ( ind in 1:numImplicaciones ) {
 
     A <- Matrix(sigma_lhs[,ind], sparse=TRUE)
     B <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
     if(!(.subset(B,A))) {
-        sigma_prim_lhs <- append(sigma_prim_lhs,  A)
-        sigma_prim_rhs <- append(sigma_prim_rhs, .difference2(B,A))
+        sigma_prim_lhs <- cbind(sigma_prim_lhs,A)
+        sigma_prim_rhs <- cbind(sigma_prim_rhs, .difference2(B,A))
       }
 
   }
@@ -55,29 +57,74 @@
     sigma_lhs <- NULL
     sigma_rhs <- NULL
 
-    for ( ind_s in ( 1:length(sigma_prim_lhs) ) ) {
-      # Arreglar
-      A <- sigma_prim_lhs[ind_s]
-      B <- sigma_prim_rhs[ind_s]
+    numImplicaciones_S <- dim(sSigma_lhs)[2]
+
+    for ( ind_s in 1:numImplicaciones_S ) {
+
+      A <- Matrix(sSigma_lhs[,ind_s], sparse=TRUE)
+      B <- Matrix(sSigma_rhs[,ind_s], sparse=TRUE)
 
       gamma_lhs <- NULL
       gamma_rhs <- NULL
 
-      if (length(sigma_lhs)!=0){
+      numImplicaciones <- dim(sigma_lhs)[2]
+
+      for (ind in 1:numImplicaciones) {
+
+        C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
+        D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
+
+        if ( ( ( .subset(C,A) ) && ( .subset( A, .union(C,D) ) ) ) || ( ( .subset(A,C) ) && ( .subset( C, .union(A,B) ) ) ) ) {
+
+          A <- A*C
+          B <- .union(B,D)
+
+        } else {
+
+            if ( ( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
+
+              if ( !(.subset2(D,B)) ) {
+
+                gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
+                gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
+
+              } else {
+
+                if( .subset(C,A) && !(.equal_sets(C,A)) ) { # Quitar el equals aqui?
+
+                  A <- .difference2(A,D)
+                  B <- .difference2(B,D)
+
+                }
+
+                gamma_lhs <- cbind( gamma_lhs, C )
+                gamma_rhs <- cbind( gamma_rhs, D )
+
+              }
+
+            }
+
+        }
 
       }
+
 
       if (sum(B) == 0) {
+
         sigma_lhs <- gamma_lhs
         sigma_rhs <- gamma_rhs
+
       } else {
+
         sigma_lhs <- cbind(gamma_lhs, A)
         sigma_rhs <- cbind(gamma_rhs,B)
+
       }
+
     }
 
 
-    # Until
+    # Until ¿Me fijo en el orden de las columnas?
     if ( ( .matrixEquals(sSigma_lhs, sigma_lhs) ) && ( .matrixEquals(sSigma_rhs, sigma_rhs) ) ){
       break
     }

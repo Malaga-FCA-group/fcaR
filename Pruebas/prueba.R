@@ -36,7 +36,7 @@ library(useful)
 useful::compare.list(X,Y)
 
 
-for (ind in 1:0){
+for (ind in 1:5){
   print(ind)
 }
 
@@ -122,14 +122,26 @@ implicaciones$add(A,A)
 C <- append(C,B )
 str(C)
 
+a <- Matrix(implicaciones$get_LHS_matrix()[,1], sparse=TRUE)
+b <- Matrix(implicaciones$get_LHS_matrix()[,1], sparse=TRUE)
+a*b
+
 Delocos <- cbind(implicaciones$get_LHS_matrix(), A)
-Delocos <- Matrix(Delocos[,12],sparse=TRUE)
+Delocos <- Matrix(Delocos[,1],sparse=TRUE)
 .matrixEquals(Delocos, A)
 
 sum((A == B)@x) == length((A == B)@x)
 #.matrixEquals(A,B)
 library(useful)
 .matrixEquals(implicaciones$get_LHS_matrix(), implicaciones$get_RHS_matrix())
+dim(implicaciones$get_LHS_matrix())[2]
+Matrix(implicaciones$get_LHS_matrix()[,1], sparse=TRUE)
+
+conjVacio <- Matrix(matrix(0, 7, 1), sparse = TRUE)
+ejemplo <- cbind(NULL, conjVacio)
+
+sum(NULL)
+sum(ejemplo)
 
 A * B
 sum(A*B)

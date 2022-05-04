@@ -2,22 +2,22 @@
 #' Application of the add_sSimp function in the SLgetdo algorithm
 #'
 #' @param A
-#' Antecedent in the implication A -> B, represented by a sparse matrix
+#' Antecedent in the implication A -> B, represented by a sparse matrix (column vector)
 #'
 #' @param B
-#' Consequent in the implication A -> B, represented by a sparse matrix
+#' Consequent in the implication A -> B, represented by a sparse matrix (column vector)
 #'
 #' @param C
-#' Antecedent in the implication C -> D, represented by a sparse matrix
+#' Antecedent in the implication C -> D, represented by a sparse matrix (column vector)
 #'
 #' @param D
-#' Consequent in the implication C -> D, represented by a sparse matrix
+#' Consequent in the implication C -> D, represented by a sparse matrix (column vector)
 #'
 #' @param sigma_lhs
-#' List of lhs of the set of implications
+#' Sparse Matrix equivalent to implications$get_LHS_matrix()
 #'
 #' @param sigma_rhs
-#' List of rhs of the set of implications
+#' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
 #' @return
 #' A list of lhs and rhs "E -> F"
@@ -46,8 +46,9 @@
     E <- .union(A, .difference2(C,B))
     F <- diff_aux
 
+    numImplicaciones <- dim(sigma_lhs)[2] # Se puede usar sigma_rhs tmbn
 
-    for (ind in (1:length(sigma_lhs))) {
+    for (ind in 1:numImplicaciones) {
 
       X <- Matrix(sigma_lhs[,ind], sparse = TRUE)
       Y <- Matrix(sigma_rhs[,ind], sparse = TRUE)
