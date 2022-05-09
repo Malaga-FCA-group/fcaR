@@ -33,7 +33,7 @@
 .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs) {
 
   # Check if arguments are correct
-  if (is.null(implicacion1) || is.null(implicacion2) || is.null(sigma) ) {
+  if (is.null(A) || is.null(B) || is.null(C) || is.null(D) || is.null(sigma_lhs) || is.null(sigma_rhs) ) {
     stop("Some argument introduced in Add_sSimp is NULL")
   }
 
@@ -41,7 +41,7 @@
   inters <- B*C
   diff_aux <- .difference2( D, (.union(A,B)) )
 
-  if ( !( .subset(A,C) ) && ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) && ( .matrixEquals(inters, diff_aux) ) ) {
+  if ( all(!( .subset(A,C) )) && ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) ) { # && ( .matrixEquals(inters, diff_aux) ) ) {
 
     E <- .union(A, .difference2(C,B))
     F <- diff_aux
@@ -54,9 +54,9 @@
       Y <- Matrix(sigma_rhs[,ind], sparse = TRUE)
 
       # .subset = equals or contains
-      if ( .subset(X,E) ) {
+      if ( all(.subset(X,E)) ) {
 
-          if( .subset(F,Y) ) {
+          if( all(.subset(F,Y)) ) {
 
             return(NULL) # NULL = Empty
 

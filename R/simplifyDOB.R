@@ -2,10 +2,10 @@
 #' Application of the simplification function in the Simplify algorithm
 #'
 #' @param sigma_lhs
-#' List of lhs of the set of implications
+#' Sparse Matrix equivalent to implications$get_LHS_matrix()
 #'
 #' @param sigma_rhs
-#' List of rhs of the set of implications
+#' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
 #' @param attributes
 #' Los necesito???
@@ -38,7 +38,7 @@
     A <- Matrix(sigma_lhs[,ind], sparse=TRUE)
     B <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
-    if(!(.subset(B,A))) {
+    if( all(!(.subset(B,A))) ) {
         sigma_prim_lhs <- cbind(sigma_prim_lhs,A)
         sigma_prim_rhs <- cbind(sigma_prim_rhs, .difference2(B,A))
       }
@@ -51,6 +51,7 @@
   #2
   repeat {
 
+    # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sSigma_lhs <- sigma_lhs
     sSigma_rhs <- sigma_rhs
 
@@ -69,43 +70,47 @@
 
       numImplicaciones <- dim(sigma_lhs)[2]
 
-      for (ind in 1:numImplicaciones) {
+      # Primera iteracion = 0 longitud
+      if(!is.null(numImplicaciones)){
 
-        C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
-        D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
+        for (ind in 1:numImplicaciones) {
 
-        if ( ( ( .subset(C,A) ) && ( .subset( A, .union(C,D) ) ) ) || ( ( .subset(A,C) ) && ( .subset( C, .union(A,B) ) ) ) ) {
+          C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
+          D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
-          A <- A*C
-          B <- .union(B,D)
+          if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) || ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
 
-        } else {
+            A <- A*C
+            B <- .union(B,D)
 
-            if ( ( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
+          } else {
 
-              if ( !(.subset2(D,B)) ) {
+              if ( all( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
 
-                gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
-                gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
+                if ( all(!(.subset(D,B))) ) {
 
-              } else {
+                  gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
+                  gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
 
-                if( .subset(C,A) && !(.equal_sets(C,A)) ) { # Quitar el equals aqui?
+                } else {
 
-                  A <- .difference2(A,D)
-                  B <- .difference2(B,D)
+                  if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) { # Quitar el equals aqui?
+
+                    A <- .difference2(A,D)
+                    B <- .difference2(B,D)
+
+                  }
+
+                  gamma_lhs <- cbind( gamma_lhs, C )
+                  gamma_rhs <- cbind( gamma_rhs, D )
 
                 }
 
-                gamma_lhs <- cbind( gamma_lhs, C )
-                gamma_rhs <- cbind( gamma_rhs, D )
-
               }
 
-            }
+          }
 
         }
-
       }
 
 
@@ -129,5 +134,7 @@
       break
     }
   }
+
+  return(list(sSigma_lhs, sSigma_rhs))
 
   }

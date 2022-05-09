@@ -126,7 +126,7 @@ a <- Matrix(implicaciones$get_LHS_matrix()[,1], sparse=TRUE)
 b <- Matrix(implicaciones$get_LHS_matrix()[,1], sparse=TRUE)
 a*b
 
-Delocos <- cbind(implicaciones$get_LHS_matrix(), A)
+Delocos <- cbind(implicaciones$get_LHS_matrix(), A, B, NULL)
 Delocos <- Matrix(Delocos[,1],sparse=TRUE)
 .matrixEquals(Delocos, A)
 
@@ -172,3 +172,4 @@ fc$implications$closure(S)
 .subset(fc$implications$get_LHS_matrix(), S$get_vector())
 
 .equal_sets(lh,lh)
+
