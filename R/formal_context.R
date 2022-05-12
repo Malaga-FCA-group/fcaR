@@ -1,5 +1,5 @@
 #' @title
-#' R6 class for a formal context
+#' R6 class for a formal context.
 #'
 #' @description
 #' This class implements the data structure and methods for formal contexts.
