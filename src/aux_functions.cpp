@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include "aux_functions.h"
 
+//COMENTARIO
 using namespace Rcpp;
 
 void get_column(SparseVector* A,
