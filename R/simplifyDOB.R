@@ -39,7 +39,7 @@
     B <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
     if( all(!(.subset(B,A))) ) {
-        sigma_prim_lhs <- cbind(sigma_prim_lhs,A)
+        sigma_prim_lhs <- cbind(sigma_prim_lhs, A)
         sigma_prim_rhs <- cbind(sigma_prim_rhs, .difference2(B,A))
       }
 
@@ -92,7 +92,9 @@
                   gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
                   gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
 
-                } else {
+                }
+
+              else {
 
                   if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) { # Quitar el equals aqui?
 
@@ -104,13 +106,14 @@
                   gamma_lhs <- cbind( gamma_lhs, C )
                   gamma_rhs <- cbind( gamma_rhs, D )
 
-                }
-
               }
+
+            }
 
           }
 
         }
+
       }
 
 
@@ -122,7 +125,7 @@
       } else {
 
         sigma_lhs <- cbind(gamma_lhs, A)
-        sigma_rhs <- cbind(gamma_rhs,B)
+        sigma_rhs <- cbind(gamma_rhs, B)
 
       }
 
@@ -137,4 +140,4 @@
 
   return(list(sSigma_lhs, sSigma_rhs))
 
-  }
+}
