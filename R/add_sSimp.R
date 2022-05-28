@@ -41,7 +41,7 @@
   inters <- B*C
   diff_aux <- .difference2( D, (.union(A,B)) )
 
-  if ( all(!( .subset(A,C) )) && ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) ) { # && ( .matrixEquals(inters, diff_aux) ) ) {
+  if ( all(!( .subset(A,C) )) && ( ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) && ( !.matrixEquals(inters, diff_aux) ) ) ) { # && ( .matrixEquals(inters, diff_aux) ) ) {
 
     E <- .union(A, .difference2(C,B))
     F <- diff_aux

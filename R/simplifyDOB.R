@@ -51,6 +51,8 @@
   #2
   repeat {
 
+    flag <- TRUE
+
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sSigma_lhs <- sigma_lhs
     sSigma_rhs <- sigma_rhs

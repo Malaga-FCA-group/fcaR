@@ -27,6 +27,12 @@ A
 
 # Creamos matriz dispersa
 A_Dispersa <- Matrix(A, sparse = TRUE)
+a1 <- Matrix(A[,4], sparse = TRUE)
+isElementOf_FDB(a1,A_Dispersa)
+
+
+X <- cbind(A_Dispersa, A_Dispersa, A_Dispersa)
+
 
 dim(A_Dispersa) == dim(A_Dispersa) | all(A_Dispersa == A_Dispersa)
 X <- list(A_Dispersa)
