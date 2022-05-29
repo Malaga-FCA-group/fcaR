@@ -5,9 +5,10 @@
     stop("Gamma introduced in minCovers_FDB is NULL")
   }
 
+  # BE CAREFUL WITH A,B,C NULL IN FIRST ITERATION
   res <- .fix_FDB(A,B,C,gamma)
-  mnl <- res[1]
-  gamma <- res[2]
+  mnl <- res[[1]]
+  gamma <- res[[2]]
 
   phi <- NULL
 

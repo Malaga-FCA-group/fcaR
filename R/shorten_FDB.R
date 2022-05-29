@@ -18,9 +18,9 @@
       Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
       Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
 
-      if (.subset(X,A)) {
+      if (all(.subset(X,A))) {
         B <- .difference2(B,Y)
-      } else if (!(.subset(A,X)) && .subset(X,C)) {
+      } else if (!all(.subset(A,X)) && all(.subset(X,C))) {
         B <- .difference2(B,Y)
       }
 

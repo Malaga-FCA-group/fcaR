@@ -1,4 +1,4 @@
-.fDB <- function(sigma_lhs,sigma_rhs, attributes){
+.algorithm_FDB <- function(sigma_lhs,sigma_rhs, attributes){
 
   if(is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attributes)){
     stop("Some argument introduced in FDB is NULL")
@@ -13,7 +13,7 @@
     X <- Matrix(sigma_lhs[,index], sparse=TRUE)
     Y <- Matrix(sigma_rhs[,index], sparse=TRUE)
 
-    if(!.subset(Y,X)){
+    if(!all(.subset(Y,X))){
       gamma <- cbind(gamma,X,.difference2(Y,X),X)
     }
 
@@ -47,6 +47,6 @@
     }
   }
 
-  return(sigma_bin_lhs,sigma_bin_rhs,sigma_n_lhs,sigma_n_rhs)
+  return(list(sigma_bin_lhs,sigma_bin_rhs,sigma_n_lhs,sigma_n_rhs))
 
 }

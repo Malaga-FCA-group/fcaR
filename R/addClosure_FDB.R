@@ -3,30 +3,29 @@
 
 # gamma = 1_x,1_y, 1_z, 2_x, 2_y, 2_Z !!!!! X, Y, Z different to  empty set math
 
-.addClosure_FDB <- function (A, gamma, attributes) {
+.addClosure_FDB <- function (A, gamma) {
 
   # Check if arguments are correct
-  if (is.null(gamma_lhs) || is.null(gamma_rhs) || is.null(attributes) || is.null(A)) {
+  if (is.null(A) || is.null(gamma)) {
     stop("Some argument introduced in .addClosure is NULL")
   }
 
   # Doesn't require initialize with Matrix Class
-  B <- Matrix(A, sparse=TRUE)
-  C <- Matrix(B, sparse=TRUE)
-
+  B <- A
+  C <- B
 
   repeat{
 
     # Doesn't require initialize with Matrix Class
-    B_old <- Matrix(B, sparse=TRUE)
+    B_old <- B
     gamma_new <- NULL
 
     mult3_gamma <- dim(gamma)[2]/3
 
-    for ( ind_mul3_gamma in 1:mult3_gamma ) {
+    for ( ind in 1:mult3_gamma ) {
 
 
-      gamma_ind <-(ind_mul3_gamma-1) *3
+      gamma_ind <-(ind-1) *3
 
       X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
       Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
@@ -37,13 +36,13 @@
         C <- .union(C,Z)
       } else {
 
-        if (.subset(X,B)){
+        if (all(.subset(X,B))){
           B <- .union(B, .union(Y,Z) )
         }
 
-        if(!(.matrixEquals(A,X)) && .subset(A,X)){
+        if(!(.matrixEquals(A,X)) && all(.subset(A,X))){
 
-          if(!.subset(Y,B)){
+          if(!all(.subset(Y,B))){
             gamma_new <- cbind(gamma_new, X, .difference2(Y,B), .union(Z,C))
           }
 
@@ -53,14 +52,14 @@
       }
 
       if (sum(A)==1){
-        c <-Matrix(B, sparse=TRUE)
+        c <- B
       }
 
     }
 
     gamma <- gamma_new
 
-    if (B_old == B) {
+    if (.matrixEquals(B_old,B)) {
       break
     }
 
