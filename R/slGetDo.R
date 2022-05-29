@@ -7,9 +7,6 @@
 #' @param sigma_rhs
 #' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
-#' @param attributes
-#' Los necesito???
-#'
 #' @return
 #' Equivalent direct-optimal implicational system
 #'
@@ -17,18 +14,20 @@
 #' TODO
 #'
 
-.slGetDo <- function(sigma_lhs, sigma_rhs, attributes) {
+.slGetDo <- function(sigma_lhs, sigma_rhs) {
 
   # Check if arguments are correct
-  if (is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attributes) ) {
+  if (is.null(sigma_lhs) || is.null(sigma_rhs)) {
     stop("Some argument introduced in SLGetDo is NULL")
   }
 
-  listaSigma <- .simplifyDOB(sigma_lhs, sigma_rhs, attributes)
+  listaSigma <- .simplifyDOB(sigma_lhs, sigma_rhs)
   sigma_lhs <- listaSigma[[1]]
   sigma_rhs <- listaSigma[[2]]
 
   repeat {
+
+    flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sigmaDO_lhs <- sigma_lhs
@@ -39,8 +38,7 @@
 
     numImplicaciones_DO <- dim(sigmaDO_lhs)[2]
 
-    if (! is.null(numImplicaciones_DO) ){
-      for ( ind_DO in 1:numImplicaciones_DO ) {
+    for ( ind_DO in 1:numImplicaciones_DO ) {
 
         A <- Matrix(sigmaDO_lhs[,ind_DO], sparse=TRUE)
         B <- Matrix(sigmaDO_rhs[,ind_DO], sparse=TRUE)
@@ -48,9 +46,10 @@
         gamma_lhs <- NULL
         gamma_rhs <- NULL
 
-        numImplicaciones <- dim(sigma_lhs)[2]
+        if(!is.null(sigma_lhs)){
 
-        if(!is.null(numImplicaciones)){
+          numImplicaciones <- dim(sigma_lhs)[2]
+
           for (ind in 1:numImplicaciones) {
 
             C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
@@ -58,8 +57,15 @@
 
             if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) || ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
 
-              A <- A*C
-              B <- .union(B,D)
+              int <- A*C
+              uni <- .union(B,D)
+
+              if( (!.matrixEquals(A,int)) || (!.matrixEquals(B,uni)) ) {
+                flagEQ <- FALSE
+              }
+
+              A <- int
+              B <- uni
 
             } else {
 
@@ -67,26 +73,42 @@
 
                 if ( all(!(.subset(D,B))) ) {
 
-                  gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
-                  gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
+                  diff1 <- .difference2(C,B)
+                  diff2 <- .difference2(D,B)
+
+#                  if( (!.matrixEquals(C,diff1)) || (!.matrixEquals(D,diff2)) ) {
+#                    flagEQ <- FALSE
+#                  }
+
+                  gamma_lhs <- cbind( gamma_lhs, diff1 )
+                  gamma_rhs <- cbind( gamma_rhs, diff2 )
 
                 } else {
 
-                  if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) { # Quitar el equals aqui?
+                  if( all(.subset(C,A)) && !(.matrixEquals(C,A))) {
 
-                    A <- .difference2(A,D)
-                    B <- .difference2(B,D)
+                    diff1 <- .difference2(A,D)
+                    diff2 <- .difference2(B,D)
+
+                    if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
+                      flagEQ <- FALSE
+                    }
+
+                    A <- diff1
+                    B <- diff2
 
                   }
 
                   # .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs)
                   lista  <- .add_sSimp(A,B,C,D, sigma_lhs, sigma_rhs)
-
                   lista2 <- .add_sSimp(C,D,A,B, sigma_lhs, sigma_rhs)
 
+                  if(!is.null(lista) || !is.null(lista2)){
+                    flagEQ <- FALSE
+                  }
 
-                  gamma_lhs <- cbind( gamma_lhs, C, lista[1], lista2[1] )
-                  gamma_rhs <- cbind( gamma_rhs, D, lista[1], lista2[1] )
+                  gamma_lhs <- cbind( gamma_lhs, C, lista[[1]], lista2[[1]] )
+                  gamma_rhs <- cbind( gamma_rhs, D, lista[[2]], lista2[[2]] )
 
                 }
 
@@ -112,11 +134,8 @@
 
       }
 
-    }
 
-
-    # Until ¿Me fijo en el orden de las columnas?
-    if ( ( .matrixEquals(sigmaDO_lhs, sigma_lhs) ) && ( .matrixEquals(sigmaDO_rhs, sigma_rhs) ) ){
+    if (flagEQ){
       break
     }
 

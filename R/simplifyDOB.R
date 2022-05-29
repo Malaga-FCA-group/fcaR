@@ -7,9 +7,6 @@
 #' @param sigma_rhs
 #' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
-#' @param attributes
-#' Los necesito???
-#'
 #' @return
 #' Implication base simplified
 #'
@@ -17,17 +14,17 @@
 #' TODO
 #'
 
-.simplifyDOB <- function(sigma_lhs, sigma_rhs, attributes) {
+.simplifyDOB <- function(sigma_lhs, sigma_rhs) {
 
 
 
   # Check if arguments are correct
-  if (is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attributes) ) {
+  if (is.null(sigma_lhs) || is.null(sigma_rhs)) {
     stop("Some argument introduced in simplifyDOB is NULL")
   }
 
 
-  # 1
+  # 1. Initialize sigma again
   sigma_prim_lhs <- NULL
   sigma_prim_rhs <- NULL
 
@@ -38,7 +35,7 @@
     A <- Matrix(sigma_lhs[,ind], sparse=TRUE)
     B <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
-    if( all(!(.subset(B,A))) ) {
+    if( !(all(.subset(B,A))) ) {
         sigma_prim_lhs <- cbind(sigma_prim_lhs, A)
         sigma_prim_rhs <- cbind(sigma_prim_rhs, .difference2(B,A))
       }
@@ -48,10 +45,9 @@
   sigma_lhs <- sigma_prim_lhs
   sigma_rhs <- sigma_prim_rhs
 
-  #2
   repeat {
 
-    flag <- TRUE
+    flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sSigma_lhs <- sigma_lhs
@@ -62,6 +58,7 @@
 
     numImplicaciones_S <- dim(sSigma_lhs)[2]
 
+    # foreach A -> B
     for ( ind_s in 1:numImplicaciones_S ) {
 
       A <- Matrix(sSigma_lhs[,ind_s], sparse=TRUE)
@@ -70,38 +67,64 @@
       gamma_lhs <- NULL
       gamma_rhs <- NULL
 
-      numImplicaciones <- dim(sigma_lhs)[2]
-
       # Primera iteracion = 0 longitud
-      if(!is.null(numImplicaciones)){
+      if(!is.null(sigma_lhs)){
+
+        numImplicaciones <- dim(sigma_lhs)[2]
 
         for (ind in 1:numImplicaciones) {
 
           C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
           D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
+          # 2
           if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) || ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
 
-            A <- A*C
-            B <- .union(B,D)
+            int <- A*C
+            uni <- .union(B,D)
+
+            if( (!.matrixEquals(A,int)) || (!.matrixEquals(B,uni)) ) {
+              flagEQ <- FALSE
+            }
+
+            A <- int
+            B <- uni
 
           } else {
 
+              # 3
               if ( all( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
 
-                if ( all(!(.subset(D,B))) ) {
+                if ( !(all(.subset(D,B))) ) {
 
-                  gamma_lhs <- cbind( gamma_lhs, .difference2(C,B) )
-                  gamma_rhs <- cbind( gamma_rhs, .difference2(D,B) )
+                  diff1 <- .difference2(C,B)
+                  diff2 <- .difference2(D,B)
+
+#                  if( (!.matrixEquals(C,diff1)) || (!.matrixEquals(D,diff2)) ) {
+#                    flagEQ <- FALSE
+#                  }
+
+                  gamma_lhs <- cbind( gamma_lhs, diff1 )
+                  gamma_rhs <- cbind( gamma_rhs, diff2 )
 
                 }
 
+              }
+
               else {
 
-                  if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) { # Quitar el equals aqui?
+                  # 4
+                  if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) {
 
-                    A <- .difference2(A,D)
-                    B <- .difference2(B,D)
+                    diff1 <- .difference2(A,D)
+                    diff2 <- .difference2(B,D)
+
+                    if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
+                      flagEQ <- FALSE
+                    }
+
+                    A <- diff1
+                    B <- diff2
 
                   }
 
@@ -119,6 +142,7 @@
       }
 
 
+      # 5
       if (sum(B) == 0) {
 
         sigma_lhs <- gamma_lhs
@@ -131,13 +155,11 @@
 
       }
 
-    }
-
-
-    # Until ¿Me fijo en el orden de las columnas?
-    if ( ( .matrixEquals(sSigma_lhs, sigma_lhs) ) && ( .matrixEquals(sSigma_rhs, sigma_rhs) ) ){
+    # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
+    if ( flagEQ ){
       break
     }
+
   }
 
   return(list(sSigma_lhs, sSigma_rhs))

@@ -22,12 +22,10 @@
 #' @return
 #' A list of lhs and rhs "E -> F"
 #'
-#' @examples
-#' TODO
-#'
-#' CTRL + SHIFT + ALT + R
-#  CBIND NULL + LHS
-#  isredundant
+#' @note
+#' CTRL + SHIFT + ALT + R to add the skeleton description
+#' .subset = equals or contains
+#' NULL == Empty set
 
 
 .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs) {
@@ -41,24 +39,27 @@
   inters <- B*C
   diff_aux <- .difference2( D, (.union(A,B)) )
 
-  if ( all(!( .subset(A,C) )) && ( ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) && ( !.matrixEquals(inters, diff_aux) ) ) ) { # && ( .matrixEquals(inters, diff_aux) ) ) {
+  # Equals between inters and diff_aux doesn't require
+  if ( !(all( .subset(A,C) )) &&  ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) ) {
 
+    # 1
     E <- .union(A, .difference2(C,B))
+
+    # 2
     F <- diff_aux
 
-    numImplicaciones <- dim(sigma_lhs)[2] # Se puede usar sigma_rhs tmbn
+    numImplicaciones <- dim(sigma_lhs)[2] # It could be possible use sigma_rhs too
 
     for (ind in 1:numImplicaciones) {
 
       X <- Matrix(sigma_lhs[,ind], sparse = TRUE)
       Y <- Matrix(sigma_rhs[,ind], sparse = TRUE)
 
-      # .subset = equals or contains
       if ( all(.subset(X,E)) ) {
 
           if( all(.subset(F,Y)) ) {
 
-            return(NULL) # NULL = Empty
+            return(NULL)
 
           } else {
 

@@ -4,7 +4,6 @@
 library(usethis)
 library(devtools)
 # Command Line = devtools::load_all()
-library(fcaR)
 library(Matrix)
 # profiz
 dfPrueba <- FormalContext$new(planets)
@@ -14,7 +13,7 @@ lhs <- implicacionesPrueba$get_LHS_matrix()
 rhs <- implicacionesPrueba$get_RHS_matrix()
 attr <- implicacionesPrueba$get_attributes()
 
-imp_simp <- .slGetDo(lhs,rhs,attr)
+imp_simp <- .slGetDo(lhs,rhs)
 
 
 # Build the ImplicationSet
@@ -35,7 +34,7 @@ sigma_lhs <- imps2$get_LHS_matrix()
 sigma_rhs <- imps2$get_RHS_matrix()
 attr <- imps2$get_attributes()
 
-imp_simp <- .slGetDo(lhs,rhs,attr)
+imp_simp <- .slGetDo(sigma_lhs,sigma_rhs)
 res <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
 
 #--------------------
