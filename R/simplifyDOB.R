@@ -1,3 +1,6 @@
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
 #' @Title
 #' Application of the simplification function in the Simplify algorithm
 #'
@@ -11,7 +14,7 @@
 #' Implication base simplified
 #'
 #' @examples
-#' TODO
+#' See in test or vignettes.
 #'
 
 .simplifyDOB <- function(sigma_lhs, sigma_rhs) {

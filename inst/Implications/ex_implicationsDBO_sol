@@ -1,0 +1,15 @@
+a->b,c,d,e,f
+b->d,e,f
+a,i->g,h,j
+a,j->g,h,i
+b,i->a,c,g,h,j
+b,h->a,c
+c,i->j
+d,h->a,b,c,e,f
+f,g->b,d,e
+b,h,j->g,i
+d,h,i->g,j
+d,h,j->g,i
+f,g,h->a,c
+f,g,i->a,c,h,j
+f,g,h,j->i

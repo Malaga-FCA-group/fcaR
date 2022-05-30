@@ -1,3 +1,6 @@
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
 #' @Title
 #' Application of the add_sSimp function in the SLgetdo algorithm
 #'

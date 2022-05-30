@@ -1,3 +1,6 @@
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
 #' @Title
 #' Application of the slGetDo function in the Simplify algorithm
 #'
@@ -11,7 +14,7 @@
 #' Equivalent direct-optimal implicational system
 #'
 #' @examples
-#' TODO
+#' See in test or vignettes.
 #'
 
 .slGetDo <- function(sigma_lhs, sigma_rhs) {

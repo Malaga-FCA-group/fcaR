@@ -1,7 +1,20 @@
-# A, B y C son conjuntos de atributos seleccionados
-
-
-# gamma = 1_x,1_y, 1_z, 2_x, 2_y, 2_Z !!!!! X, Y, Z different to  empty set math
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
+#' @Title
+#' Application of the addClosure function in the FastD-Basis algorithm
+#'
+#' @param A
+#' It is a set of items represented by a sparse matrix (column vector)
+#'
+#' @param gamma
+#' It is a sparse matrix in which contains 3-tuples of elements represented by
+#' 3 binded columns together.
+#' IMPORTANT: it is required that all of the columns in gamma were different to
+#' empty set.
+#'
+#' @return
+#' Returns a sparse matrix gamma that it is applied the AddClosure function
 
 .addClosure_FDB <- function (A, gamma) {
 
@@ -24,22 +37,25 @@
 
     for ( ind in 1:mult3_gamma ) {
 
-
+      # Initialize X,Y,Z
       gamma_ind <-(ind-1) *3
 
       X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
       Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
       Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
 
+      # Ac1
       if (.matrixEquals(A,X)){
         B <- .union(B, .union(Y,Z) )
         C <- .union(C,Z)
       } else {
 
+        # Ac2
         if (all(.subset(X,B))){
           B <- .union(B, .union(Y,Z) )
         }
 
+        # Ac3
         if(!(.matrixEquals(A,X)) && all(.subset(A,X))){
 
           if(!all(.subset(Y,B))){
