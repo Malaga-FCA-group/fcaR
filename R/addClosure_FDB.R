@@ -56,12 +56,13 @@
         }
 
         # Ac3
-        if(!(.matrixEquals(A,X)) && all(.subset(A,X))){
+        if(all(.subset(A,X))){ # !(.matrixEquals(A,X)) not necessary because you check it above
 
           if(!all(.subset(Y,B))){
             gamma_new <- cbind(gamma_new, X, .difference2(Y,B), .union(Z,C))
           }
 
+        # Ac4
         } else {
             gamma_new <- cbind(gamma_new, X, Y, Z)
         }
@@ -81,6 +82,7 @@
 
   }
 
+  #Ac5
   if (sum(A)==1){
     gamma <- cbind(gamma, A, .difference2(B,A), B)
   } else {

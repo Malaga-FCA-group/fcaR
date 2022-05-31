@@ -139,3 +139,127 @@ test_that("Comprobe that the DBO algorithm works fine with an real example.", {
 # Test AddClosure                                                             #
 ###############################################################################
 
+# Initialize parameters
+library(usethis)
+library(devtools)
+# Command Line = devtools::load_all()
+library(Matrix)
+
+test_that("AddClosure stops the program if input arguments are incorrect.",{
+  A <- Matrix(c(1,0,0), sparse = TRUE)
+  gamma <- cbind(A,A,A)
+
+  expect_error(.addClosure_FDB(NULL,NULL))
+  expect_error(.addClosure_FDB(A,NULL))
+  expect_error(.addClosure_FDB(NULL,gamma))
+
+})
+
+test_that("Comprobe that AddClosure works fine.",{
+  A <- Matrix(c(1,0,0), sparse = TRUE)
+  gamma <- cbind(A,A,A)
+
+  res <- cbind(A,.difference2(A,A),A)
+
+  expect_equal(.addClosure_FDB(A,gamma), res)
+
+})
+
+test_that("Comprobe that AddClosure works fine 2.",{
+  A <- Matrix(c(1,1,1), sparse = TRUE)
+  B <- Matrix(c(1,0,1), sparse = TRUE)
+  C <- Matrix(c(0,0,1), sparse = TRUE)
+  gamma <- cbind(A,B,C,A,B,C)
+  res <- Matrix(c(1,1,1, 1,0,0, 0,0,1, 1,1,1, 1,0,0, 0,0,1, 0,0,1, 0,0,0, 0,0,1),3,9,sparse =TRUE)
+
+  expect_equal(.addClosure_FDB(C,gamma), res)
+})
+
+###############################################################################
+# Test Fix                                                                    #
+###############################################################################
+
+# Initialize parameters
+library(usethis)
+library(devtools)
+# Command Line = devtools::load_all()
+library(Matrix)
+
+test_that("Fix stops the program if input arguments are incorrect.",{
+
+  expect_error(.fix_FDB(NULL,NULL,NULL,NULL))
+
+})
+
+test_that("Comprobe that fix works fine.",{
+  A <- Matrix(c(1,1,1), sparse = TRUE)
+  B <- Matrix(c(1,0,1), sparse = TRUE)
+  C <- Matrix(c(0,0,1), sparse = TRUE)
+  gamma <- cbind(A,C,C,B,A,A)
+
+  mnl <- Matrix(c(1,1,1), sparse = TRUE)
+  gamma_new <-Matrix(c(1,1,1,0,0,0,1,1,1),3,3, sparse = TRUE)
+
+  res <- list(mnl,gamma_new)
+
+  expect_equal(res, .fix_FDB(A,B,C,gamma))
+})
+
+# Columnas vacias??????
+
+###############################################################################
+# Test Shorten                                                                #
+###############################################################################
+
+# Initialize parameters
+library(usethis)
+library(devtools)
+# Command Line = devtools::load_all()
+library(Matrix)
+
+test_that("Comprobe that shorten works fine 1.",{
+  A <- Matrix(c(1,0,0), sparse = TRUE)
+  B <- Matrix(c(1,0,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+  gamma <- cbind(A,C,C,B,A,A)
+
+  expect_equal(cbind(A,B,C), .shorten_FDB(A,B,C,gamma))
+
+})
+
+test_that("Comprobe that shorten works fine 2.",{
+  A <- Matrix(c(1,1,0), sparse = TRUE)
+  B <- Matrix(c(1,1,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+  gamma <- cbind(A,B,C)
+
+  expect_equal(NULL, .shorten_FDB(A,B,C,gamma))
+})
+
+###############################################################################
+# Test Join                                                                   #
+###############################################################################
+
+# Initialize parameters
+library(usethis)
+library(devtools)
+# Command Line = devtools::load_all()
+library(Matrix)
+
+test_that("Comprobe that join works fine 1.",{
+  expect_equal(.join_FDB(NULL,NULL),NULL)
+})
+
+test_that("Comprobe that join works fine 2.",{
+  A <- Matrix(c(1,1,0), sparse = TRUE)
+  B <- Matrix(c(1,1,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+  gamma <- cbind(A,B,C)
+
+  expect_equal(gamma, .join_FDB(gamma,NULL))
+})
+
+###############################################################################
+# Test Min-Covers                                                             #
+###############################################################################
+
