@@ -36,7 +36,7 @@
 
       gamma_ind <-(ind_mul3_gamma2-1) *3
 
-      X <- Matrix(gamma2, sparse = TRUE)
+      X <- Matrix(gamma2[, gamma_ind+1], sparse = TRUE)
       Y <- Matrix(gamma2[, gamma_ind+2], sparse = TRUE)
       Z <- Matrix(gamma2[, gamma_ind+3], sparse = TRUE)
 

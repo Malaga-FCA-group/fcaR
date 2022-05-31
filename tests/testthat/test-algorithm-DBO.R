@@ -145,13 +145,17 @@ library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
 
-test_that("AddClosure stops the program if input arguments are incorrect.",{
+test_that("AddClosure works fine if input arguments are NULL.",{
   A <- Matrix(c(1,0,0), sparse = TRUE)
   gamma <- cbind(A,A,A)
 
-  expect_error(.addClosure_FDB(NULL,NULL))
-  expect_error(.addClosure_FDB(A,NULL))
-  expect_error(.addClosure_FDB(NULL,gamma))
+  expect_equal(.addClosure_FDB(NULL,NULL), NULL)
+
+  res1 <- Matrix(c(1,0,0, 0,0,0, 1,0,0),3,3,sparse = TRUE)
+  expect_equivalent(res1, .addClosure_FDB(A,NULL))
+
+  res2 <- Matrix(c(1,0,0, 1,0,0, 1,0,0, 0,0,0, 0,0,0, 0,0,0),3,6, sparse = TRUE)
+  expect_equal(.addClosure_FDB(NULL,gamma), res2)
 
 })
 
@@ -185,9 +189,15 @@ library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
 
-test_that("Fix stops the program if input arguments are incorrect.",{
+test_that("Fix works fine if input arguments are NULL.",{
 
-  expect_error(.fix_FDB(NULL,NULL,NULL,NULL))
+  expect_equal(.fix_FDB(NULL,NULL,NULL,NULL), list(NULL,NULL))
+
+  gamma <- Matrix(c(1,0,0, 0,0,1, 0,1,1), 3, 3, sparse = TRUE)
+  mnl <- Matrix(c(1,0,0),3,1,sparse = TRUE)
+  gamma_res <- Matrix(c(1,0,0, 0,1,1, 1,1,1), 3, 3, sparse = TRUE)
+
+  expect_equal(.fix_FDB(NULL,NULL,NULL,gamma),list(mnl,gamma_res))
 
 })
 
@@ -216,6 +226,15 @@ library(usethis)
 library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
+
+test_that("Shorten works fine if input arguments are NULL.", {
+  A <- Matrix(c(1,0,0), sparse = TRUE)
+  B <- Matrix(c(1,0,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+
+  expect_error(.shorten_FDB(A,NULL,C,NULL))
+  expect_equal(.shorten_FDB(A,B,C,NULL),cbind(A,B,C))
+})
 
 test_that("Comprobe that shorten works fine 1.",{
   A <- Matrix(c(1,0,0), sparse = TRUE)
@@ -246,11 +265,19 @@ library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
 
-test_that("Comprobe that join works fine 1.",{
+test_that("Shorten works fine if input arguments are NULL.",{
+  A <- Matrix(c(1,1,0), sparse = TRUE)
+  B <- Matrix(c(1,1,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+  gamma <- cbind(A,B,C)
+
   expect_equal(.join_FDB(NULL,NULL),NULL)
+  expect_equal(.join_FDB(gamma,NULL),gamma)
+  expect_equal(.join_FDB(NULL,gamma),gamma)
+
 })
 
-test_that("Comprobe that join works fine 2.",{
+test_that("Comprobe that join works fine.",{
   A <- Matrix(c(1,1,0), sparse = TRUE)
   B <- Matrix(c(1,1,1), sparse = TRUE)
   C <- Matrix(c(0,1,1), sparse = TRUE)

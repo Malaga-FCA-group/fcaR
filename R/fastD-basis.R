@@ -1,6 +1,25 @@
-.algorithm_FDB <- function(sigma_lhs,sigma_rhs, attributes){
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
+#' @Title
+#' Application of FastD-Basis algorithm
+#'
+#' @param sigma_lhs
+#' It's a sparse matrix of antecedent of a Implication Set
+#'
+#' @param sigma_rhs
+#' It's a sparse matrix of consequent of a Implication Set
+#'
+#' @return
+#' Returns a 2-tuple of implication_set (Sigma_bin with antecedent of size 1
+#' and sigma_n with antecedent of different size of 1 )
+#'
+#' @examples
+#' In the test, there are implemented examples and in the vignettes
 
-  if(is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attributes)){
+.algorithm_FDB <- function(sigma_lhs,sigma_rhs){
+
+  if(is.null(sigma_lhs) || is.null(sigma_rhs)){
     stop("Some argument introduced in FDB is NULL")
   }
 

@@ -20,12 +20,16 @@
 #' @return
 #' Returns a 3-tuple simplified
 
+# A,B,C CAN'T BE NULL
 .shorten_FDB <- function (A,B,C, gamma) {
 
+  if(is.null(A) || is.null(B) || is.null(C)){
+    stop("A, B or C can't be NULL in shorten")
+  }
 
-  if (sum(A) != 1){
+  if(!is.null(gamma)){
 
-    if(!is.null(gamma)){
+    if (sum(A) != 1){
 
       mult3_gamma <- dim(gamma)[2]/3
 
