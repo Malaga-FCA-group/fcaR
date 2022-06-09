@@ -1,0 +1,229 @@
+---
+title: "Direct-Optimal_Basis"
+author: "Nicolas_FTM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Direct-Optimal_Basis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  warning = FALSE
+)
+```
+
+# Introducción
+
+Este documento es un fichero Rmarkdown compilado desde el propio Rstudio para que podamos ver de una forma más simple y didacta los dos algoritmos que vamos a mostrar.
+
+Estos algoritmos se basan en el uso del paquete fcaR para realizar Análisis de Conceptos Formales (FCA). Gracias a esto, podemos hallar conjuntos de implicaciones analizándolas a partir de un conjunto de datos (dataframe). Una vez halladas, podemos usar métodos de simplificación básicos para reducir el número de implicaciones del conjunto utilizando bases canónicas, véase:
+
+1.- Cargamos las librerias necesarias (`fcaR` y `Matrix`):
+
+```{r libraries}
+library(usethis)
+library(devtools)
+library(fcaR)
+library(Matrix)
+devtools::load_all()
+```
+
+2.- Mostramos el dataframe planets (presentado en la viñeta de Implications.Rmd) incorporado en el paquete `fcaR` y las implicaciones obtenidas:
+
+```{r planets}
+knitr::kable(planets, format = "html", booktabs = TRUE)
+df <- planets
+fc <- FormalContext$new(df)
+fc$find_implications()
+fc$implications
+```
+** Una cosa a tener en cuenta es que la función find_implications() se basa en el uso del algoritmo `NextClosure`
+en conceptos formales para extraer bases de implicaciones. 
+
+3.- A partir del conjunto de implicaciones, podemos simplificarla usando operaciones lógicas como pueden
+ser la regla de reducción, composición, generalización o simplificación:
+
+```{r simplification}
+fc$implications$apply_rules(c("composition","generalization","simplification","reduction"))
+```
+
+# Utilización de Bases Directas Óptimas
+
+## Algoritmo Básico Direct-Optimal Basis
+
+Se recomienda, para entender más en profundidad los conceptos matemáticos del algoritmo, ver el artículo:
+
+> Estrella Rodríguez-Lorenzo, Karell Bertet, Pablo Cordero, Manuel Enciso, Ángel Mora (Available online 8 April 2018)
+"Direct-optimal basis computation by means of the fusion of simplification rules"
+
+Publicado en https://www.sciencedirect.com/science/article/abs/pii/S0166218X1730611X
+
+
+
+
+El algoritmo se basa en el uso de tres funciones:
+
+** En todas las funciones de este algoritmo, se pasa como argumento &Sigma;. En el artículo se expresa como
+un conjunto de implicaciones, pero en el código está expresado como un par de matrices dispersas lhs y rhs que
+indican en cada columna, el número de la columna junto con 1s en las posiciones donde cada atributo aparece, 
+respectivamente, tanto en el lado izquierdo(lhs), como en el derecho(rhs).
+
+```{r}
+fc$implications
+fc$implications[1]
+fc$implications$get_LHS_matrix()
+fc$implications$get_RHS_matrix()
+Matrix(fc$implications$get_LHS_matrix()[,1], sparse = TRUE)
+Matrix(fc$implications$get_RHS_matrix()[,1], sparse = TRUE)
+```
+
+### Función add_sSimp
+
+La función add_sSimp toma como parámetros dos implicaciones (en el código implementado como 4 matrices dispersas columnas) y el conjunto de implicaciones &Sigma;, y nos devuelve un conjunto con una implicación o con ninguna.
+
+<center><img src="../docs/images/dob_add_sSimp.png" alt="drawing" width="400"/></center>
+
+### Función Simplify
+
+La función simplify toma como parámetro &Sigma;, y nos devuelve un sistema simplificado de implicaciones
+equivalente al &Sigma; que se pasa como argumento.
+
+<center><img src="../docs/images/dob_simplify_DOB.png" alt="drawing" width="400"/></center>
+
+### Algoritmo Direct-Optimal Basis (Función SLgetdo)
+
+La función SLgetdo toma como parámetro &Sigma;, y nos devuelve un sistema simplificado de implicaciones
+equivalente al &Sigma; que se pasa como argumento. Esta función utiliza las dos funciones mencionadas anteriormente.
+
+<center><img src="../docs/images/dob_SL_Get_DO.png" alt="drawing" width="400"/></center>
+
+** Hay que incluir que se han utilizado funciones auxiliares para realizar operaciones entre conjuntos, como pueden 
+ser .union, .difference2, ... (Implementadas de base). Sin embargo, para este algoritmo se han desarrollado dos funciones auxiliares más:
+
+  a) Una función para comparar dos matrices columna (.matrixEquals(A,B)) (Importante!!: No usar para comparar conjuntos de        cardinal mayor que uno, ya que en un conjunto no influye el orden, por lo que {a,b} = {b,a} y esa característica es muy       ineficiente como para realizarla con un algoritmo de fuerza bruta), por lo que implementamos en simplify y en SLgetdo un      sistema de flags para realizar la equivalencia.
+  
+  b) Una función para comprobar si un elemento x pertenece a un conjunto dominio (.isElementOf_FDB(x, dominio)) que usaremos       en el siguiente algoritmo.
+
+Ejemplo para ver el funcionamiento (Obtenido del artículo de la introducción)
+
+1) Primero, vemos la entrada y la salida del algoritmo.
+
+```{r SLgetdo_1}
+# Input
+input <- system.file("Implications", "ex_implicationsDBO", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex_implicationsDBO_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+```
+
+2) Ahora introduciremos al algoritmo la entrada para ver que nos sale igual.
+
+```{r SLgetdo_2}
+sigma_lhs <- imp_in$get_LHS_matrix()
+sigma_rhs <- imp_in$get_RHS_matrix()
+attr <- imp_in$get_attributes()
+
+imp_simp <- .slGetDo(sigma_lhs,sigma_rhs)
+res <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
+res
+```
+
+
+## Algoritmo Más Efiente (Fast Direct-Optimal Basis)
+
+Se recomienda, para entender más en profundidad los conceptos matemáticos del algoritmo, ver el artículo:
+
+> Estrella Rodríguez-Lorenzo, Kira Adaricheva, Pablo Cordero, Manuel Enciso &
+Angel Mora (2017) Formation of the D-basis from implicational systems using Simplification logic,
+International Journal of General Systems, 46:5, 547-568, DOI: 10.1080/03081079.2017.1349632
+
+Publicado en https://www.tandfonline.com/doi/full/10.1080/03081079.2017.1349632
+
+El algoritmo se basa en el uso de 6 funciones:
+
+** En todas las funciones de este algoritmo, se pasa como argumento &Gamma;. En el artículo se expresa como un conjunto
+que tiene por elementos vectores de la forma <X,Y,Z> donde cada elemento es un conjunto de atributos, pero en el código 
+está expresado como una matriz dispersa donde cada columna expresa un conjunto de atributos de forma X<sub>1</sub>, Y<sub>1</sub>, Z<sub>1</sub>, X<sub>2</sub>, Y<sub>2</sub>, Z<sub>2</sub>, ...
+
+### Función AddClosure
+
+La función addClosure toma como parámetros un conjunto de atributos A y un conjunto &Gamma;, y nos devuelve una terna de tres conjuntos de atributos. 
+
+<center><img src="../docs/images/fdob_addClosure.png" alt="drawing" width="500"/></center>
+
+### Función Fix
+
+La función fix toma como parámetros una terna de conjuntos de atributos y un conjunto &Gamma;, y nos devuelve una lista con el conjunto de los minimales y un conjunto &Gamma;<sub>new</sub>.
+
+<center><img src="../docs/images/fdob_fix.png" alt="drawing" width="500"/></center>
+
+### Función Shorten
+
+La función shorten toma como parámetros una terna de conjuntos de atributos y un conjunto &Gamma;, y nos devuelve una terna nueva (si el conjunto A tiene cardinal distinto de 1) y sino, la misma.
+
+<center><img src="../docs/images/fdob_shorten.png" alt="drawing" width="400"/></center>
+
+### Función Join
+
+La función join toma como parámetros dos conjuntos &Gamma; y nos devuelve la unión de los dos, pero simplificados por la función shorten.
+
+<center><img src="../docs/images/fdob_join.png" alt="drawing" width="500"/></center>
+
+### Función MinCovers
+
+La función minCovers toma como parámetros una terna de atributos y un conjunto &Gamma;, y nos devuelve un conjunto &Phi;.
+
+<center><img src="../docs/images/fdob_minCovers.png" alt="drawing" width="400"/></center>
+
+### Función Fast-DBasis
+
+La funcion .algorithm_FDB toma como parámetros un conjunto de implicaciones &Sigma; y nos devuelve una lista con dos conjuntos de implicaciones (Uno con los que tienen el antecedente con cardinal 1 &Sigma;<sub>bin</sub>, y el otro con los demás &Sigma;<sub>n</sub>)
+
+<center><img src="../docs/images/fdob_algorithm.png" alt="drawing" width="400"/></center>
+
+Ejemplo para ver el funcionamiento (Obtenido del artículo de la introducción)
+
+1) Primero, vemos la entrada y la salida del algoritmo.
+
+```{r FastD-Basis_1}
+# Input
+input <- system.file("Implications", "ex1", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output1 <- system.file("Implications", "ex1_bin", package = "fcaR")
+imp_out_bin <- parse_implications(output1)
+imp_out_bin
+
+output2 <- system.file("Implications", "ex1_n", package = "fcaR")
+imp_out_n <- parse_implications(output2)
+imp_out_n
+
+```
+
+2) Ahora introduciremos al algoritmo la entrada para ver que nos sale igual.
+
+```{r FastD-Basis_2}
+sigma_lhs <- imp_in$get_LHS_matrix()
+sigma_rhs <- imp_in$get_RHS_matrix()
+attr <- imp_in$get_attributes()
+
+imp_simp <- .algorithm_FDB(sigma_lhs,sigma_rhs)
+res_bin <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
+res_bin
+res_n <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[3]], rhs = imp_simp[[4]])
+res_n
+```
+

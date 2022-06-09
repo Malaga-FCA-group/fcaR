@@ -132,6 +132,7 @@ test_that("Comprobe that SLGetDo works fine.", {
 
 test_that("Comprobe that the DBO algorithm works fine with an real example.", {
   res <- .slGetDo(imp_in$get_LHS_matrix(), imp_in$get_RHS_matrix())
+  ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr)
   expect_equal(res, list(imp_out$get_LHS_matrix(),imp_out$get_RHS_matrix()))
 })
 
