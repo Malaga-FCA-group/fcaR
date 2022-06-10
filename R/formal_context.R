@@ -586,8 +586,71 @@ FormalContext <- R6::R6Class(
                                     x = R@x,
                                     dims = c(length(self$attributes), 1))
 
+
           R <- Set$new(attributes = self$attributes,
                              M = R)
+        } else {
+
+          # Empty closure
+          R <- Set$new(attributes = self$attributes)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the closure of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the closure for.
+    #'
+    #' @return A \code{Set} with the closure.
+    #'
+    #' @export
+    closure_fast = function(S) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$attributes)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$attributes)) {
+
+        R <- compute_closure(S,
+                             Matrix::as.matrix(Matrix::t(self$I)))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
         } else {
 
           # Empty closure
