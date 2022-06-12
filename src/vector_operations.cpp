@@ -314,6 +314,39 @@ void add_column(SparseVector *a, SparseVector b) {
 
 }
 
+//WRONG VERSION CHANGED
+// SparseVector S4toSparse(S4 A) {
+//
+//   std::vector<int> ap = A.slot("p");
+//   std::vector<int> ai = A.slot("i");
+//   std::vector<double> ax = A.slot("x");
+//   IntegerVector adims = A.slot("Dim");
+//
+//   SparseVector V;
+//   initVector(&V, adims[0]);
+//
+//   for (size_t i = 0; i < ai.size(); i++) {
+//
+//     insertArray(&(V.i), ai[i]);
+//     insertArray(&(V.x), ax[i]);
+//
+//   }
+//   insertArray(&(V.p), 0);
+//
+//   if (V.i.used > 0) {
+//
+//     insertArray(&(V.p), V.i.used);
+//
+//   } else {
+//
+//     insertArray(&(V.p), 0);
+//
+//   }
+//
+//   return V;
+//
+// }
+
 SparseVector S4toSparse(S4 A) {
 
   std::vector<int> ap = A.slot("p");
@@ -330,15 +363,9 @@ SparseVector S4toSparse(S4 A) {
     insertArray(&(V.x), ax[i]);
 
   }
-  insertArray(&(V.p), 0);
+  for (size_t i = 0; i < ap.size(); i++) {
 
-  if (V.i.used > 0) {
-
-    insertArray(&(V.p), V.i.used);
-
-  } else {
-
-    insertArray(&(V.p), 0);
+    insertArray(&(V.p), ap[i]);
 
   }
 
@@ -385,6 +412,11 @@ S4 SparseToS4(SparseVector V) {
   return(res);
 
 }
+
+// S4 newSparseMatrix(S4 R) {
+//   SparseVector res = S4toSparse(R);
+//   res = SparseToS4_fast(res);
+// }
 
 S4 SparseToS4_fast(SparseVector V) {
 
@@ -721,6 +753,118 @@ NumericVector as_vector(SparseVector v) {
 
     x[v.i.array[i]] = v.x.array[i];
 
+  }
+
+  return(x);
+
+}
+
+//Created by Lorenzo
+//Converts S4 object into NumericMatrix, using vectors inside
+NumericMatrix S4toNumericMatrix(S4 I) {
+
+  std::vector<int> i = I.slot("i");
+  std::vector<int> p = I.slot("p");
+  std::vector<double> x = I.slot("x");
+  std::vector<int> adims = I.slot("Dim");
+  //NumericVector vect(adims[0]*adims[1]);
+  std::vector<double> vect(adims[0]*adims[1]);
+
+  int it = 0;
+  for(int k=0; k<p.size()-1; k++) {
+    int ant = p[k];
+    int post = p[k+1];
+    int aux = post - ant;
+    int cont = 0;
+
+    for(int j=0; j<adims[0]; j++) {
+      if(cont<aux) {
+        if(j==i[ant]) {
+          vect[it] = x[ant];
+          ant++;
+          cont++;
+        } else{
+          vect[it] = 0;
+        }
+      } else {
+        vect[it] = 0;
+      }
+      it++;
+    }
+  }
+  //print(vect);
+  //NumericVector s = wrap(vect);
+  NumericMatrix res(adims[0], adims[1], vect.begin());
+
+
+  return(res);
+
+}
+//Created by Lorenzo
+//Converts S4 object into NumericMatrix, using matrices inside
+NumericMatrix S4toNumericMatrix2(S4 I) {
+
+  std::vector<int> i = I.slot("i");
+  std::vector<int> p = I.slot("p");
+  std::vector<double> x = I.slot("x");
+  std::vector<int> adims = I.slot("Dim");
+  NumericMatrix mat(adims[0],adims[1]);
+
+  int it = 0;
+  for(int k=0; k<p.size()-1; k++) {
+    int ant = p[k];
+    int post = p[k+1];
+    int aux = post - ant;
+    int cont = 0;
+
+    for(int j=0; j<adims[0]; j++) {
+      if(cont<aux) {
+        if(j==i[ant]) {
+          mat(j,k) = x[ant];
+          ant++;
+          cont++;
+        } else{
+          mat(j,k) = 0;
+        }
+      } else {
+        mat(j,k) = 0;
+      }
+      it++;
+    }
+  }
+  //print(vect);
+
+  return(mat);
+
+}
+
+//Created by Lorenzo
+//converts SparseVector into NumericVector
+NumericVector as_vector_slow(SparseVector v, int nrow, int ncol) {
+
+  NumericVector x(nrow*ncol);
+
+  int it = 0;
+  for(int i=0; i<v.p.used-1; i++) {
+    int ant = v.p.array[i];
+    int post = v.p.array[i+1];
+    int aux = post - ant;
+    int cont = 0;
+
+    for(int j=0; j<v.length; j++) {
+      if(cont<aux) {
+        if(j==v.i.array[ant]) {
+          x[it] = v.x.array[ant];
+          ant++;
+          cont++;
+        } else{
+          x[it] = 0;
+        }
+      } else {
+        x[it] = 0;
+      }
+      it++;
+    }
   }
 
   return(x);

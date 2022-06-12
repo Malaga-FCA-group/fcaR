@@ -13,6 +13,10 @@ get_element_array <- function(I, i, j, k) {
     .Call(`_fcaR_get_element_array`, I, i, j, k)
 }
 
+fib_cpp <- function(x) {
+    .Call(`_fcaR_fib_cpp`, x)
+}
+
 next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE) {
     .Call(`_fcaR_next_closure_implications`, I, grades_set, attrs, save_concepts, verbose)
 }
@@ -31,6 +35,14 @@ compute_extent <- function(V, I) {
 
 compute_closure <- function(V, I) {
     .Call(`_fcaR_compute_closure`, V, I)
+}
+
+compute_closure_vector <- function(V, I) {
+    .Call(`_fcaR_compute_closure_vector`, V, I)
+}
+
+compute_closure_matrix <- function(V, I) {
+    .Call(`_fcaR_compute_closure_matrix`, V, I)
 }
 
 self_intersection_C <- function(x_i, x_p, y_i, y_p) {
