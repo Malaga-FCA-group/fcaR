@@ -5,11 +5,9 @@ library(jointprof)
 library(arules)
 data("Mushroom", package = "arules")
 
-#PRUEBAS CON cobre32
 fc_mushroom <- FormalContext$new(Mushroom)
 fc_mushroom
 
-# CLOSURES
 S <- Set$new(attributes = fc_mushroom$attributes)
 S$assign("class=edible" = 1, "CapShape=flat" = 1, "CapSurf=grooves" = 1)
 S

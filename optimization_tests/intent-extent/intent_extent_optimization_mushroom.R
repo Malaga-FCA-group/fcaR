@@ -5,7 +5,6 @@ library(jointprof)
 library(arules)
 data("Mushroom", package = "arules")
 
-#PRUEBAS CON cobre32
 fc_mushroom <- FormalContext$new(Mushroom)
 fc_mushroom
 fc_mushroom$objects
