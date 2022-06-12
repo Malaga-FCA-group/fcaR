@@ -1,10 +1,10 @@
 ---
-title:  "Direct Optimal Basis"
+title:  "Direct Optimal Basis (Español)"
 author: "Nicolas Felipe Trujillo Montero"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Direct Optimal Basis}
+  %\VignetteIndexEntry{Direct Optimal Basis (Español)}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -26,14 +26,6 @@ Estos algoritmos se basan en el uso del paquete fcaR para realizar Análisis de 
 
 1.- Cargamos las librerias necesarias (`fcaR` y `Matrix`): 
 
-# Introduction
-
-This document is a Rmarkdown compiled file by the own Rstudio for seeing the two algorithms with a simple and didactic form that we are going to show.
-
-These algorithms are based in the use of package fcaR to make Formal Concept Analysis (FCA). Thanks to this, we could find implication sets analyzing from a dataframe. Once we found these sets, we can use basic methods of simplifications to reduce the implication number of the set using canonical-basis, for example:
-
-1.- We load the necessary libraries (`fcaR` and `Matrix`): 
-
 ```{r libraries}
 library(usethis)
 library(devtools)
@@ -43,8 +35,6 @@ devtools::load_all()
 ```
 
 2.- Mostramos el dataframe planets (presentado en la viñeta de Implications.Rmd) incorporado en el paquete `fcaR` y las implicaciones obtenidas:
-
-2.- We show the dataframe planets (presented in the vignette Implications.Rmd) incorporated in the package `fcaR` and the implications obtained:
 
 ```{r planets}
 knitr::kable(planets, format = "html", booktabs = TRUE)
@@ -58,10 +48,6 @@ en conceptos formales para extraer bases de implicaciones.
 
 3.- A partir del conjunto de implicaciones, podemos simplificarla usando operaciones lógicas como pueden
 ser la regla de reducción, composición, generalización o simplificación:
-
-** Keep in mind that the find_implications() is based in the use of the algorithm `NextClosure` in formal concepts to extract implication basis.
-
-3. From the implications set, we could simplify using logic operations like reduction, composition, generalization or simplification rules.
 
 ```{r simplification}
 fc$implications$apply_rules(c("composition","generalization","simplification","reduction"))
@@ -88,26 +74,6 @@ un conjunto de implicaciones, pero en el código está expresado como un par de 
 indican en cada columna, el número de la columna junto con 1s en las posiciones donde cada atributo aparece, 
 respectivamente, tanto en el lado izquierdo(lhs), como en el derecho(rhs).
 
-
-
-
-# Use of the Direct-Optimal basis 
-
-## Direct-Optimal Basis Basic Algorithm
-
-It is recommended, to understand more in depth the mathematical concepts of this algorithm, look at the article:
-
-> Estrella Rodríguez-Lorenzo, Karell Bertet, Pablo Cordero, Manuel Enciso, Ángel Mora (Available online 8 April 2018)
-"Direct-optimal basis computation by means of the fusion of simplification rules"
-
-Published in https://www.sciencedirect.com/science/article/abs/pii/S0166218X1730611X
-
-
-
-The algorithm is based in the use of three functions:
-
-** In all of the functions of this algorithm, is given an argument&Sigma;. In the article &Sigma; is expressed like a implications set, but in the script is expressed like a couple of sparse matrix (lhs and rhs) that shows in each column , the column number together with 1s in the positions where each attribute appears, respectly, as much in the left side (lhs) as in the right side (rhs).
-
 ```{r}
 fc$implications
 fc$implications[1]
@@ -121,20 +87,12 @@ Matrix(fc$implications$get_RHS_matrix()[,1], sparse = TRUE)
 
 La función add_sSimp toma como parámetros dos implicaciones (en el código implementado como 4 matrices dispersas columnas) y el conjunto de implicaciones &Sigma;, y nos devuelve un conjunto con una implicación o con ninguna.
 
-## Add_sSimp function
-
-The add_sSimp function takes as parameters two implications (in the script implemented as 4 columns sparse matrix) and the implications set &Sigma;, and it returns a set with an implication or an empty set.
-
 <center><img src="../docs/images/dob_add_sSimp.png" alt="drawing" width="400"/></center>
 
 ### Función Simplify
 
 La función simplify toma como parámetro &Sigma;, y nos devuelve un sistema simplificado de implicaciones
 equivalente al &Sigma; que se pasa como argumento.
-
-### Simplify function
-
-The simplify function takes as parameter &Sigma;, and it returns an simplified implications set equivalent to &Sigma;.
 
 <center><img src="../docs/images/dob_simplify_DOB.png" alt="drawing" width="400"/></center>
 
@@ -143,31 +101,18 @@ The simplify function takes as parameter &Sigma;, and it returns an simplified i
 La función SLgetdo toma como parámetro &Sigma;, y nos devuelve un sistema simplificado de implicaciones
 equivalente al &Sigma; que se pasa como argumento. Esta función utiliza las dos funciones mencionadas anteriormente.
 
-### Direct-Optimal Basis algorithm (SLgetdo Function)
-
-The SLgetdo function takes as parameter  &Sigma;, and it returns an simplified implications set equivalent to &Sigma;. This function use the two previous mentioned functions. 
-
 <center><img src="../docs/images/dob_SL_Get_DO.png" alt="drawing" width="400"/></center>
 
 ** Hay que incluir que se han utilizado funciones auxiliares para realizar operaciones entre conjuntos, como pueden 
 ser .union, .difference2, ... (Implementadas de base). Sin embargo, para este algoritmo se han desarrollado dos funciones auxiliares más:
 
-
-** We have to add that we use auxiliary functions to make operations between sets, like .union, .difference2, ... (Implemented base). Nevertheless, for this algorithm, it was developed two auxiliary functions more:
-
   a) <b> Una función para comparar dos matrices columna (.matrixEquals(A,B)) </b> (Importante!!: No usar para comparar conjuntos de cardinal mayor que uno, ya que en un conjunto no influye el orden, por lo que {a,b} = {b,a} y esa característica es muy ineficiente como para realizarla con un algoritmo de fuerza bruta), por lo que implementamos en simplify y en SLgetdo un sistema de flags para realizar la equivalencia.
   
-  a) <b> A function to compare two column matrix (.matrixEquals(A,B)) </b> (Important!: we don't have to use to compare sets of cardinality greater than one, since in a set doesn't influence the order, so {a,b} = {b,a} and this feature is very inefficient to make with an brute-force algorithm).
-  
   b) <b> Una función para comprobar si un elemento x pertenece a un conjunto dominio (.isElementOf_FDB(x, dominio)) </b> que usaremos en el siguiente algoritmo.
-  
-  b) <b> A function to check if an element belongs of an set "domain" (.isElementOf_FDB(x, domain)) </b> that we use in the next algorithm.
 
-Ejemplo para ver el funcionamiento (Obtenido del artículo de la introducción).
-Example to see the functioning (Obtained from the article in the introduction).
+Ejemplo para ver el funcionamiento (Obtenido del artículo de la introducción)
 
 1) Primero, vemos la entrada y la salida del algoritmo.
-1) First, we check the input and the output of the algorithm.
 
 ```{r SLgetdo_1}
 # Input
@@ -183,7 +128,6 @@ imp_out
 ```
 
 2) Ahora introduciremos al algoritmo la entrada para ver que nos sale igual.
-2) Now, we introduce the input to the algorithm to check that it is equals.
 
 ```{r SLgetdo_2}
 sigma_lhs <- imp_in$get_LHS_matrix()
@@ -198,12 +142,7 @@ res
 
 ## Algoritmo Más Efiente (Fast Direct-Optimal Basis)
 
-## More efficient algorithm (Fast Direct-Optimal Basis)
-
 Se recomienda, para entender más en profundidad los conceptos matemáticos del algoritmo, ver el artículo:
-
-It is recommended, to understand more in depth the mathematical concepts of this algorithm, look at the article:
-
 
 > Estrella Rodríguez-Lorenzo, Kira Adaricheva, Pablo Cordero, Manuel Enciso &
 Angel Mora (2017) Formation of the D-basis from implicational systems using Simplification logic,
@@ -211,83 +150,51 @@ International Journal of General Systems, 46:5, 547-568, DOI: 10.1080/03081079.2
 
 Publicado en https://www.tandfonline.com/doi/full/10.1080/03081079.2017.1349632
 
-Published in https://www.tandfonline.com/doi/full/10.1080/03081079.2017.1349632
-
 El algoritmo se basa en el uso de 6 funciones:
-
-The algorithm is based in the use of 6 functions:
 
 ** En todas las funciones de este algoritmo, se pasa como argumento &Gamma;. En el artículo se expresa como un conjunto
 que tiene por elementos vectores de la forma <X,Y,Z> donde cada elemento es un conjunto de atributos, pero en el código 
 está expresado como una matriz dispersa donde cada columna expresa un conjunto de atributos de forma X<sub>1</sub>, Y<sub>1</sub>, Z<sub>1</sub>, X<sub>2</sub>, Y<sub>2</sub>, Z<sub>2</sub>, ...
 
-** In all of the functions of this algorithm, it takes as parameter &Gamma;. In the article &Gamma; is expressed as a set that contains vectors like <X,Y,Z> where each element is an attributes set, but in the script &Gamma; is expressed like a sparse matrix where each column express an attributes set, for example: X<sub>1</sub>, Y<sub>1</sub>, Z<sub>1</sub>, X<sub>2</sub>, Y<sub>2</sub>, Z<sub>2</sub>, ...
-
 ### Función AddClosure
 
-### AddClosure function
-
 La función addClosure toma como parámetros un conjunto de atributos A y un conjunto &Gamma;, y nos devuelve una terna de tres conjuntos de atributos. 
-
-The addClosure function takes as parameters an attributes set A and a set &Gamma; and it returns a 3-tuple of three attributes sets.
 
 <center><img src="../docs/images/fdob_addClosure.png" alt="drawing" width="500"/></center>
 
 ### Función Fix
 
-### Fix function
-
 La función fix toma como parámetros una terna de conjuntos de atributos y un conjunto &Gamma;, y nos devuelve una lista con el conjunto de los minimales y un conjunto &Gamma;<sub>new</sub>.
-
-The fix function takes as parameters a 3-tuple of three attributes sets and a set &Gamma;, and it returns a list with a minimal set and a set &Gamma;<sub>new</sub>.
 
 <center><img src="../docs/images/fdob_fix.png" alt="drawing" width="500"/></center>
 
 ### Función Shorten
 
-### Shorten function
-
 La función shorten toma como parámetros una terna de conjuntos de atributos y un conjunto &Gamma;, y nos devuelve una terna nueva (si el conjunto A tiene cardinal distinto de 1) y sino, la misma.
-
-The shorten function takes as parameters a 3-tuple of three attributes sets and a set &Gamma;, and it returns a new 3-tuple (if the set A have cardinality different to 1) or the same 3-tuple in other case.
 
 <center><img src="../docs/images/fdob_shorten.png" alt="drawing" width="400"/></center>
 
 ### Función Join
 
-### Join function
-
 La función join toma como parámetros dos conjuntos &Gamma; y nos devuelve la unión de los dos, pero simplificados por la función shorten.
-
-The join function takes as parameters two sets &Gamma; and it returns the union of the two sets, but simplified by the shorten funtion.
 
 <center><img src="../docs/images/fdob_join.png" alt="drawing" width="500"/></center>
 
 ### Función MinCovers
 
-### MinCovers function
-
 La función minCovers toma como parámetros una terna de atributos y un conjunto &Gamma;, y nos devuelve un conjunto &Phi;.
-
-The mincovers function takes as parameters a 3-tuple of attributes and a set &Gamma; and it returns a set &Phi;.
 
 <center><img src="../docs/images/fdob_minCovers.png" alt="drawing" width="400"/></center>
 
 ### Función Fast-DBasis
 
-### Fast-DBasis function
-
 La funcion .algorithm_FDB toma como parámetros un conjunto de implicaciones &Sigma; y nos devuelve una lista con dos conjuntos de implicaciones (Uno con los que tienen el antecedente con cardinal 1 &Sigma;<sub>bin</sub>, y el otro con los demás &Sigma;<sub>n</sub>)
-
-The .algorithm_FDB function takes as parameters am implications set &Sigma; and it returns a list with two implications set (One with all the implications with cardinality 1 &Sigma;<sub>bin</sub>, and the other without them &Sigma;<sub>n</sub>)
 
 <center><img src="../docs/images/fdob_algorithm.png" alt="drawing" width="400"/></center>
 
 Ejemplo para ver el funcionamiento (Obtenido del artículo de la introducción)
-Example to see the functioning (Obtained from the article in the introduction).
 
 1) Primero, vemos la entrada y la salida del algoritmo.
-1) First, we check the input and the output of the algorithm.
 
 ```{r FastD-Basis_1}
 # Input
@@ -306,7 +213,6 @@ imp_out_n
 
 ```
 2) Ahora introduciremos al algoritmo la entrada para ver que nos sale igual.
-2) Now, we introduce the input to the algorithm to check that it is equals.
 
 ```{r FastD-Basis_2}
 sigma_lhs <- imp_in$get_LHS_matrix()

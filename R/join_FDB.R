@@ -1,3 +1,17 @@
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
+#' @Title
+#' Application of the Join function in the FastD-Basis algorithm
+#'
+#' @param gamma1, @param gamma2
+#' It is a sparse matrix in which contains 3-tuples of elements represented by
+#' 3 binded columns together.
+#'
+#' @return
+#' Returns an sparse matrix in which contains the union of the gamma1 and gamma2
+#' simplified by shorten
+
 .join_FDB <- function (gamma1, gamma2) {
 
 

@@ -1,3 +1,25 @@
+#' @author
+#' Nicolás Felipe Trujillo Montero
+#'
+#' @Title
+#' Application of the Min_Covers function in the FastD-Basis algorithm
+#'
+#' @param A
+#' It is a set of items represented by a sparse matrix (column vector)
+#'
+#' @param B
+#' It is a set of items represented by a sparse matrix (column vector)
+#'
+#' @param C
+#' It is a set of items represented by a sparse matrix (column vector)
+#'
+#' @param gamma
+#' It is a sparse matrix in which contains 3-tuples of elements represented by
+#' 3 binded columns together.
+#'
+#' @return
+#' Returns an sparse matrix
+
 .minCovers_FDB <- function(A,B,C,gamma){
 
   # BE CAREFUL WITH A,B,C NULL IN FIRST ITERATION
