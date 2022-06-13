@@ -59,7 +59,8 @@ Suggests:
     tictoc,
     parallel
 LinkingTo: 
-    Rcpp
+    Rcpp,
+    RcppArmadillo
 VignetteBuilder: 
     knitr
 Encoding: UTF-8

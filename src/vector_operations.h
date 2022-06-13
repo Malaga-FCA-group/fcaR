@@ -72,3 +72,7 @@ void as_sparse(SparseVector *res,
                int j);
 
 double get_element(SparseVector v, int n);
+
+NumericVector sort_c(NumericVector v);
+
+List compute_grades_c(NumericMatrix mat, int tam);

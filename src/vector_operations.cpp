@@ -1,4 +1,6 @@
-#include <Rcpp.h>
+#include <RcppArmadillo.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+
 #include "vector_operations.h"
 using namespace Rcpp;
 
@@ -800,6 +802,7 @@ NumericMatrix S4toNumericMatrix(S4 I) {
   return(res);
 
 }
+
 //Created by Lorenzo
 //Converts S4 object into NumericMatrix, using matrices inside
 NumericMatrix S4toNumericMatrix2(S4 I) {
@@ -981,4 +984,27 @@ double get_element(SparseVector v, int n) {
 
   return res;
 
+}
+
+// [[Rcpp::export]]
+NumericVector sort_c(NumericVector v) {
+
+  return v.sort();
+}
+
+// [[Rcpp::export]]
+List compute_grades_c(NumericMatrix mat) {
+
+  List res;
+
+  for(int i=0; i<mat.cols(); i++) {
+
+    NumericVector v = mat(_,i);
+    //v.push_back(1);
+    //v.push_front(0);
+    v = sort_unique(v);
+    res.push_back(v);
+  }
+
+  return res;
 }

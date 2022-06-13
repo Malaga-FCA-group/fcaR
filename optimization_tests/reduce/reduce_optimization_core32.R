@@ -3,26 +3,25 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-data("Mushroom", package = "arules")
 
-fc_mushroom <- FormalContext$new(Mushroom)
-fc_mushroom
+fc_planets <- FormalContext$new(planets)
+fc_planets
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "dual"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
 ######################################################################################
 
 
-fc_dual<- fc_mushroom$dual()
-fc_dual
+S1 <- fc_planets$reduce(TRUE)
+S1
 test1 <- function() {
-  for(i in seq(4)) fc_mushroom$dual()
+  for(i in seq(10)) fc_planets$reduce(TRUE)
 }
 joint_pprof(test1())
 
 bench::mark(
-  fc_mushroom$dual()
+  fc_planets$reduce(TRUE)
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
@@ -31,5 +30,5 @@ bench::mark(
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "dual"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
 ######################################################################################

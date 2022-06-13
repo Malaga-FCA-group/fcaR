@@ -13,10 +13,6 @@ get_element_array <- function(I, i, j, k) {
     .Call(`_fcaR_get_element_array`, I, i, j, k)
 }
 
-fib_cpp <- function(x) {
-    .Call(`_fcaR_fib_cpp`, x)
-}
-
 next_closure_implications <- function(I, grades_set, attrs, save_concepts = TRUE, verbose = FALSE) {
     .Call(`_fcaR_next_closure_implications`, I, grades_set, attrs, save_concepts, verbose)
 }
@@ -79,5 +75,13 @@ set_difference_single <- function(xi, xp, xx, yi, yp, yx, number) {
 
 set_intersection_single <- function(xi, xp, xx, yi, yp, yx, number) {
     .Call(`_fcaR_set_intersection_single`, xi, xp, xx, yi, yp, yx, number)
+}
+
+sort_c <- function(v) {
+    .Call(`_fcaR_sort_c`, v)
+}
+
+compute_grades_c <- function(mat) {
+    .Call(`_fcaR_compute_grades_c`, mat)
 }
 

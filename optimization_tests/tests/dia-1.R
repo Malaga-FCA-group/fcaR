@@ -7,6 +7,38 @@ library(jointprof)
 fc_planets <- FormalContext$new(planets)
 #fc_I <- FormalContext$new(I)
 
+
+###########################################
+#TIPOS DE LA ESTRUCTURA DE UN FORMALCONTEXT
+###########################################
+
+# class(fc_planets$I)
+# str(fc_planets$I)
+#
+# class(fc_planets$attributes)
+# str(fc_planets$attributes)
+#
+# class(fc_planets$objects)
+# str(fc_planets$objects)
+#
+# class(fc_planets$grades_set)
+# str(fc_planets$grades_set)
+#
+# class(fc_planets$expanded_grades_set)
+# str(fc_planets$expanded_grades_set)
+#
+# class(fc_planets$concepts)
+# str(fc_planets$concepts)
+#
+# class(fc_planets$implications)
+# str(fc_planets$implications)
+
+###########################################
+#TIPOS DE LA ESTRUCTURA DE UN FORMALCONTEXT
+###########################################
+
+
+
 S1 <- Set$new(attributes = fc_planets$objects)
 S1$assign(Earth = 1, Mars = 1)
 S1

@@ -149,6 +149,7 @@ FormalContext <- R6::R6Class(
 
         }
 
+        #Check if the matrix contains NA values, or values >1 or <0
         private$is_many_valued <- check_many_valued(I)
 
         if (!private$is_many_valued) {
@@ -192,12 +193,18 @@ FormalContext <- R6::R6Class(
 
       if (!private$is_many_valued) {
 
+        #functions changed to .default so its faster
         # Assign everything to its corresponding field
+        #expanded_grades_set <- compute_grades(Matrix::t(I))
+
+        #Makes dual() execute 300% faster
         expanded_grades_set <- compute_grades(Matrix::t(I))
+        #expanded_grades_set <- compute_grades_c(Matrix::as.matrix(Matrix::t(I)))
         grades_set <- sort(unique(unlist(expanded_grades_set)))
 
         self$I <- I
-        self$grades_set <- unique(c(0, grades_set, 1))
+        #self$grades_set <- unique(c(0, grades_set, 1))
+        self$grades_set <- grades_set
         self$expanded_grades_set <- expanded_grades_set
 
         colnames(self$I) <- self$objects
@@ -1026,12 +1033,13 @@ FormalContext <- R6::R6Class(
 
       if (copy) {
 
+        #Accelerated by Lorenzo when FormalContext$new was accelerated by 250%
         fc2 <- FormalContext$new(my_I)
 
         return(fc2)
 
       } else {
-
+        #Accelerated by Lorenzo when FormalContext$initialize was accelerated by 250%
         self$initialize(my_I)
 
         return(invisible(self))
