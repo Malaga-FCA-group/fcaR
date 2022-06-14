@@ -8,29 +8,30 @@ library(arules)
 # fc_mushroom <- FormalContext$new(Mushroom)
 # fc_mushroom
 
-fc_planets <- FormalContext$new(planets)
-fc_planets
+fc_cobre32 <- FormalContext$new(cobre32)
+fc_cobre32
 
-S1 <- fc_planets$find_implications()
+S1 <- fc_cobre32$find_implications()
 S1
-fc_planets$concepts
-fc_planets$implications
+fc_cobre32$concepts
+fc_cobre32$implications
 
-S2 <- fc_planets$concepts$sub(5)
+S2 <- fc_cobre32$concepts$sub(10)
 S2
-C <- fc_planets$concepts[2:4]
+C <- fc_cobre32$concepts[1:10]
+
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
 ######################################################################################
 
 
 test1 <- function() {
-  for(i in seq(1000)) fc_planets$concepts$supremum(C)
+  fc_cobre32$concepts$supremum(C)
 }
 joint_pprof(test1())
 
 bench::mark(
-  fc_planets$concepts$supremum(C)
+  fc_cobre32$concepts$infimum(C)
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
@@ -49,12 +50,12 @@ bench::mark(
 
 
 test2 <- function() {
-  for(i in seq(1000)) fc_planets$concepts$infimum(C)
+  fc_cobre32$concepts$infimum(C)
 }
 joint_pprof(test2())
 
 bench::mark(
-  fc_planets$concepts$infimum(C)
+  fc_cobre32$concepts$infimum(C)
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(

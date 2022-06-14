@@ -198,8 +198,8 @@ FormalContext <- R6::R6Class(
         #expanded_grades_set <- compute_grades(Matrix::t(I))
 
         #Makes dual() execute 300% faster
-        expanded_grades_set <- compute_grades(Matrix::t(I))
-        #expanded_grades_set <- compute_grades_c(Matrix::as.matrix(Matrix::t(I)))
+        #expanded_grades_set <- compute_grades(Matrix::t(I))
+        expanded_grades_set <- compute_grades_c(Matrix::as.matrix(Matrix::t(I)))
         grades_set <- sort(unique(unlist(expanded_grades_set)))
 
         self$I <- I
@@ -1090,6 +1090,91 @@ FormalContext <- R6::R6Class(
           ypv <- Set$new(attributes = att)
           ypv$assign(attributes = yp, values = 1)
           yp_down <- fc2$extent(ypv)
+
+          S <- .subset(y_down$get_vector(),
+                       yp_down$get_vector())
+
+          if (S[1]) {
+
+            R[Matrix::which(yp_down$get_vector() < R)] <- yp_down$get_vector()[Matrix::which(yp_down$get_vector() < R)]
+
+          }
+
+        }
+
+        if (!.equal_sets(R, y_down$get_vector())[1]) {
+
+          Z$assign(attributes = y, values = 1)
+
+        }
+
+      }
+
+      new_att <- Z$get_attributes()[Matrix::which(Z$get_vector() > 0)]
+
+      idx <- match(new_att, att)
+      my_I <- my_I[, idx]
+      colnames(my_I) <- new_att
+      rownames(my_I) <- fc2$objects
+
+      if (copy) {
+
+        fc3 <- FormalContext$new(my_I)
+
+        return(fc3)
+
+      } else {
+
+        self$initialize(my_I)
+
+        return(invisible(self))
+
+      }
+
+    },
+
+    #' @description
+    #' Reduce a formal context
+    #'
+    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext} object is created with the clarified and reduced context, otherwise the current one is overwritten.
+    #'
+    #' @return The clarified and reduced \code{FormalContext}.
+    #'
+    #' @export
+    reduce_fast = function(copy = FALSE) {
+
+      if (!private$is_binary) {
+
+        stop("This FormalContext is not binary. Reduction is not implemented for fuzzy contexts.", call. = FALSE)
+
+      }
+
+      # Make a copy with the clarified context
+      fc2 <- self$clarify(TRUE)
+
+      my_I <- Matrix::as.matrix(Matrix::t(fc2$I))
+
+      att <- fc2$attributes
+
+      Z <- Set$new(attributes = att)
+
+      for (y in att) {
+
+        R <- Set$new(attributes = fc2$objects)
+        R$assign(attributes = fc2$objects,
+                 values = rep(1, length(fc2$objects)))
+
+        R <- R$get_vector()
+
+        yv <- Set$new(attributes = att)
+        yv$assign(attributes = y, values = 1)
+        y_down <- fc2$extent_fast(yv)
+
+        for (yp in setdiff(att, y)) {
+
+          ypv <- Set$new(attributes = att)
+          ypv$assign(attributes = yp, values = 1)
+          yp_down <- fc2$extent_fast(ypv)
 
           S <- .subset(y_down$get_vector(),
                        yp_down$get_vector())

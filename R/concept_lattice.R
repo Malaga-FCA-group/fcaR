@@ -523,12 +523,14 @@ ConceptLattice <- R6::R6Class(
       }
 
       csets_idx <- sapply(dots,
-                          function(l) inherits(l, "ConceptSet"))
+                         function(l) inherits(l, "ConceptSet"))
+
       if (length(csets_idx) > 0) {
 
         csets <- sapply(dots[csets_idx],
                         function(l) l$to_list()) %>%
           unlist()
+
 
       } else {
 
@@ -539,6 +541,7 @@ ConceptLattice <- R6::R6Class(
       sets <- sapply(dots,
                      function(l)
                        inherits(l, "Concept"))
+
       sets <- c(csets, dots[which(sets)])
 
       indices <- sapply(dots, is.numeric)
