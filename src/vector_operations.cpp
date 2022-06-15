@@ -60,7 +60,7 @@ void printArray(IntArray a) {
   Rcout << "(";
   if (a.used > 0) {
 
-    for (int i = 0; i < a.used; i++) {
+    for (long long unsigned int i = 0; i < a.used; i++) {
 
       Rcout << a.array[i] << ", ";
 
@@ -139,7 +139,7 @@ void printArray(DoubleArray a) {
   Rcout << "(";
   if (a.used > 0) {
 
-    for (int i = 0; i < a.used; i++) {
+    for (long long unsigned int i = 0; i < a.used; i++) {
 
       Rcout << a.array[i] << ", ";
 
@@ -469,14 +469,14 @@ SparseVector set_difference_sparse(IntegerVector xi,
 
   insertArray(&(res.p), 0);
 
-  for (size_t p = 0; p < xp.size() - 1; p++) {
+  for (long long int p = 0; p < xp.size() - 1; p++) {
 
     // Rcout << "Added column with " << my_p << std::endl;
 
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[p], end_y = yp[p + 1];
 
-    for (size_t i = init_x; i < end_x; i++) {
+    for (long long int i = init_x; i < end_x; i++) {
 
       bool add = true;
 
@@ -497,7 +497,7 @@ SparseVector set_difference_sparse(IntegerVector xi,
       //   }
       // }
 
-      for (size_t j = init_y; j < end_y; j++) {
+      for (long long int j = init_y; j < end_y; j++) {
 
         if (yi[j] > xi[i]) break;
 
@@ -575,14 +575,14 @@ SparseVector set_difference_sparse1(IntegerVector xi,
 
   insertArray(&(res.p), 0);
 
-  for (size_t p = 0; p < xp.size() - 1; p++) {
+  for (int p = 0; p < xp.size() - 1; p++) {
 
     // Rcout << "Added column with " << my_p << std::endl;
 
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[0], end_y = yp[1];
 
-    for (size_t i = init_x; i < end_x; i++) {
+    for (int i = init_x; i < end_x; i++) {
 
       bool add = true;
 
@@ -603,7 +603,7 @@ SparseVector set_difference_sparse1(IntegerVector xi,
       //   }
       // }
 
-      for (size_t j = init_y; j < end_y; j++) {
+      for (int j = init_y; j < end_y; j++) {
 
         if (yi[j] > xi[i]) break;
 
@@ -680,18 +680,18 @@ SparseVector set_intersection_sparse1(IntegerVector xi,
 
   insertArray(&(res.p), 0);
 
-  for (size_t p = 0; p < xp.size() - 1; p++) {
+  for (long long int p = 0; p < xp.size() - 1; p++) {
 
     // Rcout << "Added column with " << my_p << std::endl;
 
     int init_x = xp[p], end_x = xp[p + 1];
     int init_y = yp[0], end_y = yp[1];
 
-    for (size_t i = init_x; i < end_x; i++) {
+    for (int i = init_x; i < end_x; i++) {
 
-      bool add = false;
+      //bool add = false;
 
-      for (size_t j = init_y; j < end_y; j++) {
+      for (int j = init_y; j < end_y; j++) {
 
         if (yi[j] > xi[i]) break;
 
@@ -749,7 +749,7 @@ NumericVector as_vector(SparseVector v) {
 
   NumericVector x(v.length);
 
-  for (int i = 0; i < v.i.used; i++) {
+  for (long long unsigned int i = 0; i < v.i.used; i++) {
 
     x[v.i.array[i]] = v.x.array[i];
 
@@ -771,7 +771,7 @@ NumericMatrix S4toNumericMatrix(S4 I) {
   std::vector<double> vect(adims[0]*adims[1]);
 
   int it = 0;
-  for(int k=0; k<p.size()-1; k++) {
+  for(long long unsigned int k=0; k<p.size()-1; k++) {
     int ant = p[k];
     int post = p[k+1];
     int aux = post - ant;
@@ -812,7 +812,7 @@ NumericMatrix S4toNumericMatrix2(S4 I) {
   NumericMatrix mat(adims[0],adims[1]);
 
   int it = 0;
-  for(int k=0; k<p.size()-1; k++) {
+  for(long long unsigned int k=0; k<p.size()-1; k++) {
     int ant = p[k];
     int post = p[k+1];
     int aux = post - ant;
@@ -846,13 +846,13 @@ NumericVector as_vector_slow(SparseVector v, int nrow, int ncol) {
   NumericVector x(nrow*ncol);
 
   int it = 0;
-  for(int i=0; i<v.p.used-1; i++) {
+  for(long long unsigned int i=0; i<v.p.used-1; i++) {
     int ant = v.p.array[i];
     int post = v.p.array[i+1];
     int aux = post - ant;
     int cont = 0;
 
-    for(int j=0; j<v.length; j++) {
+    for(int j=0; j<(int)v.length; j++) {
       if(cont<aux) {
         if(j==v.i.array[ant]) {
           x[it] = v.x.array[ant];
@@ -958,7 +958,7 @@ void as_sparse(SparseVector *res,
 
 double get_element(SparseVector v, int n) {
 
-  if (n > v.length - 1) {
+  if (n > (int)v.length - 1) {
 
     return 0;
 
@@ -966,7 +966,7 @@ double get_element(SparseVector v, int n) {
 
   double res = 0;
 
-  for (int i = 0; i < v.i.used; i++) {
+  for (long long unsigned int i = 0; i < v.i.used; i++) {
 
     if (v.i.array[i] > n)
       break;
