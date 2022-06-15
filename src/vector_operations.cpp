@@ -1,6 +1,4 @@
-#include <RcppArmadillo.h>
-// [[Rcpp::depends(RcppArmadillo)]]
-
+#include <Rcpp.h>
 #include "vector_operations.h"
 using namespace Rcpp;
 
