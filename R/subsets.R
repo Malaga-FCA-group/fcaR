@@ -31,6 +31,44 @@
 
 }
 
+.subset_fast <- function(x, proper = FALSE) {
+
+  # if(class(x) != "dgCMatrix") { x <- methods::as(x, "dgCMatrix") }
+  # if (is.null(y)) {
+  #   y <- x
+  # } else {
+  #   if(class(y) != "dgCMatrix") { y <- methods::as(y, "dgCMatrix") }
+  # }
+
+  if(class(x) != "dgCMatrix") { x <- methods::as(x, "dgCMatrix") }
+
+  stopifnot("x" %in% methods::slotNames(x))
+
+  # stopifnot("x" %in% methods::slotNames(y))
+
+  # p <- as.integer(rep(0, x@Dim[2] + 1))
+
+  # i <- is_subset_C(x@p, x@i, x@Dim, x@x,
+  #                  y@p, y@i, y@Dim, y@x,
+  #                  as.logical(proper), p)
+
+  M <- build_sparse_matrix(i = x@i, p = x@p,
+                           dims = c(x@Dim[2], x@Dim[2]))
+
+  M <- Matrix::t(M)
+
+  empty <- Matrix::which(Matrix::colSums(x) == 0)
+
+  if (length(empty) > 0) {
+
+    M[empty, ] <- Matrix::Matrix(TRUE, ncol = x@Dim[2], nrow = length(empty))
+
+  }
+
+  return(M)
+
+}
+
 .equal_sets <- function(x, y = NULL, proper = FALSE) {
 
   x <- methods::as(x, "dgCMatrix")
