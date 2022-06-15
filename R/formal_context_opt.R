@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # Build and print the formal context
-#' fc_planets <- FormalContext$new(planets)
+#' fc_planets <- FormalContext_opt$new(planets)
 #' print(fc_planets)
 #'
 #' # Define a set of attributes
@@ -34,11 +34,11 @@
 #'
 #' # Read a formal context from CSV
 #' filename <- system.file("contexts", "airlines.csv", package = "fcaR")
-#' fc <- FormalContext$new(filename)
+#' fc <- FormalContext_opt$new(filename)
 #'
 #' # Read a formal context from a CXT file
 #' filename <- system.file("contexts", "lives_in_water.cxt", package = "fcaR")
-#' fc <- FormalContext$new(filename)
+#' fc <- FormalContext_opt$new(filename)
 #'
 #' @references
 #'
@@ -51,9 +51,9 @@
 #' Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for mining association rules and frequent item sets.” _J Stat Softw_, *14*, 1-25.
 #'
 #' @export
-FormalContext <- R6::R6Class(
+FormalContext_opt <- R6::R6Class(
 
-  classname = "FormalContext",
+  classname = "FormalContext_opt",
 
   public = list(
 
@@ -81,9 +81,9 @@ FormalContext <- R6::R6Class(
     #' @details
     #' Columns of \code{I} should be named, since they are the names of the attributes of the formal context.
     #'
-    #' If no \code{I} is used, the resulting \code{FormalContext} will be empty and not usable unless for loading a previously saved one. In this case, one can provide a \code{filename} to import. Only RDS, CSV and CXT files are currently supported.
+    #' If no \code{I} is used, the resulting \code{FormalContext_opt} will be empty and not usable unless for loading a previously saved one. In this case, one can provide a \code{filename} to import. Only RDS, CSV and CXT files are currently supported.
     #'
-    #' @return An object of the \code{FormalContext} class.
+    #' @return An object of the \code{FormalContext_opt_opt} class.
     #' @export
     #'
     initialize = function(I, filename,
@@ -197,17 +197,20 @@ FormalContext <- R6::R6Class(
         # Assign everything to its corresponding field
         #expanded_grades_set <- compute_grades(Matrix::t(I))
 
-        expanded_grades_set <- compute_grades(Matrix::t(I))
+        #Makes dual() execute 300% faster
+        #expanded_grades_set <- compute_grades(Matrix::t(I))
+        expanded_grades_set <- compute_grades_c(Matrix::as.matrix(Matrix::t(I)))
         grades_set <- sort(unique(unlist(expanded_grades_set)))
 
         self$I <- I
-        self$grades_set <- unique(c(0, grades_set, 1))
+        #self$grades_set <- unique(c(0, grades_set, 1))
+        self$grades_set <- grades_set
         self$expanded_grades_set <- expanded_grades_set
 
         colnames(self$I) <- self$objects
         rownames(self$I) <- self$attributes
 
-        # Is the FormalContext binary?
+        # Is the FormalContext_opt binary?
         private$is_binary <- length(self$grades_set) == 2
 
       } else {
@@ -234,9 +237,9 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
-    #' Check if the \code{FormalContext} is empty
+    #' Check if the \code{FormalContext_opt} is empty
     #'
-    #' @return \code{TRUE} if the \code{FormalContext} is empty, that is, has not been provided with a matrix, and \code{FALSE} otherwise.
+    #' @return \code{TRUE} if the \code{FormalContext_opt} is empty, that is, has not been provided with a matrix, and \code{FALSE} otherwise.
     #'
     #' @export
     is_empty = function() {
@@ -261,7 +264,7 @@ FormalContext <- R6::R6Class(
     #' @export
     #' @examples
     #' filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
-    #' fc <- FormalContext$new(filename)
+    #' fc <- FormalContext_opt$new(filename)
     #' fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
     #' fc$scale("OS", "nominal", c("O", "S"))
     #' fc$scale(attributes = "ring", type = "nominal")
@@ -312,7 +315,7 @@ FormalContext <- R6::R6Class(
     #' @export
     #' @examples
     #' filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
-    #' fc <- FormalContext$new(filename)
+    #' fc <- FormalContext_opt$new(filename)
     #' fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
     #' fc$scale("OS", "nominal", c("O", "S"))
     #' fc$scale(attributes = "ring", type = "nominal")
@@ -355,7 +358,7 @@ FormalContext <- R6::R6Class(
     #'
     #' @examples
     #' filename <- system.file("contexts", "aromatic.csv", package = "fcaR")
-    #' fc <- FormalContext$new(filename)
+    #' fc <- FormalContext_opt$new(filename)
     #' fc$scale("nitro", "ordinal", comparison = `>=`, values = 1:3)
     #' fc$scale("OS", "nominal", c("O", "S"))
     #' fc$scale(attributes = "ring", type = "nominal")
@@ -387,14 +390,14 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Get the dual formal context
     #'
-    #' @return A \code{FormalContext} where objects and attributes have interchanged their roles.
+    #' @return A \code{FormalContext_opt} where objects and attributes have interchanged their roles.
     #'
     #' @export
     dual = function() {
 
       if (private$is_many_valued) {
 
-        return(FormalContext$new(t(private$many_valued_I)))
+        return(FormalContext_opt$new(t(private$many_valued_I)))
 
       } else {
 
@@ -402,7 +405,7 @@ FormalContext <- R6::R6Class(
         colnames(I) <- self$objects
         rownames(I) <- self$attributes
 
-        return(FormalContext$new(I))
+        return(FormalContext_opt$new(I))
 
       }
 
@@ -456,7 +459,68 @@ FormalContext <- R6::R6Class(
                                     dims = c(length(self$attributes), 1))
 
           R <- Set$new(attributes = self$attributes,
-                             M = R)
+                       M = R)
+        } else {
+
+          # Empty intent
+          R <- Set$new(attributes = self$attributes)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the intent of a fuzzy set of objects
+    #'
+    #' @param S   (\code{Set}) The set of objects to compute the intent for.
+    #'
+    #' @return A \code{Set} with the intent.
+    #'
+    #' @export
+    intent_fast = function(S) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$objects)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$objects)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$objects)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+          # stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$objects)) {
+
+        R <- compute_intent(S,
+                            Matrix::as.matrix(Matrix::t(self$I)))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
         } else {
 
           # Empty intent
@@ -524,7 +588,70 @@ FormalContext <- R6::R6Class(
                                     dims = c(length(self$objects), 1))
 
           R <- Set$new(attributes = self$objects,
-                             M = R)
+                       M = R)
+        } else {
+
+          # Empty extent
+          R <- Set$new(attributes = self$objects)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the extent of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the extent for.
+    #'
+    #' @return A \code{Set} with the intent.
+    #'
+    #' @export
+    extent_fast = function(S) {
+
+      # TODO: Apply scales to Sets.
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$attributes)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$attributes)) {
+
+        R <- compute_extent(S,
+                            Matrix::as.matrix(Matrix::t(self$I)))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$objects,
+                       M = R)
         } else {
 
           # Empty extent
@@ -593,7 +720,193 @@ FormalContext <- R6::R6Class(
 
 
           R <- Set$new(attributes = self$attributes,
-                             M = R)
+                       M = R)
+        } else {
+
+          # Empty closure
+          R <- Set$new(attributes = self$attributes)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the closure of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the closure for.
+    #'
+    #' @return A \code{Set} with the closure.
+    #'
+    #' @export
+    closure_fast = function(S) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$attributes)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$attributes)) {
+
+        R <- compute_closure(S,
+                             Matrix::as.matrix(Matrix::t(self$I)))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
+        } else {
+
+          # Empty closure
+          R <- Set$new(attributes = self$attributes)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the closure of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the closure for.
+    #'
+    #' @return A \code{Set} with the closure.
+    #'
+    #' @export
+    closure_fastest_vector = function(S) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$attributes)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$attributes)) {
+
+        R <- compute_closure_vector(S,
+                                    Matrix::t(self$I))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
+        } else {
+
+          # Empty closure
+          R <- Set$new(attributes = self$attributes)
+
+        }
+
+        return(R)
+
+      } else {
+
+        stop("It is not a set of the required type (set of objects).", call. = FALSE)
+
+      }
+
+    },
+
+    #' @description
+    #' Get the closure of a fuzzy set of attributes
+    #'
+    #' @param S   (\code{Set}) The set of attributes to compute the closure for.
+    #'
+    #' @return A \code{Set} with the closure.
+    #'
+    #' @export
+    closure_fastest_matrix = function(S) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (inherits(S, "Set")) {
+
+        if (all(S$get_attributes() == self$attributes)) {
+
+          S <- S$get_vector()
+
+        } else {
+
+          S <- match_attributes(S, self$attributes)
+          S <- S$get_vector()
+          warn <- c("The attributes in the input set are not the same",
+                    " that in the formal context. Attempting to match",
+                    " attribute names gives ",
+                    .set_to_string(S, self$attributes)) %>%
+            stringr::str_flatten()
+          warning(warn, call. = FALSE, immediate. = TRUE)
+
+          # stop("It is not a set of the required type (set of attributes).", call. = FALSE)
+
+        }
+
+      }
+
+      if (length(S) == length(self$attributes)) {
+
+        R <- compute_closure_matrix(S,
+                                    Matrix::t(self$I))
+
+        if (length(R@i) > 0) {
+
+          # Non-empty set:
+          R <- Set$new(attributes = self$attributes,
+                       M = R)
         } else {
 
           # Empty closure
@@ -698,9 +1011,9 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Clarify a formal context
     #'
-    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext} object is created with the clarified context, otherwise the current one is overwritten.
+    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext_opt} object is created with the clarified context, otherwise the current one is overwritten.
     #'
-    #' @return The clarified \code{FormalContext}.
+    #' @return The clarified \code{FormalContext_opt}.
     #'
     #' @export
     clarify = function(copy = FALSE) {
@@ -720,12 +1033,13 @@ FormalContext <- R6::R6Class(
 
       if (copy) {
 
-        fc2 <- FormalContext$new(my_I)
+        #Accelerated by Lorenzo when FormalContext_opt$new was accelerated by 250%
+        fc2 <- FormalContext_opt$new(my_I)
 
         return(fc2)
 
       } else {
-
+        #Accelerated by Lorenzo when FormalContext_opt$initialize was accelerated by 250%
         self$initialize(my_I)
 
         return(invisible(self))
@@ -737,16 +1051,16 @@ FormalContext <- R6::R6Class(
     #' @description
     #' Reduce a formal context
     #'
-    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext} object is created with the clarified and reduced context, otherwise the current one is overwritten.
+    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext_opt} object is created with the clarified and reduced context, otherwise the current one is overwritten.
     #'
-    #' @return The clarified and reduced \code{FormalContext}.
+    #' @return The clarified and reduced \code{FormalContext_opt}.
     #'
     #' @export
     reduce = function(copy = FALSE) {
 
       if (!private$is_binary) {
 
-        stop("This FormalContext is not binary. Reduction is not implemented for fuzzy contexts.", call. = FALSE)
+        stop("This FormalContext_opt is not binary. Reduction is not implemented for fuzzy contexts.", call. = FALSE)
 
       }
 
@@ -805,7 +1119,92 @@ FormalContext <- R6::R6Class(
 
       if (copy) {
 
-        fc3 <- FormalContext$new(my_I)
+        fc3 <- FormalContext_opt$new(my_I)
+
+        return(fc3)
+
+      } else {
+
+        self$initialize(my_I)
+
+        return(invisible(self))
+
+      }
+
+    },
+
+    #' @description
+    #' Reduce a formal context
+    #'
+    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext_opt} object is created with the clarified and reduced context, otherwise the current one is overwritten.
+    #'
+    #' @return The clarified and reduced \code{FormalContext_opt}.
+    #'
+    #' @export
+    reduce_fast = function(copy = FALSE) {
+
+      if (!private$is_binary) {
+
+        stop("This FormalContext_opt is not binary. Reduction is not implemented for fuzzy contexts.", call. = FALSE)
+
+      }
+
+      # Make a copy with the clarified context
+      fc2 <- self$clarify(TRUE)
+
+      my_I <- Matrix::as.matrix(Matrix::t(fc2$I))
+
+      att <- fc2$attributes
+
+      Z <- Set$new(attributes = att)
+
+      for (y in att) {
+
+        R <- Set$new(attributes = fc2$objects)
+        R$assign(attributes = fc2$objects,
+                 values = rep(1, length(fc2$objects)))
+
+        R <- R$get_vector()
+
+        yv <- Set$new(attributes = att)
+        yv$assign(attributes = y, values = 1)
+        y_down <- fc2$extent_fast(yv)
+
+        for (yp in setdiff(att, y)) {
+
+          ypv <- Set$new(attributes = att)
+          ypv$assign(attributes = yp, values = 1)
+          yp_down <- fc2$extent_fast(ypv)
+
+          S <- .subset(y_down$get_vector(),
+                       yp_down$get_vector())
+
+          if (S[1]) {
+
+            R[Matrix::which(yp_down$get_vector() < R)] <- yp_down$get_vector()[Matrix::which(yp_down$get_vector() < R)]
+
+          }
+
+        }
+
+        if (!.equal_sets(R, y_down$get_vector())[1]) {
+
+          Z$assign(attributes = y, values = 1)
+
+        }
+
+      }
+
+      new_att <- Z$get_attributes()[Matrix::which(Z$get_vector() > 0)]
+
+      idx <- match(new_att, att)
+      my_I <- my_I[, idx]
+      colnames(my_I) <- new_att
+      rownames(my_I) <- fc2$objects
+
+      if (copy) {
+
+        fc3 <- FormalContext_opt$new(my_I)
 
         return(fc3)
 
@@ -859,7 +1258,7 @@ FormalContext <- R6::R6Class(
       colnames(I) <- paste0("M", seq(nm))
       rownames(I) <- paste0("J", seq(nj))
 
-      return(FormalContext$new(I))
+      return(FormalContext_opt$new(I))
 
     },
 
@@ -951,11 +1350,11 @@ FormalContext <- R6::R6Class(
 
       # if (is.null(private$bg_implications)) {
 
-        L <- next_closure_implications(I = my_I,
-                                       grades_set = grades_set,
-                                       attrs = attrs,
-                                       save_concepts = save_concepts,
-                                       verbose = verbose)
+      L <- next_closure_implications(I = my_I,
+                                     grades_set = grades_set,
+                                     attrs = attrs,
+                                     save_concepts = save_concepts,
+                                     verbose = verbose)
 
       # }
 
@@ -1064,11 +1463,11 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
-    #' Save a \code{FormalContext} to RDS or CXT format
+    #' Save a \code{FormalContext_opt} to RDS or CXT format
     #'
-    #' @param filename   (character) Path of the  file where to store the \code{FormalContext}.
+    #' @param filename   (character) Path of the  file where to store the \code{FormalContext_opt}.
     #'
-    #' @return Invisibly the current \code{FormalContext}.
+    #' @return Invisibly the current \code{FormalContext_opt}.
     #'
     #' @details The format is inferred from the extension of the filename.
     #'
@@ -1143,13 +1542,13 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
-    #' Load a \code{FormalContext} from a file
+    #' Load a \code{FormalContext_opt} from a file
     #'
-    #' @param filename   (character) Path of the file to load the \code{FormalContext} from.
+    #' @param filename   (character) Path of the file to load the \code{FormalContext_opt} from.
     #'
     #' @details Currently, only RDS, CSV and CXT files are supported.
     #'
-    #' @return The loaded \code{FormalContext}.
+    #' @return The loaded \code{FormalContext_opt}.
     #'
     #' @export
     load = function(filename) {
@@ -1275,7 +1674,7 @@ FormalContext <- R6::R6Class(
 
       if (self$is_empty()) {
 
-        cat("Empty FormalContext.\n")
+        cat("Empty FormalContext_opt.\n")
 
         return(invisible(self))
 
@@ -1309,7 +1708,7 @@ FormalContext <- R6::R6Class(
         ids <- matp$att_id
         last_attribute <- max(ids) - 1
 
-        str <- paste0("FormalContext with ", dims[1],
+        str <- paste0("FormalContext_opt with ", dims[1],
                       " objects and ",
                       dims[2], " attributes.") %>%
           stringr::str_wrap(width = getOption("width"))
@@ -1342,7 +1741,7 @@ FormalContext <- R6::R6Class(
 
       } else {
 
-        str <- paste0("FormalContext with ", dims[1],
+        str <- paste0("FormalContext_opt with ", dims[1],
                       " objects and ",
                       dims[2], " attributes.") %>%
           stringr::str_wrap(width = getOption("width"))
@@ -1439,7 +1838,7 @@ FormalContext <- R6::R6Class(
     #' @export
     #'
     #' @examples
-    #' fc <- FormalContext$new(planets)
+    #' fc <- FormalContext_opt$new(planets)
     #' fc$incidence()
     incidence = function() {
 
