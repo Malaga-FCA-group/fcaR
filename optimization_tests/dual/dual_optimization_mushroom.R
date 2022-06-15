@@ -19,7 +19,22 @@ fc_dual
 test1 <- function() {
   for(i in seq(4)) fc_mushroom$dual()
 }
-joint_pprof(test1())
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
 
 bench::mark(
   fc_mushroom$dual()

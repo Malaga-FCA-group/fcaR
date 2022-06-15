@@ -15,7 +15,8 @@ fc_cobre32$find_implications()
 ######################################################################################
 
 
-idx <- which(fc_cobre32$concepts$support() > 0.2)
+idx <- which(fc_cobre32$concepts$support() > 0.5)
+idx
 test1 <- function() {
   fc_cobre32$concepts$sublattice(idx)
 }

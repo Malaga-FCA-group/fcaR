@@ -23,7 +23,22 @@ fc_cobre32$implications
 test1 <- function() {
   fc_cobre32$find_implications()
 }
-joint_pprof(test1())
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+  test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
 
 bench::mark(
   fc_cobre32$find_implications()

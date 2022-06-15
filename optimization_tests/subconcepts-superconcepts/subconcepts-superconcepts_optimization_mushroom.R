@@ -16,7 +16,7 @@ S1
 fc_cobre32$concepts
 fc_cobre32$implications
 
-S2 <- fc_cobre32$concepts$sub(10)
+S2 <- fc_cobre32$concepts$sub(4)
 S2
 
 ######################################################################################
