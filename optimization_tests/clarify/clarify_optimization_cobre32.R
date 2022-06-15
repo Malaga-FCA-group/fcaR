@@ -3,18 +3,18 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-data("Mushroom", package = "arules")
+library(microbenchmark)
 
-fc_mushroom <- FormalContext$new(Mushroom)
+fc_cobre32 <- FormalContext$new(cobre32)
 
-fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
 test1 <- function() {
-  fc_mushroom$reduce(TRUE)
+  for(i in seq(100)) fc_cobre32$clarify(TRUE)
 }
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "clarify"
 ######################################################################################
 
 
@@ -35,23 +35,24 @@ system2(
 )
 
 test2 <- function() {
-  fc_mushroom_opt$reduce(TRUE)
+  fc_cobre32$clarify(TRUE)
 }
 
 test3 <- function() {
-  fc_mushroom_opt$reduce_fast(TRUE)
+  fc_cobre32_opt$clarify(TRUE)
 }
 
 bench::mark(
-  test1()
+  fc_cobre32$clarify(TRUE),
+  iterations = 200
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
-  test2(),
-  test3()
+  fc_cobre32_opt$clarify(TRUE),
+  iterations = 200
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "clarify"
 ######################################################################################

@@ -9,33 +9,53 @@ library(arules)
 # fc_mushroom
 
 fc_cobre32 <- FormalContext$new(cobre32)
-fc_cobre32
 
-S1 <- fc_cobre32$find_implications()
-S1
-fc_cobre32$concepts
-fc_cobre32$implications
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-S2 <- fc_cobre32$concepts$sub(10)
-S2
+fc_cobre32$find_implications()
+
+fc_cobre32_opt$find_implications()
+
+S <- fc_cobre32$concepts$sub(6)
+
 C <- fc_cobre32$concepts[1:10]
-
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
-######################################################################################
-
 
 test1 <- function() {
   fc_cobre32$concepts$supremum(C)
 }
-joint_pprof(test1())
 
-bench::mark(
+test2 <- function() {
   fc_cobre32$concepts$infimum(C)
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+}
+
+######################################################################################
+#                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
+######################################################################################
+
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test3 <- function() {
+  fc_cobre32_opt$concepts$supremum(S)
+}
 
 bench::mark(
-  test1()
+  test1(),
+  test3()
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
@@ -49,21 +69,32 @@ bench::mark(
 ######################################################################################
 
 
-test2 <- function() {
-  fc_cobre32$concepts$infimum(C)
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test2()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test4 <- function() {
+  fc_cobre32_opt$concepts$infimum(S)
 }
-joint_pprof(test2())
 
 bench::mark(
-  fc_cobre32$concepts$infimum(C)
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  test2()
+  test2(),
+  test4()
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "infimum"
 ######################################################################################
-

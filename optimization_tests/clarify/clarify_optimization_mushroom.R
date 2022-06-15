@@ -3,24 +3,21 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(microbenchmark)
 data("Mushroom", package = "arules")
 
 fc_mushroom <- FormalContext$new(Mushroom)
 
 fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "clarify"
-######################################################################################
-
-
 test1 <- function() {
   for(i in seq(10)) fc_mushroom$clarify(TRUE)
 }
 
-test2 <- function() {
-  for(i in seq(10)) fc_mushroom_opt$clarify(TRUE)
-}
+######################################################################################
+#                   ANÁLISIS DE RENDIMIENTO ----->     "clarify"
+######################################################################################
+
 
 out_file <- tempfile("jointprof", fileext = ".out")
 start_profiler(out_file)
@@ -38,9 +35,22 @@ system2(
   )
 )
 
+test2 <- function() {
+  fc_mushroom$clarify(TRUE)
+}
+
+test3 <- function() {
+  fc_mushroom_opt$clarify(TRUE)
+}
+
 bench::mark(
-  test1(),
-  test2()
+  fc_mushroom$clarify(TRUE),
+  iterations = 20
+)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+
+bench::mark(
+  fc_mushroom_opt$clarify(TRUE),
+  iterations = 20
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 

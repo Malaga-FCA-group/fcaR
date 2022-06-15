@@ -3,39 +3,58 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-#data("Mushroom")
+# data("Mushroom", package = "arules")
 
-fc_planets <- FormalContext$new(planets)
-fc_planets
+fc_cobre32 <- FormalContext$new(cobre32)
 
-#fc_mushroom <- FormalContext$new(Mushroom)
-#fc_mushroom
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-S1 <- fc_planets$find_implications()
-S1
-fc_planets$concepts
-fc_planets$implications
+# fc_mushroom <- FormalContext$new(Mushroom)
 
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "find_implications"
-######################################################################################
+fc_cobre32$find_implications()
 
-S2 <- fc_planets$standardize()
-S2
+fc_cobre32_opt$find_implications()
+
 test1 <- function() {
-  for(i in seq(100)) fc_planets$standardize()
+  fc_cobre32$standardize()
 }
-joint_pprof(test1())
+
+######################################################################################
+#                   ANÁLISIS DE RENDIMIENTO ----->     "standardize"
+######################################################################################
+
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test2 <- function() {
+  fc_cobre32_opt$standardize()
+}
 
 bench::mark(
-  fc_planets$standardize()
+  test1(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
-  test1()
+  test2(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "find_implications"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "standardize"
 ######################################################################################

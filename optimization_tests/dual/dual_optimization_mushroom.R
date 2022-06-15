@@ -6,19 +6,17 @@ library(arules)
 data("Mushroom", package = "arules")
 
 fc_mushroom <- FormalContext$new(Mushroom)
-fc_mushroom
 
+fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
+
+test1 <- function() {
+  for(i in seq(4)) fc_mushroom$dual()
+}
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "dual"
 ######################################################################################
 
-
-fc_dual<- fc_mushroom$dual()
-fc_dual
-test1 <- function() {
-  for(i in seq(4)) fc_mushroom$dual()
-}
 
 out_file <- tempfile("jointprof", fileext = ".out")
 start_profiler(out_file)
@@ -36,12 +34,22 @@ system2(
   )
 )
 
-bench::mark(
+test2 <- function() {
   fc_mushroom$dual()
+}
+
+test3 <- function() {
+  fc_mushroom_opt$dual()
+}
+
+bench::mark(
+  test2(),
+  iterations = 4
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
-  test1()
+  test3(),
+  iterations = 4
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 

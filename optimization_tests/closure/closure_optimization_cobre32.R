@@ -3,17 +3,16 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-data("Mushroom", package = "arules")
 
-fc_mushroom <- FormalContext$new(Mushroom)
+fc_cobre32 <- FormalContext$new(cobre32)
 
-fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-S <- Set$new(attributes = fc_mushroom$attributes)
-S$assign("class=edible" = 1, "CapShape=flat" = 1, "CapSurf=grooves" = 1)
+S <- Set$new(attributes = fc_cobre32$attributes)
+S$assign("COSAS_1" = 1, "COSAS_2" = 1, "FICAL_2" = 1)
 
 test1 <- function() {
-  fc_mushroom$closure(S)
+  for(i in seq(100)) fc_cobre32$closure(S)
 }
 
 ######################################################################################
@@ -38,28 +37,32 @@ system2(
 )
 
 test2 <- function() {
-  fc_mushroom_opt$closure(S)
+  fc_cobre32$closure(S)
 }
 
 test3 <- function() {
-  fc_mushroom_opt$closure_fast(S)
+  fc_cobre32_opt$closure(S)
 }
 
 test4 <- function() {
-  fc_mushroom_opt$closure_fastest_vector(S)
+  fc_cobre32_opt$closure_fast(S)
 }
 
 test5 <- function() {
-  fc_mushroom_opt$closure_fastest_matrix(S)
+  fc_cobre32_opt$closure_fastest_vector(S)
+}
+
+test6 <- function() {
+  fc_cobre32_opt$closure_fastest_matrix(S)
 }
 
 bench::mark(
-  test1(),
   test2(),
   test3(),
   test4(),
   test5(),
-  iterations = 1000
+  test6(),
+  iterations = 10000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
@@ -68,8 +71,8 @@ bench::mark(
 ######################################################################################
 
 # y <- function(n) {
-#   z <- sample(fc_mushroom_opt$attributes, sample(1:n, 1))
-#   S <- Set$new(attributes = fc_mushroom_opt$attributes)
+#   z <- sample(fc_cobre32_opt$attributes, sample(1:n, 1))
+#   S <- Set$new(attributes = fc_cobre32_opt$attributes)
 #   S$assign(attributes = z, values = 1)
 #   return(S)
 # }
@@ -87,8 +90,8 @@ bench::mark(
 #
 # sink("prueba.txt", append = TRUE)
 # for(i in seq(2)) {
-#   z <- sample(fc_mushroom_opt$attributes, sample(1:10, 1))
-#   S <- Set$new(attributes = fc_mushroom_opt$attributes)
+#   z <- sample(fc_cobre32_opt$attributes, sample(1:10, 1))
+#   S <- Set$new(attributes = fc_cobre32_opt$attributes)
 #   S$assign(attributes = z, values = 1)
 #   x(S)
 # }

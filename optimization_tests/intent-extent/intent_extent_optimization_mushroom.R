@@ -6,45 +6,61 @@ library(arules)
 data("Mushroom", package = "arules")
 
 fc_mushroom <- FormalContext$new(Mushroom)
-fc_mushroom
-fc_mushroom$objects
-fc_mushroom$attributes
+
+fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
 S1 <- Set$new(attributes = fc_mushroom$objects)
 S1$assign(attributes = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), values = c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1))
-S1
 
 S2 <- Set$new(attributes = fc_mushroom$attributes)
 S2$assign("class=edible" = 1, "CapShape=flat" = 1, "CapSurf=grooves" = 1)
-S2
+
+test1 <- function() {
+  for(i in seq(1000)) fc_mushroom$intent(S1)
+}
+
+test2 <- function() {
+  for(i in seq(1000)) fc_mushroom$extent(S2)
+}
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "intent"
 ######################################################################################
 
 
-Sintent1 <- fc_mushroom$intent(S1)
-Sintent1
-test1 <- function(set) {
-  for(i in seq(100)) fc_mushroom$intent(set)
-}
-joint_pprof(test1(S1))
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1(S1)
+profile_data <- stop_profiler()
 
-Sintent2 <- fc_mushroom$intent_fast(S1)
-Sintent2
-test2 <- function(set) {
-  for(i in seq(100)) fc_mushroom$intent_fast(set)
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test3 <- function() {
+  fc_mushroom$intent(S1)
 }
-joint_pprof(test2(S1))
+
+test4 <- function() {
+  fc_mushroom_opt$intent(S1)
+}
+
+test5 <- function() {
+  fc_mushroom_opt$intent_fast(S1)
+}
 
 bench::mark(
-  test1(S1),
-  test2(S1)
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  fc_mushroom$intent(S1),
-  fc_mushroom$intent_fast(S1)
+  test3(),
+  test4(),
+  test5(),
+  iterations = 1000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
@@ -59,28 +75,39 @@ bench::mark(
 ######################################################################################
 
 
-Sextent1 <- fc_mushroom$extent(S2)
-Sextent1
-test3 <- function(set) {
-  for(i in seq(1000)) fc_mushroom$extent(set)
-}
-joint_pprof(test3(S2))
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test2(S2)
+profile_data <- stop_profiler()
 
-Sextent2<- fc_mushroom$extent_fast(S2)
-Sextent2
-test4 <- function(set) {
-  for(i in seq(1000)) fc_mushroom$extent_fast(set)
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test6 <- function() {
+  fc_mushroom$extent(S2)
 }
-joint_pprof(test4(S2))
+
+test7 <- function() {
+  fc_mushroom_opt$extent(S2)
+}
+
+test8 <- function() {
+  fc_mushroom_opt$extent_fast(S2)
+}
 
 bench::mark(
-  test3(S2),
-  test4(S2)
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  fc_mushroom$extent(S2),
-  fc_mushroom$extent_fast(S2)
+  test6(),
+  test7(),
+  test8(),
+  iterations = 1000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 

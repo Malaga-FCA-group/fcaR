@@ -2,35 +2,53 @@ library(fcaR)
 library(bench)
 library(profvis)
 library(jointprof)
+library(arules)
 
-#PRUEBAS CON cobre32
 fc_cobre32 <- FormalContext$new(cobre32)
-fc_cobre32
 
-var <- Matrix::t(fc_cobre32$I)
-var
-var2 <-compute_grades(var)
-var2
-str(var2)
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
+
+test1 <- function() {
+  for(i in seq(40)) fc_cobre32$dual()
+}
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "dual"
 ######################################################################################
 
 
-fc_dual1 <- fc_cobre32$dual()
-fc_dual1
-test1 <- function() {
-  for(i in seq(100)) fc_cobre32$dual()
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test2 <- function() {
+  fc_cobre32$dual()
 }
-joint_pprof(test1())
+
+test3 <- function() {
+  fc_cobre32_opt$dual()
+}
 
 bench::mark(
-  test1(S)
+  test2(),
+  iterations = 40
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
-  fc_cobre32$dual()
+  test3(),
+  iterations = 40
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 

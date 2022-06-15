@@ -3,38 +3,56 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-# data("Mushroom", package = "arules")
+data("Mushroom", package = "arules")
 
-# fc_mushroom <- FormalContext$new(Mushroom)
-# fc_mushroom
+fc_mushroom <- FormalContext$new(Mushroom)
 
-fc_cobre32 <- FormalContext$new(cobre32)
-fc_cobre32
+fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
-S1 <- fc_cobre32$find_implications()
-S1
-fc_cobre32$concepts
-fc_cobre32$implications
+fc_mushroom$find_implications()
 
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
-######################################################################################
-
+fc_mushroom_opt$find_implications()
 
 test1 <- function() {
-  fc_cobre32$concepts$meet_irreducibles()
+  fc_mushroom$concepts$meet_irreducibles()
 }
-joint_pprof(test1())
+
+######################################################################################
+#                   ANÁLISIS DE RENDIMIENTO ----->     "meet_irreducibles"
+######################################################################################
+
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test2 <- function() {
+  fc_mushroom$concepts$meet_irreducibles()
+}
+
+test3 <- function() {
+  fc_mushroom_opt$concepts$meet_irreducibles()
+}
 
 bench::mark(
-  fc_cobre32$concepts$meet_irreducibles()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  test1()
+  test2(),
+  test3(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "meet_irreducibles"
 ######################################################################################

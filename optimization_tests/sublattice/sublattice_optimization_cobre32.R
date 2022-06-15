@@ -3,34 +3,56 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+# data("Mushroom", package = "arules")
+
+# fc_mushroom <- FormalContext$new(Mushroom)
+# fc_mushroom
 
 fc_cobre32 <- FormalContext$new(cobre32)
-fc_cobre32
+
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
 fc_cobre32$find_implications()
 
-
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
-######################################################################################
-
+fc_cobre32_opt$find_implications()
 
 idx <- which(fc_cobre32$concepts$support() > 0.5)
-idx
+
 test1 <- function() {
   fc_cobre32$concepts$sublattice(idx)
 }
-joint_pprof(test1())
+
+######################################################################################
+#                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"
+######################################################################################
+
+
+out_file <- tempfile("jointprof", fileext = ".out")
+start_profiler(out_file)
+test1()
+profile_data <- stop_profiler()
+
+pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
+profile::write_pprof(profile_data, pprof_file)
+system2(
+  find_pprof(),
+  c(
+    "-http",
+    "localhost:8080",
+    shQuote(pprof_file)
+  )
+)
+
+test2 <- function() {
+  fc_cobre32_opt$concepts$sublattice(idx)
+}
 
 bench::mark(
-  fc_cobre32$concepts$join_irreducibles()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  test1()
+  test1(),
+  test2()
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"
 ######################################################################################

@@ -3,18 +3,25 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-data("Mushroom", package = "arules")
+# data("Mushroom", package = "arules")
 
-fc_mushroom <- FormalContext$new(Mushroom)
+# fc_mushroom <- FormalContext$new(Mushroom)
+# fc_mushroom
 
-fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
+fc_cobre32 <- FormalContext$new(cobre32)
+
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
+
+fc_cobre32$find_implications()
+
+fc_cobre32_opt$find_implications()
 
 test1 <- function() {
-  fc_mushroom$reduce(TRUE)
+  fc_cobre32$concepts$meet_irreducibles()
 }
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "meet_irreducibles"
 ######################################################################################
 
 
@@ -35,23 +42,20 @@ system2(
 )
 
 test2 <- function() {
-  fc_mushroom_opt$reduce(TRUE)
+  fc_cobre32$concepts$meet_irreducibles()
 }
 
 test3 <- function() {
-  fc_mushroom_opt$reduce_fast(TRUE)
+  fc_cobre32_opt$concepts$meet_irreducibles()
 }
 
 bench::mark(
-  test1()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
   test2(),
-  test3()
+  test3(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "meet_irreducibles"
 ######################################################################################

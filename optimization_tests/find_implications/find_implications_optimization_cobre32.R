@@ -3,30 +3,25 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
-data("Mushroom", package = "arules")
 
 fc_cobre32 <- FormalContext$new(cobre32)
-fc_cobre32
 
-fc_mushroom <- FormalContext$new(Mushroom)
-fc_mushroom
+fc_cobre32_opt <- FormalContext_opt$new(cobre32)
+
+# fc_mushroom <- FormalContext$new(Mushroom)
+
+test1 <- function() {
+  fc_cobre32$find_implications()
+}
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "find_implications"
 ######################################################################################
 
 
-S1 <- fc_cobre32$find_implications()
-S1
-fc_cobre32$concepts
-fc_cobre32$implications
-test1 <- function() {
-  fc_cobre32$find_implications()
-}
-
 out_file <- tempfile("jointprof", fileext = ".out")
 start_profiler(out_file)
-  test1()
+test1()
 profile_data <- stop_profiler()
 
 pprof_file <- tempfile("jointprof", fileext = ".pb.gz")
@@ -40,38 +35,18 @@ system2(
   )
 )
 
-bench::mark(
-  fc_cobre32$find_implications()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
-  test1()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "find_implications"
-######################################################################################
-
-
-
-######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "find_implications"
-######################################################################################
-
-
-S1 <- fc_mushroom$find_implications()
-test1 <- function() {
-  fc_mushroom$find_implications()
+test2 <- function() {
+  fc_cobre32_opt$find_implications()
 }
-joint_pprof(test1())
 
 bench::mark(
-  fc_mushroom$find_implications()
+  test1(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
-  test1()
+  test2(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
