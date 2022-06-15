@@ -1,6 +1,4 @@
-#include <RcppArmadillo.h>
-// [[Rcpp::depends(RcppArmadillo)]]
-
+#include <Rcpp.h>
 #include "vector_operations.h"
 using namespace Rcpp;
 
@@ -1000,8 +998,8 @@ List compute_grades_c(NumericMatrix mat) {
   for(int i=0; i<mat.cols(); i++) {
 
     NumericVector v = mat(_,i);
-    //v.push_back(1);
-    //v.push_front(0);
+    v.push_back(1);
+    v.push_front(0);
     v = sort_unique(v);
     res.push_back(v);
   }

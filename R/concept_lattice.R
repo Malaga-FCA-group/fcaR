@@ -424,6 +424,32 @@ ConceptLattice <- R6::R6Class(
     },
 
     #' @description
+    #' Superconcepts of a Concept
+    #'
+    #' @param C (numeric or \code{SparseConcept}) The concept to which determine all its superconcepts.
+    #'
+    #' @return
+    #' A list with the superconcepts.
+    #' @export
+    superconcepts_fast = function(C) {
+
+      idx <- private$to_indices(C)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_fast(private$pr_extents)
+
+      }
+
+      # Get the index of all superconcepts
+      M <- private$subconcept_matrix[idx, ]
+      candidates <- which(M > 0)
+
+      self[candidates]
+
+    },
+
+    #' @description
     #' Lower Neighbours of a Concept
     #'
     #' @param C (\code{SparseConcept}) The concept to which find its lower neighbours

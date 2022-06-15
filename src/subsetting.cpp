@@ -261,6 +261,13 @@ SEXP is_subset_C(SEXP X_P, SEXP X_I, SEXP X_DIM, SEXP X, SEXP Y_P, SEXP Y_I, SEX
 }
 
 // [[Rcpp::export]]
+SEXP is_subset_C_fast(SEXP X_P, SEXP X_I, SEXP X_DIM, SEXP X, SEXP PROPER, SEXP OUT_P){
+
+  return X_I;
+
+}
+
+// [[Rcpp::export]]
 SEXP intersects_C(SEXP X_P, SEXP X_I, SEXP X_DIM, SEXP Y_P, SEXP Y_I, SEXP Y_DIM, SEXP OUT_P){
 
   int* x_p = INTEGER(X_P);
