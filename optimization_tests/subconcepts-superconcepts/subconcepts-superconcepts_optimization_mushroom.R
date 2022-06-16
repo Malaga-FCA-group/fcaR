@@ -53,7 +53,8 @@ test3 <- function() {
 
 bench::mark(
   test1(),
-  test3()
+  test3(),
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 
@@ -96,3 +97,9 @@ bench::mark(
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "superconcepts"
 ######################################################################################
+
+fc_planets <- FormalContext$new(planets)
+fc_planets$find_implications()
+prueba <- fc_planets$concepts$extents()
+prueba
+.subset(prueba)
