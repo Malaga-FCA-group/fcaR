@@ -10,6 +10,9 @@
 #' @param sigma_rhs
 #' It's a sparse matrix of consequent of a Implication Set
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
+#'
 #' @return
 #' Returns a 2-tuple of implication_set (Sigma_bin with antecedent of size 1
 #' and sigma_n with antecedent of different size of 1 )
@@ -17,9 +20,9 @@
 #' @examples
 #' In the test, there are implemented examples and in the vignettes
 
-.algorithm_FDB <- function(sigma_lhs,sigma_rhs){
+.algorithm_FDB <- function(sigma_lhs, sigma_rhs, attr){
 
-  if(is.null(sigma_lhs) || is.null(sigma_rhs)){
+  if(is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attr)){
     stop("Some argument introduced in FDB is NULL")
   }
 
@@ -39,7 +42,7 @@
   }
 
   # 2.- Creation of Phi
-  phi <- .minCovers_FDB(NULL,NULL,NULL,gamma)
+  phi <- .minCovers_FDB(NULL, NULL, NULL, gamma, attr)
 
   # 3.- Creation of sigma bin and n
   mult3_phi <- dim(phi)[2]/3

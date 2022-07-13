@@ -13,10 +13,13 @@
 #' IMPORTANT: it is required that all of the columns in gamma were different to
 #' empty set.
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
+#'
 #' @return
 #' Returns a sparse matrix gamma that it is applied the AddClosure function
 
-.addClosure_FDB <- function (A, gamma) {
+.addClosure_FDB <- function (A, gamma, attr) {
 
   # # Check if arguments are correct
   # if (is.null(A) || is.null(gamma)) {
@@ -24,14 +27,15 @@
   # }
 
 
-  # NULL == COLUMN FILL WITH 0s
-  if(is.null(A) && is.null(gamma)){
-    return(NULL)
-  }
+  # # NULL == COLUMN FILL WITH 0s
+  # if(is.null(A) && is.null(gamma)){
+  #   return(NULL)
+  # }
 
-  if(is.null(A)){
-    A <- Matrix(matrix(0,dim(gamma)[1],1))
-  }
+
+  # if(is.null(A)){
+  #   A <- Matrix(matrix(0,dim(gamma)[1],1))
+  # }
 
   # Doesn't require initialize with Matrix Class
   B <- A
@@ -58,17 +62,17 @@
 
         # Ac1
         if (.matrixEquals(A,X)){
-          B <- .union(B, .union(Y,Z) )
+          B <- .union(.union(B,Y), Z)
           C <- .union(C,Z)
         } else {
 
           # Ac2
           if (all(.subset(X,B))){
-            B <- .union(B, .union(Y,Z) )
+            B <- .union(.union(B,Y), Z)
           }
 
           # Ac3
-          if(all(.subset(A,X))){ # !(.matrixEquals(A,X)) not necessary because you check it above
+          if(all(.subset(A,X)) && !(.matrixEquals(A,X))){ # !(.matrixEquals(A,X)) not necessary because you check it above
 
             if(!all(.subset(Y,B))){
               gamma_new <- cbind(gamma_new, X, .difference2(Y,B), .union(Z,C))
@@ -81,12 +85,11 @@
         }
 
         if (sum(A)==1){
-          c <- B
+          C <- B
         }
 
       }
     }
-
 
     gamma <- gamma_new
 

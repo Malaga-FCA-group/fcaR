@@ -17,13 +17,16 @@
 #' It is a sparse matrix in which contains 3-tuples of elements represented by
 #' 3 binded columns together.
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
+#'
 #' @return
 #' Returns an sparse matrix
 
-.minCovers_FDB <- function(A,B,C,gamma){
+.minCovers_FDB <- function(A,B,C,gamma, attr){
 
   # BE CAREFUL WITH A,B,C NULL IN FIRST ITERATION
-  res <- .fix_FDB(A,B,C,gamma)
+  res <- .fix_FDB(A,B,C,gamma,attr)
   mnl <- res[[1]]
   gamma <- res[[2]]
 

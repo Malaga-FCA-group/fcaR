@@ -28,6 +28,8 @@
   sigma_lhs <- listaSigma[[1]]
   sigma_rhs <- listaSigma[[2]]
 
+  browser()
+
   repeat {
 
     flagEQ <- TRUE

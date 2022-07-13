@@ -17,10 +17,12 @@
 #' It is a sparse matrix in which contains 3-tuples of elements represented by
 #' 3 binded columns together.
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
 #' @return
 #' Returns a 2-tuple of sparse matrices (minimals(mx1) and gamma) resultant of apply the function
 
-.fix_FDB <- function( A, B, C, gamma) {
+.fix_FDB <- function( A, B, C, gamma, attr) {
 
   # # Check if arguments are correct
   # if (is.null(gamma)) {
@@ -93,12 +95,16 @@
       }
 
 
+      # all(.subset(vector,X))
+
       # If stopComprobe is TRUE means that not exists W E Minimals ...
       if(stopComprobe == TRUE){
 
         minimals_aux <- NULL
 
         # Remove section (Remove certains columns is equivalent to create another matrix without them)
+
+        # Eliminar con A[1] <- NULL
 
         if(len_Minimals != 0) {
 
@@ -129,7 +135,7 @@
     # The last for
     for(cont in 1:len_Minimals){
       X <- Matrix(minimals[,cont], sparse = TRUE)
-      gamma_new <- .addClosure_FDB(X,gamma_new)
+      gamma_new <- .addClosure_FDB(X,gamma_new, attr)
     }
 
   }

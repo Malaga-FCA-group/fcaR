@@ -119,4 +119,22 @@ attr <- imps2$get_attributes()
 imp_simp <- .algorithm_FDB(lhs,rhs)
 res <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
 
-.algorithm_FDB()
+#------------------------------------------------------------
+input <- system.file("Implications", "ex1", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output1 <- system.file("Implications", "ex1_bin", package = "fcaR")
+imp_out_bin <- parse_implications(output1)
+imp_out_bin
+
+output2 <- system.file("Implications", "ex1_n", package = "fcaR")
+imp_out_n <- parse_implications(output2)
+imp_out_n
+
+
+
+
+
+
