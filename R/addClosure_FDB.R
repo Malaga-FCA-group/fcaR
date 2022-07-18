@@ -1,5 +1,5 @@
 #' @author
-#' Nicolás Felipe Trujillo Montero
+#' Nicolas Felipe Trujillo Montero
 #'
 #' @Title
 #' Application of the addClosure function in the FastD-Basis algorithm
@@ -61,7 +61,7 @@
         Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
 
         # Ac1
-        if (.matrixEquals(A,X)){
+        if (.columnEquals(A,X)){
           B <- .union(.union(B,Y), Z)
           C <- .union(C,Z)
         } else {
@@ -93,7 +93,7 @@
 
     gamma <- gamma_new
 
-    if (.matrixEquals(B_old,B)) {
+    if (.columnEquals(B_old,B)) {
       break
     }
 

@@ -10,6 +10,9 @@
 #' @param sigma_rhs
 #' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
+#'
 #' @return
 #' Equivalent direct-optimal implicational system
 #'
@@ -17,22 +20,21 @@
 #' See in test or vignettes.
 #'
 
-.slGetDo <- function(sigma_lhs, sigma_rhs) {
+.slGetDo <- function(sigma_lhs, sigma_rhs, attr) {
 
   # Check if arguments are correct
-  if (is.null(sigma_lhs) || is.null(sigma_rhs)) {
+  if (is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attr)) {
     stop("Some argument introduced in SLGetDo is NULL")
   }
 
-  listaSigma <- .simplifyDOB(sigma_lhs, sigma_rhs)
+  listaSigma <- .simplifyDOB(sigma_lhs, sigma_rhs, attr)
   sigma_lhs <- listaSigma[[1]]
   sigma_rhs <- listaSigma[[2]]
 
-  browser()
 
   repeat {
 
-    flagEQ <- TRUE
+    # flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sigmaDO_lhs <- sigma_lhs
@@ -60,23 +62,24 @@
             C <- Matrix(sigma_lhs[,ind], sparse=TRUE)
             D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
-            if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) || ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
+            if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) ||
+                 ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
 
               int <- A*C
               uni <- .union(B,D)
 
-              if( (!.matrixEquals(A,int)) || (!.matrixEquals(B,uni)) ) {
-                flagEQ <- FALSE
-              }
+              # if( (!.matrixEquals(A,int)) || (!.matrixEquals(B,uni)) ) {
+              #   flagEQ <- FALSE
+              # }
 
               A <- int
               B <- uni
 
             } else {
 
-              if ( all( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
+              if ( all( .subset(A,C) ) && !( .columnEquals(A,C) ) ) {
 
-                if ( all(!(.subset(D,B))) ) {
+                if ( !( all(.subset(D,B)) ) ) {
 
                   diff1 <- .difference2(C,B)
                   diff2 <- .difference2(D,B)
@@ -90,27 +93,26 @@
 
                 } else {
 
-                  if( all(.subset(C,A)) && !(.matrixEquals(C,A))) {
+                  if( all(.subset(C,A)) && !(.columnEquals(C,A))) {
 
                     diff1 <- .difference2(A,D)
                     diff2 <- .difference2(B,D)
 
-                    if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
-                      flagEQ <- FALSE
-                    }
+                    # if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
+                    #   flagEQ <- FALSE
+                    # }
 
                     A <- diff1
                     B <- diff2
 
                   }
 
-                  # .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs)
                   lista  <- .add_sSimp(A,B,C,D, sigma_lhs, sigma_rhs)
                   lista2 <- .add_sSimp(C,D,A,B, sigma_lhs, sigma_rhs)
 
-                  if(!is.null(lista) || !is.null(lista2)){
-                    flagEQ <- FALSE
-                  }
+                  # if(!is.null(lista) || !is.null(lista2)){
+                  #   flagEQ <- FALSE
+                  # }
 
                   gamma_lhs <- cbind( gamma_lhs, C, lista[[1]], lista2[[1]] )
                   gamma_rhs <- cbind( gamma_rhs, D, lista[[2]], lista2[[2]] )
@@ -140,7 +142,12 @@
       }
 
 
-    if (flagEQ){
+    # if (flagEQ){
+    #   break
+    # }
+
+    if (.matrixEquals(sigmaDO_lhs, sigma_lhs) &&
+        .matrixEquals(sigmaDO_rhs, sigma_rhs)){
       break
     }
 

@@ -1,5 +1,5 @@
 #' @author
-#' Nicolás Felipe Trujillo Montero
+#' Nicolas Felipe Trujillo Montero
 #'
 #' @Title
 #' Application of the add_sSimp function in the SLgetdo algorithm
@@ -43,7 +43,7 @@
   diff_aux <- .difference2( D, (.union(A,B)) )
 
   # Equals between inters and diff_aux doesn't require
-  if ( !(all( .subset(A,C) )) &&  ( sum(B*C) != 0 ) && ( sum( diff_aux ) != 0 ) ) {
+  if ( !( all(.subset(A,C)) ) &&  ( sum(inters) != 0 ) && ( sum( diff_aux ) != 0 ) ) {
 
     # 1
     E <- .union(A, .difference2(C,B))
@@ -77,8 +77,9 @@
     # Return a list with lhs and rhs instead of a implication
     return (list(E,F))
 
+  } else {
+     return(NULL)
   }
 
 
-  return(NULL)
 }

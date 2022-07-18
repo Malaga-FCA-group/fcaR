@@ -1,5 +1,5 @@
 #' @author
-#' Nicolás Felipe Trujillo Montero
+#' NicolAs Felipe Trujillo Montero
 #'
 #' @Title
 #' Application of the simplification function in the Simplify algorithm
@@ -10,6 +10,9 @@
 #' @param sigma_rhs
 #' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
+#' @param attr
+#' It's a vector that contains the attributes of sigma
+#
 #' @return
 #' Implication base simplified
 #'
@@ -17,12 +20,10 @@
 #' See in test or vignettes.
 #'
 
-.simplifyDOB <- function(sigma_lhs, sigma_rhs) {
-
-
+.simplifyDOB <- function(sigma_lhs, sigma_rhs, attr) {
 
   # Check if arguments are correct
-  if (is.null(sigma_lhs) || is.null(sigma_rhs)) {
+  if (is.null(sigma_lhs) || is.null(sigma_rhs) || is.null(attr)) {
     stop("Some argument introduced in simplifyDOB is NULL")
   }
 
@@ -50,7 +51,7 @@
 
   repeat {
 
-    flagEQ <- TRUE
+    # flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sSigma_lhs <- sigma_lhs
@@ -70,7 +71,7 @@
       gamma_lhs <- NULL
       gamma_rhs <- NULL
 
-      # Primera iteracion = 0 longitud
+      # Primera iteracion => 0 columnas sigma
       if(!is.null(sigma_lhs)){
 
         numImplicaciones <- dim(sigma_lhs)[2]
@@ -81,14 +82,15 @@
           D <- Matrix(sigma_rhs[,ind], sparse=TRUE)
 
           # 2
-          if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) || ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
+          if ( ( all( .subset(C,A) ) && all( .subset( A, .union(C,D) ) ) ) ||
+               ( all( .subset(A,C) ) && all( .subset( C, .union(A,B) ) ) ) ) {
 
             int <- A*C
             uni <- .union(B,D)
 
-            if( (!.matrixEquals(A,int)) || (!.matrixEquals(B,uni)) ) {
-              flagEQ <- FALSE
-            }
+            # if( (!.columnEquals(A,int)) || (!.columnEquals(B,uni)) ) {
+            #   flagEQ <- FALSE
+            # }
 
             A <- int
             B <- uni
@@ -96,9 +98,9 @@
           } else {
 
               # 3
-              if ( all( .subset(A,C) ) && !( .matrixEquals(A,C) ) ) {
+              if ( all( .subset(A,C) ) && !( .columnEquals(A,C) ) ) {
 
-                if ( !(all(.subset(D,B))) ) {
+                if ( !( all(.subset(D,B)) ) ) {
 
                   diff1 <- .difference2(C,B)
                   diff2 <- .difference2(D,B)
@@ -117,14 +119,14 @@
               else {
 
                   # 4
-                  if( all(.subset(C,A)) && !(.matrixEquals(C,A)) ) {
+                  if( all(.subset(C,A)) && !(.columnEquals(C,A)) ) {
 
                     diff1 <- .difference2(A,D)
                     diff2 <- .difference2(B,D)
 
-                    if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
-                      flagEQ <- FALSE
-                    }
+                    # if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
+                    #   flagEQ <- FALSE
+                    # }
 
                     A <- diff1
                     B <- diff2
@@ -142,9 +144,6 @@
 
         }
 
-      }
-
-
       # 5
       if (sum(B) == 0) {
 
@@ -158,10 +157,18 @@
 
       }
 
-    # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
-    if ( flagEQ ){
+    }
+
+    if (.matrixEquals(sSigma_lhs, sigma_lhs) &&
+        .matrixEquals(sSigma_rhs, sigma_rhs)){
       break
     }
+
+
+    # # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
+    # if ( flagEQ ){
+    #   break
+    # }
 
   }
 

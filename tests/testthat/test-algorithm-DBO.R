@@ -106,10 +106,11 @@ test_that("Simplify stops the program if input arguments are incorrect.", {
 
 test_that("Comprobe that Simplify works fine.", {
 
-  # Test with 1 implication
-  A <- Matrix(c(1,0,1), sparse = TRUE)
-  B <- Matrix(c(0,1,1), sparse = TRUE)
-  expect_equal(.simplifyDOB(A,B), list(A,.difference2(B,A)))
+  # Test with 1 implication {ac => bc}
+  lhs <- Matrix(c(1,0,1), sparse = TRUE)
+  rhs <- Matrix(c(0,1,1), sparse = TRUE)
+  attr <- c('a','b','c')
+  expect_equal(.simplifyDOB(lhs, rhs, attr), list(lhs, .difference2(rhs,lhs)))
 
 })
 
@@ -124,14 +125,15 @@ test_that("SLGetDo stops the program if input arguments are incorrect.", {
 test_that("Comprobe that SLGetDo works fine.", {
 
   # Test with 1 implication
-  A <- Matrix(c(1,0,1), sparse = TRUE)
-  B <- Matrix(c(0,1,1), sparse = TRUE)
-  expect_equal(.slGetDo(A,B), list(A,.difference2(B,A)))
+  lhs <- Matrix(c(1,0,1), sparse = TRUE)
+  rhs <- Matrix(c(0,1,1), sparse = TRUE)
+  attr <- c('a','b','c')
+  expect_equal(.slGetDo(lhs, rhs, attr), list(lhs, .difference2(rhs,lhs)))
 
 })
 
 test_that("Comprobe that the DBO algorithm works fine with an real example.", {
-  res <- .slGetDo(imp_in$get_LHS_matrix(), imp_in$get_RHS_matrix())
+  res <- .slGetDo(imp_in$get_LHS_matrix(), imp_in$get_RHS_matrix(), imp_in$get_attributes())
   ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr)
   expect_equal(res, list(imp_out$get_LHS_matrix(),imp_out$get_RHS_matrix()))
 })

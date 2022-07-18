@@ -11,6 +11,8 @@ library(useful)
 library(Matrix)
 library(R6)
 
+X <- Matrix(c(1,0,0,1,  1,0,0,1,  1,1,0,1, 1,1,1,1), nrow = 4, ncol=4, sparse=TRUE)
+.matrixEquals(cbind(X,X),X)
 
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
