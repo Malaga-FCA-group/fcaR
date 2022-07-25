@@ -77,21 +77,24 @@
 
             } else {
 
-              if ( all( .subset(A,C) ) && !( .columnEquals(A,C) ) ) {
+                if ( all( .subset(A,C) ) && !( .columnEquals(A,C) ) ) {
 
-                if ( !( all(.subset(D,B)) ) ) {
+                  if ( !( all(.subset(D,B)) ) ) {
 
-                  diff1 <- .difference2(C,B)
-                  diff2 <- .difference2(D,B)
+                    diff1 <- .difference2(C,B)
+                    diff2 <- .difference2(D,B)
 
 #                  if( (!.matrixEquals(C,diff1)) || (!.matrixEquals(D,diff2)) ) {
 #                    flagEQ <- FALSE
 #                  }
 
-                  gamma_lhs <- cbind( gamma_lhs, diff1 )
-                  gamma_rhs <- cbind( gamma_rhs, diff2 )
+                    gamma_lhs <- cbind( gamma_lhs, diff1 )
+                    gamma_rhs <- cbind( gamma_rhs, diff2 )
 
-                } else {
+                  }
+                }
+
+              else {
 
                   if( all(.subset(C,A)) && !(.columnEquals(C,A))) {
 
@@ -119,13 +122,12 @@
 
                 }
 
-              }
-
             }
 
           }
 
         }
+
 
         if (sum(B) == 0) {
 
@@ -139,7 +141,7 @@
 
         }
 
-      }
+     }
 
 
     # if (flagEQ){
@@ -151,9 +153,7 @@
       break
     }
 
-
   }
 
   return( list(sigmaDO_lhs, sigmaDO_rhs) )
-
 }

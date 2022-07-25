@@ -4,14 +4,19 @@
 # (Direct-Optimal basis and Fast Direct-Optimal basis) pass the unitary tests.
 
 ###############################################################################
-# Test Add-sSimp                                                              #
+# Libraries to Load                                                           #
 ###############################################################################
 
-# Initialize parameters
 library(usethis)
 library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
+
+###############################################################################
+# Inputs and Outputs of Examples                                              #
+###############################################################################
+
+# Planets Dataframe
 
 # 1.- Make a fc through a dataframe
 fc <- FormalContext$new(planets)
@@ -21,13 +26,84 @@ fc$find_implications()
 
 # 3.- Save the implications, the left part (antecedent), the right
 # part (consequent) and the attributes
-imp <- fc$implications
-lhs <- imp$get_LHS_matrix()
-rhs <- imp$get_RHS_matrix()
+imp_planets <- fc$implications
 
-# res <- .add_sSimp(A,B,C,D,lhs,rhs) # res = NULL
+###############################################################################
+
+# Example Paper Direct-Optimal Basis
+
+# We have an example to check the output that corresponds to the written example
+# in the article "Direct-optimal basis computation by means of the fusion of
+# simplification rules"
+
+# Input
+input <- system.file("Implications", "ex_implicationsDOB", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex_implicationsDOB_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+###############################################################################
+
+# Example Paper Fast Direct-Optimal Basis
+
+# We have an example to check the output that corresponds to the written example
+# in the article "Formation of the D-basis from implicational
+# systems using Simplification logic"
+
+# Input
+input <- system.file("Implications", "ex_implicationsFDOB", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex_implicationsFDOB_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+
+###############################################################################
+# Test Add-sSimp                                                              #
+###############################################################################
 
 test_that("Add-sSimp stops the program if input arguments are incorrect.", {
+
+  lhs <- imp_planets$get_LHS_matrix()
+  rhs <- imp_planets$get_RHS_matrix()
+
+  A <- Matrix(lhs[,1], sparse=TRUE)
+  B <- Matrix(rhs[,1], sparse=TRUE)
+  C <- Matrix(lhs[,2], sparse=TRUE)
+  D <- Matrix(rhs[,2], sparse=TRUE)
 
   expect_error(.add_sSimp(NULL,B,C,D,lhs,rhs))
   expect_error(.add_sSimp(A,NULL,C,D,lhs,rhs))
@@ -40,6 +116,9 @@ test_that("Add-sSimp stops the program if input arguments are incorrect.", {
 
 test_that("Comprobe that it is possible that add-sSimp returns NULL." ,{
 
+  lhs <- imp_planets$get_LHS_matrix()
+  rhs <- imp_planets$get_RHS_matrix()
+
   A <- Matrix(lhs[,1], sparse=TRUE)
   B <- Matrix(rhs[,1], sparse=TRUE)
   C <- Matrix(lhs[,2], sparse=TRUE)
@@ -50,6 +129,9 @@ test_that("Comprobe that it is possible that add-sSimp returns NULL." ,{
 })
 
 test_that("Comprobe that add-sSimp works fine.", {
+
+  lhs <- imp_planets$get_LHS_matrix()
+  rhs <- imp_planets$get_RHS_matrix()
 
   A_p <- Matrix(c(1,0,0,1), sparse=TRUE)
   B_p <- Matrix(c(0,1,0,0), sparse=TRUE)
@@ -70,37 +152,14 @@ test_that("Comprobe that add-sSimp works fine.", {
 # Test Simplify and SLGetDo                                                   #
 ###############################################################################
 
-
-# Initialize parameters
-library(usethis)
-library(devtools)
-# Command Line = devtools::load_all()
-library(Matrix)
-
-# We have an example to check the output that corresponds to the written example
-# in the article "Direct-optimal basis computation by means of the fusion of
-# simplification rules"
-
-# Input
-input <- system.file("Implications", "ex_implicationsDBO", package = "fcaR")
-imp_in <- parse_implications(input)
-imp_in
-
-# Output
-output <- system.file("Implications", "ex_implicationsDBO_sol", package = "fcaR")
-imp_out <- parse_implications(output)
-imp_out
-
-sigma_lhs <- imp_in$get_LHS_matrix()
-sigma_rhs <- imp_in$get_RHS_matrix()
-attr <- imp_in$get_attributes()
-
-
 test_that("Simplify stops the program if input arguments are incorrect.", {
 
+  lhs <- imp_planets$get_LHS_matrix()
+  rhs <- imp_planets$get_RHS_matrix()
+
   expect_error(.simplifyDOB(NULL,NULL))
-  expect_error(.simplifyDOB(sigma_lhs,NULL))
-  expect_error(.simplifyDOB(NULL,sigma_rhs))
+  expect_error(.simplifyDOB(lhs,NULL))
+  expect_error(.simplifyDOB(NULL,rhs))
 
 })
 
@@ -116,9 +175,12 @@ test_that("Comprobe that Simplify works fine.", {
 
 test_that("SLGetDo stops the program if input arguments are incorrect.", {
 
+  lhs <- imp_planets$get_LHS_matrix()
+  rhs <- imp_planets$get_RHS_matrix()
+
   expect_error(.slGetDo(NULL,NULL))
-  expect_error(.slGetDo(sigma_lhs,NULL))
-  expect_error(.slGetDo(NULL,sigma_rhs))
+  expect_error(.slGetDo(lhs,NULL))
+  expect_error(.slGetDo(NULL,rhs))
 
 })
 
@@ -133,10 +195,29 @@ test_that("Comprobe that SLGetDo works fine.", {
 })
 
 test_that("Comprobe that the DBO algorithm works fine with an real example.", {
-  res <- .slGetDo(imp_in$get_LHS_matrix(), imp_in$get_RHS_matrix(), imp_in$get_attributes())
-  ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr)
-  expect_equal(res, list(imp_out$get_LHS_matrix(),imp_out$get_RHS_matrix()))
+  lhs_ini <- imp_in_ex1$get_LHS_matrix()
+  rhs_ini <- imp_in_ex1$get_RHS_matrix()
+  attr <- imp_in_ex1$get_attributes()
+
+  lhs_fin <- imp_out_ex1$get_LHS_matrix()
+  rhs_fin <- imp_out_ex1$get_RHS_matrix()
+
+  res <- .slGetDo(lhs_ini, rhs_ini, attr)
+  expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
 })
+
+# test_that("Comprobe that the DBO algorithm works fine with an real example 2.", {
+#   lhs_ini <- imp_in_ex2$get_LHS_matrix()
+#   rhs_ini <- imp_in_ex2$get_RHS_matrix()
+#   attr <- imp_in_ex2$get_attributes()
+#
+#   lhs_fin <- imp_out_ex2$get_LHS_matrix()
+#   rhs_fin <- imp_out_ex2$get_RHS_matrix()
+#
+#   res <- .slGetDo(lhs_ini, rhs_ini, attr)
+#   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
+# })
+
 
 ###############################################################################
 # Test AddClosure                                                             #
