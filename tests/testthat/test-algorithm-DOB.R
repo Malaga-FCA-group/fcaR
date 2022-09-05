@@ -30,7 +30,7 @@ imp_planets <- fc$implications
 
 ###############################################################################
 
-# Example Paper Direct-Optimal Basis
+# Example Paper Direct-Optimal Basis (ex_DOB)
 
 # We have an example to check the output that corresponds to the written example
 # in the article "Direct-optimal basis computation by means of the fusion of
@@ -51,17 +51,17 @@ imp_out
 attrSorted <- sort(imp_in$get_attributes())
 sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
 sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
-imp_in_ex1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+imp_in_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 # Output correct
 attrSorted <- sort(imp_out$get_attributes())
 sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
 sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
-imp_out_ex1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+imp_out_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 ###############################################################################
 
-# Example Paper Fast Direct-Optimal Basis
+# Example Paper Fast Direct-Optimal Basis (ex_FDOB)
 
 # We have an example to check the output that corresponds to the written example
 # in the article "Formation of the D-basis from implicational
@@ -82,14 +82,94 @@ imp_out
 attrSorted <- sort(imp_in$get_attributes())
 sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
 sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
-imp_in_ex2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+imp_in_ex_FDOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 # Output correct
 attrSorted <- sort(imp_out$get_attributes())
 sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
 sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
-imp_out_ex2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+imp_out_ex_FDOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
+###############################################################################
+
+# Example 1 (ex1)
+
+# Input
+input <- system.file("Implications", "ex1", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex1_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_1 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+###############################################################################
+
+# Example 2 (ex2)
+
+# Input
+input <- system.file("Implications", "ex2", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex2_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_2 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+###############################################################################
+
+# Example 3 (ex3)
+
+# Input
+input <- system.file("Implications", "ex3", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex3_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_3 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_3 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 ###############################################################################
 # Test Add-sSimp                                                              #
@@ -194,22 +274,22 @@ test_that("Comprobe that SLGetDo works fine.", {
 
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example.", {
-  lhs_ini <- imp_in_ex1$get_LHS_matrix()
-  rhs_ini <- imp_in_ex1$get_RHS_matrix()
-  attr <- imp_in_ex1$get_attributes()
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_DOB).", {
+  lhs_ini <- imp_in_ex_DOB$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_DOB$get_RHS_matrix()
+  attr <- imp_in_ex_DOB$get_attributes()
 
-  lhs_fin <- imp_out_ex1$get_LHS_matrix()
-  rhs_fin <- imp_out_ex1$get_RHS_matrix()
+  lhs_fin <- imp_out_ex_DOB$get_LHS_matrix()
+  rhs_fin <- imp_out_ex_DOB$get_RHS_matrix()
 
   res <- .slGetDo(lhs_ini, rhs_ini, attr)
   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
 })
 
-# test_that("Comprobe that the DBO algorithm works fine with an real example 2.", {
-#   lhs_ini <- imp_in_ex2$get_LHS_matrix()
-#   rhs_ini <- imp_in_ex2$get_RHS_matrix()
-#   attr <- imp_in_ex2$get_attributes()
+# test_that("Comprobe that the DBO algorithm works fine with an real example (ex_FDOB).", {
+#   lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
+#   rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
+#   attr <- imp_in_ex2_FDOBget_attributes()
 #
 #   lhs_fin <- imp_out_ex2$get_LHS_matrix()
 #   rhs_fin <- imp_out_ex2$get_RHS_matrix()
@@ -218,28 +298,29 @@ test_that("Comprobe that the DBO algorithm works fine with an real example.", {
 #   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
 # })
 
+test_that("Comprobe that the DBO algorithm works fine with an real example (ex_FDOB).", {
+  lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
+  attr <- imp_in_ex2_FDOBget_attributes()
+
+  lhs_fin <- imp_out_ex2$get_LHS_matrix()
+  rhs_fin <- imp_out_ex2$get_RHS_matrix()
+
+  res <- .slGetDo(lhs_ini, rhs_ini, attr)
+  expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
+})
 
 ###############################################################################
 # Test AddClosure                                                             #
 ###############################################################################
 
-# Initialize parameters
-library(usethis)
-library(devtools)
-# Command Line = devtools::load_all()
-library(Matrix)
-
 test_that("AddClosure works fine if input arguments are NULL.",{
   A <- Matrix(c(1,0,0), sparse = TRUE)
   gamma <- cbind(A,A,A)
 
-  expect_equal(.addClosure_FDB(NULL,NULL), NULL)
-
-  res1 <- Matrix(c(1,0,0, 0,0,0, 1,0,0),3,3,sparse = TRUE)
-  expect_equivalent(res1, .addClosure_FDB(A,NULL))
-
-  res2 <- Matrix(c(1,0,0, 1,0,0, 1,0,0, 0,0,0, 0,0,0, 0,0,0),3,6, sparse = TRUE)
-  expect_equal(.addClosure_FDB(NULL,gamma), res2)
+  expect_error(.addClosure_FDB(NULL,NULL))
+  expect_error(.addClosure_FDB(A,NULL))
+  expect_error(.addClosure_FDB(NULL,gamma))
 
 })
 
@@ -266,12 +347,6 @@ test_that("Comprobe that AddClosure works fine 2.",{
 ###############################################################################
 # Test Fix                                                                    #
 ###############################################################################
-
-# Initialize parameters
-library(usethis)
-library(devtools)
-# Command Line = devtools::load_all()
-library(Matrix)
 
 test_that("Fix works fine if input arguments are NULL.",{
 

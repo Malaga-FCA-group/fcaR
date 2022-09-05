@@ -22,123 +22,93 @@
 #' @return
 #' Returns a 2-tuple of sparse matrices (minimals(mx1) and gamma) resultant of apply the function
 
-.fix_FDB <- function( A, B, C, gamma, attr) {
+.fix_FDB <- function(A, B, C, gamma, attr) {
 
-  # # Check if arguments are correct
-  # if (is.null(gamma)) {
-  #   stop("Some argument introduced in fix_FDB is NULL")
-  # }
+  # Check if arguments are correct. First iteration A, B,C are NULL
+  if (is.null(gamma)) {
+   stop("Gamma introduced in fix_FDB is NULL")
+  }
 
   # Creation of attributes
   gamma_new <- NULL
-  minimals <- NULL
+  mnl <- NULL
 
-  # Gamma could be empty set
-  if(!is.null(gamma)){
+  # Initialize the first time A,B,C
+  if(is.null(A)){
+    A <- Matrix(matrix(0,dim(gamma)[1],1), sparse = TRUE)
+  }
 
-    # Initialize the first time A,B,C
-    if(is.null(A)){
-      A <- Matrix(matrix(0,dim(gamma)[1],1))
+  if(is.null(B)){
+    B <- Matrix(matrix(0,dim(gamma)[1],1), sparse = TRUE)
+  }
+
+  if(is.null(C)){
+    C <- Matrix(matrix(0,dim(gamma)[1],1), sparse = TRUE)
+  }
+
+  mult3_gamma <- dim(gamma)[2]/3
+
+  # We do the loop <X,Y,Z> E gamma
+  for ( ind_mul3_gamma in 1:mult3_gamma ) {
+
+    # As the matrix gamma is a set which element is a tuple of 3 elements
+    # we use multiples of 3 to initialize X,Y,Z
+    gamma_ind <-(ind_mul3_gamma-1) *3
+
+    X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
+    Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
+    Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
+
+    # We do the 3 initialize in F1
+    un <- .union(B,C)
+    X  <- .union(A, .difference2(X, un))
+    Y  <- .difference2(Y, un)
+    Z  <- .union(C, .difference2(Z,B) )
+
+    # We do the if
+    if (sum(Y) != 0) {
+      gamma_new <- cbind(gamma_new, X, Y, Z)
     }
 
-    if(is.null(B)){
-      B <- Matrix(matrix(0,dim(gamma)[1],1))
-    }
 
-    if(is.null(C)){
-      C <- Matrix(matrix(0,dim(gamma)[1],1))
-    }
+    if(is.null(mnl)){
+      mnl <- X
+    } else{
 
-    mult3_gamma <- dim(gamma)[2]/3
-    # We do the loop <X,Y,Z> E gamma
-    for ( ind_mul3_gamma in 1:mult3_gamma ) {
+      bool <- any(apply(mnl, MARGIN = 2,
+                        FUN = function(col, X){
+                          W <- Matrix(col, sparse = TRUE);
+                          return( all(.subset(W,X)) )
+                        }, X))
 
-      # As the matrix gamma is a set which element is a tuple of 3 elements
-      # we use multiples of 3 to initialize X,Y,Z
-      gamma_ind <-(ind_mul3_gamma-1) *3
+      # If bool is TRUE means that not exists W E Minimals ...
+      if(!bool){
 
-      X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
-      Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
-      Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
+        # We see here which columns don't meet the condition to get them
+        res <- apply(mnl, MARGIN = 2,
+                     FUN = function(col, X){
+                       V <- Matrix(col, sparse = TRUE);
+                       return( !all(.subset(X,V)) )
+                     }, X)
 
-      # We do the 3 initialize in F1
-      X <- .union(A, .difference2(X, .union(B,C) ))
-      Y <- .difference2(Y, .union(B,C) )
-      Z <- .union(C, .difference2(Z,B) )
-
-      # We do the if
-      if (sum(Y) != 0) {
-        gamma_new <- cbind(gamma_new, X, Y, Z)
-      }
-
-      # Check if there is not exist, F2
-      stopComprobe <- TRUE
-      cont <- 1
-      len_Minimals <- dim(minimals)[2]
-
-      # If minimals is NULL, we couldn't enter in the while loop
-      if(!is.null(minimals)){
-
-        while ( stopComprobe && (cont <= len_Minimals) ) {
-
-          W <- Matrix( minimals[,cont], sparse = TRUE )
-
-          if(all(.subset(W,X))){
-            stopComprobe <- FALSE
-          }
-
-          cont <- cont + 1
-        }
-
-      } else {
-        len_Minimals <- 0
-      }
-
-
-      # all(.subset(vector,X))
-
-      # If stopComprobe is TRUE means that not exists W E Minimals ...
-      if(stopComprobe == TRUE){
-
-        minimals_aux <- NULL
-
-        # Remove section (Remove certains columns is equivalent to create another matrix without them)
-
-        # Eliminar con A[1] <- NULL
-
-        if(len_Minimals != 0) {
-
-          for(cont in 1:len_Minimals){
-
-            V <- Matrix( minimals[,cont], sparse=TRUE )
-
-            if(!all(.subset(X,V))){
-              minimals_aux <- cbind(minimals_aux,V)
-            }
-
-          }
-
-          minimals <- minimals_aux
-
-        }
-
-        # Add section
-
-        minimals <- cbind(minimals,X)
+        # Here, we stay with the columns above and add the X at the minimals
+        mnl <- cbind(mnl[,res],X)
 
       }
 
-    }
-
-    len_Minimals <- dim(minimals)[2]
-
-    # The last for
-    for(cont in 1:len_Minimals){
-      X <- Matrix(minimals[,cont], sparse = TRUE)
-      gamma_new <- .addClosure_FDB(X,gamma_new, attr)
     }
 
   }
 
-  return(list(minimals,gamma_new))
+  len_mnl <- dim(mnl)[2]
+
+  # The last for
+  for(cont in 1:len_mnl){
+    X <- Matrix(mnl[,cont], sparse = TRUE)
+    gamma_new <- .addClosure_FDB(X,gamma_new, attr)
+  }
+
+
+
+  return(list(mnl,gamma_new))
 }

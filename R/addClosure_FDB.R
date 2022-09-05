@@ -21,74 +21,60 @@
 
 .addClosure_FDB <- function (A, gamma, attr) {
 
-  # # Check if arguments are correct
-  # if (is.null(A) || is.null(gamma)) {
-  #   stop("Some argument introduced in .addClosure is NULL")
-  # }
-
-
-  # # NULL == COLUMN FILL WITH 0s
-  # if(is.null(A) && is.null(gamma)){
-  #   return(NULL)
-  # }
-
-
-  # if(is.null(A)){
-  #   A <- Matrix(matrix(0,dim(gamma)[1],1))
-  # }
+  # Check if arguments are correct
+  if (is.null(A) || is.null(gamma)) {
+   stop("Some argument introduced in .addClosure is NULL")
+  }
 
   # Doesn't require initialize with Matrix Class
   B <- A
   C <- A
 
-  repeat{
+  repeat {
 
     # Doesn't require initialize with Matrix Class
     B_old <- B
     gamma_new <- NULL
 
-    if(!is.null(gamma)){
+    mult3_gamma <- dim(gamma)[2]/3
 
-      mult3_gamma <- dim(gamma)[2]/3
+    for ( ind in 1:mult3_gamma ) {
 
-      for ( ind in 1:mult3_gamma ) {
+      # Initialize X,Y,Z
+      gamma_ind <-(ind-1) *3
 
-        # Initialize X,Y,Z
-        gamma_ind <-(ind-1) *3
+      X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
+      Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
+      Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
 
-        X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
-        Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
-        Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
+      # Ac1
+      if (.columnEquals(A,X)){
+        B <- .union(.union(B,Y), Z)
+        C <- .union(C,Z)
+      } else {
 
-        # Ac1
-        if (.columnEquals(A,X)){
+        # Ac2
+        if (all(.subset(X,B))){
           B <- .union(.union(B,Y), Z)
-          C <- .union(C,Z)
+        }
+
+        # Ac3
+        if(all(.subset(A,X))){ # !(.columnEquals(A,X)) not necessary because you check it above
+
+          if(!all(.subset(Y,B))){
+            gamma_new <- cbind(gamma_new, X, .difference2(Y,B), .union(Z,C))
+          }
+
+        # Ac4
         } else {
-
-          # Ac2
-          if (all(.subset(X,B))){
-            B <- .union(.union(B,Y), Z)
-          }
-
-          # Ac3
-          if(all(.subset(A,X)) && !(.matrixEquals(A,X))){ # !(.matrixEquals(A,X)) not necessary because you check it above
-
-            if(!all(.subset(Y,B))){
-              gamma_new <- cbind(gamma_new, X, .difference2(Y,B), .union(Z,C))
-            }
-
-          # Ac4
-          } else {
-            gamma_new <- cbind(gamma_new, X, Y, Z)
-          }
+          gamma_new <- cbind(gamma_new, X, Y, Z)
         }
-
-        if (sum(A)==1){
-          C <- B
-        }
-
       }
+
+      if (sum(A)==1){
+        C <- B
+      }
+
     }
 
     gamma <- gamma_new
@@ -98,9 +84,6 @@
     }
 
   }
-
-
-
 
   #Ac5
   if (sum(A)==1){

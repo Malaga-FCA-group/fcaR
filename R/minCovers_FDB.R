@@ -25,6 +25,11 @@
 
 .minCovers_FDB <- function(A,B,C,gamma, attr){
 
+  # Check if arguments are correct
+  if (is.null(gamma)) {
+    stop("Gamma introduced in .minCovers_FDB is NULL")
+  }
+
   # BE CAREFUL WITH A,B,C NULL IN FIRST ITERATION
   res <- .fix_FDB(A,B,C,gamma,attr)
   mnl <- res[[1]]
@@ -35,32 +40,38 @@
   mult3_gamma <- dim(gamma)[2]/3
 
 
-  if(!is.null(gamma)){
+  for ( ind_mul3_gamma in 1:mult3_gamma ) {
 
-    for ( ind_mul3_gamma in 1:mult3_gamma ) {
+    gamma_ind <-(ind_mul3_gamma-1) *3
 
-      gamma_ind <-(ind_mul3_gamma-1) *3
+    X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
 
-      X <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
+    isElement <- any(apply(mnl, MARGIN = 2,
+                           FUN = function(col, X){
+                                  col <- Matrix(col, sparse = TRUE);
+                                  return( all(.columnEquals(col,X)) )
+                                }, X))
+    # any(.equal_sets(X,Y))
+    # %~%
 
-      if(isElementOf_FDB(X,mnl)){
+    if(isElement){
 
-        Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
-        Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
+      Y <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
+      Z <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
 
-        min <- .minCovers_FDB(X,Y,Z,gamma)
+      min <- .minCovers_FDB(X,Y,Z,gamma,attr)
 
-        if(!is.null(min)){
-          psi <- .union( cbind(X,Y,Z),min)
-        }
-
-        phi <- .join_FDB(phi,psi)
+      if(!is.null(min)){
+        psi <- .union( cbind(X,Y,Z),min)
+      } else {
+        psi <- cbind(X,Y,Z)
       }
+
+      phi <- .join_FDB(phi,psi)
 
     }
 
   }
 
   return(phi)
-
 }

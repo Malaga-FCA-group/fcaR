@@ -51,7 +51,7 @@
 
   repeat {
 
-    # flagEQ <- TRUE
+    flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
     sSigma_lhs <- sigma_lhs
@@ -88,9 +88,9 @@
             int <- A*C
             uni <- .union(B,D)
 
-            # if( (!.columnEquals(A,int)) || (!.columnEquals(B,uni)) ) {
-            #   flagEQ <- FALSE
-            # }
+            if( (!.columnEquals(A,int)) || (!.columnEquals(B,uni)) ) {
+             flagEQ <- FALSE
+            }
 
             A <- int
             B <- uni
@@ -105,9 +105,9 @@
                   diff1 <- .difference2(C,B)
                   diff2 <- .difference2(D,B)
 
-#                  if( (!.matrixEquals(C,diff1)) || (!.matrixEquals(D,diff2)) ) {
-#                    flagEQ <- FALSE
-#                  }
+                  if( (!.columnEquals(C,diff1)) || (!.columnEquals(D,diff2)) ) {
+                     flagEQ <- FALSE
+                  }
 
                   gamma_lhs <- cbind( gamma_lhs, diff1 )
                   gamma_rhs <- cbind( gamma_rhs, diff2 )
@@ -124,9 +124,9 @@
                     diff1 <- .difference2(A,D)
                     diff2 <- .difference2(B,D)
 
-                    # if(!.matrixEquals(A,diff1) || !.matrixEquals(B,diff2)){
-                    #   flagEQ <- FALSE
-                    # }
+                    if(!.columnEquals(A,diff1) || !.columnEquals(B,diff2)){
+                     flagEQ <- FALSE
+                    }
 
                     A <- diff1
                     B <- diff2
@@ -159,16 +159,16 @@
 
     }
 
-    if (.matrixEquals(sSigma_lhs, sigma_lhs) &&
-        .matrixEquals(sSigma_rhs, sigma_rhs)){
-      break
-    }
+ # if (.matrixEquals(sSigma_lhs, sigma_lhs) &&
+ #     .matrixEquals(sSigma_rhs, sigma_rhs)){
+ #      break
+ #    }
 
 
-    # # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
-    # if ( flagEQ ){
-    #   break
-    # }
+     # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
+     if ( flagEQ ){
+       break
+     }
 
   }
 

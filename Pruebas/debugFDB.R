@@ -4,13 +4,29 @@ library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
 
-input2 <- system.file("Implications", "ex_paper", package = "fcaR")
-imps2 <- parse_implications(input2)
-imps2
+# Input
+input <- system.file("Implications", "ex_implicationsFDOB", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
 
-sigma_lhs <- imps2$get_LHS_matrix() # ordered by attributes randomly
-sigma_rhs <- imps2$get_RHS_matrix()
-attr <- imps2$get_attributes()
+# Output
+output <- system.file("Implications", "ex_implicationsFDOB_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_FDOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_FDOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
 
 # fil <- dim(sigma_lhs)[1]
 # col <- dim(sigma_lhs)[2]
@@ -26,5 +42,7 @@ attr <- imps2$get_attributes()
 
 
 
-imp_simp <- .algorithm_FDB(lhs,rhs,attr)
+imp_simp <- .algorithm_FDB(sigma_lhs = imp_in_ex_FDOB$get_LHS_matrix(),
+                           sigma_rhs = imp_in_ex_FDOB$get_RHS_matrix(),
+                           attr = imp_in_ex_FDOB$get_attributes())
 

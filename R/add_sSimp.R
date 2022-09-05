@@ -23,7 +23,7 @@
 #' Sparse Matrix equivalent to implications$get_RHS_matrix()
 #'
 #' @return
-#' A list of lhs and rhs "E -> F"
+#' A list of lhs and rhs "E -> F" and the flag
 #'
 #' @note
 #' CTRL + SHIFT + ALT + R to add the skeleton description
@@ -34,16 +34,18 @@
 .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs) {
 
   # Check if arguments are correct
-  if (is.null(A) || is.null(B) || is.null(C) || is.null(D) || is.null(sigma_lhs) || is.null(sigma_rhs) ) {
+  if (is.null(A) || is.null(B) || is.null(C) || is.null(D)
+      || is.null(sigma_lhs) || is.null(sigma_rhs) ) {
     stop("Some argument introduced in Add_sSimp is NULL")
   }
-
 
   inters <- B*C
   diff_aux <- .difference2( D, (.union(A,B)) )
 
   # Equals between inters and diff_aux doesn't require
-  if ( !( all(.subset(A,C)) ) &&  ( sum(inters) != 0 ) && ( sum( diff_aux ) != 0 ) ) {
+  if ( !( all(.subset(A,C)) ) && ( sum(inters) != 0 ) &&
+        ( sum( diff_aux ) != 0 ) ## && !(.columnEquals(inters,diff_aux))
+       ) {
 
     # 1
     E <- .union(A, .difference2(C,B))
@@ -62,7 +64,7 @@
 
           if( all(.subset(F,Y)) ) {
 
-            return(NULL)
+            return(list(NULL,TRUE))
 
           } else {
 
@@ -74,11 +76,28 @@
       }
     }
 
+    impl <- list(E,F)
+    flag <- TRUE
+
+    if(    (.columnEquals(E,A) && .columnEquals(F,B))
+        || (.columnEquals(E,A) && .columnEquals(F,D))
+        || (.columnEquals(E,C) && .columnEquals(F,B))
+        || (.columnEquals(E,C) && .columnEquals(F,D))
+        ) {
+      flag <- FALSE
+    }
+
+    # if(  (.columnEquals(E,A) && .columnEquals(F,B))
+    #    || (.columnEquals(E,C) && .columnEquals(F,D))
+    #    ) {
+    #  flag <- FALSE
+    # }
+
     # Return a list with lhs and rhs instead of a implication
-    return (list(E,F))
+    return(list(impl,flag))
 
   } else {
-     return(NULL)
+     return(list(NULL,TRUE))
   }
 
 
