@@ -18,7 +18,6 @@
 #'
 #' @examples
 #' See in test or vignettes.
-#'
 
 .slGetDo <- function(sigma_lhs, sigma_rhs, attr) {
 
@@ -30,11 +29,11 @@
   listaSigma <- .simplifyDOB(sigma_lhs, sigma_rhs, attr)
   sigma_lhs <- listaSigma[[1]]
   sigma_rhs <- listaSigma[[2]]
-  ctr <- 0
 
   repeat {
 
-    ctr <- ctr +1
+    # We use in each iteration of the repeat loop a system of flags
+    # to check if the SigmaDO and the sigma are equal.
     flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
@@ -69,6 +68,7 @@
               int <- A*C
               uni <- .union(B,D)
 
+              # We check if the "int = A" and "uni = B"
               if( (!.columnEquals(A,int)) || (!.columnEquals(B,uni)) ) {
                flagEQ <- FALSE
               }
@@ -85,6 +85,7 @@
                     diff1 <- .difference2(C,B)
                     diff2 <- .difference2(D,B)
 
+                    # We check if the "diff1 = C" and "diff2 = D"
                     if( (!.columnEquals(C,diff1)) || (!.columnEquals(D,diff2)) ) {
                       flagEQ <- FALSE
                     }
@@ -102,9 +103,10 @@
                     diff1 <- .difference2(A,D)
                     diff2 <- .difference2(B,D)
 
-                      if(!.columnEquals(A,diff1) || !.columnEquals(B,diff2)){
+                    # We check if the "diff1 = C" and "diff2 = D"
+                    if(!.columnEquals(A,diff1) || !.columnEquals(B,diff2)){
                         flagEQ <- FALSE
-                      }
+                    }
 
                     A <- diff1
                     B <- diff2
@@ -114,25 +116,8 @@
                   lista  <- .add_sSimp(A,B,C,D, sigma_lhs, sigma_rhs)
                   lista2 <- .add_sSimp(C,D,A,B, sigma_lhs, sigma_rhs)
 
-                   # if( !is.null(lista) || !is.null(lista2) ) {
-                   #
-                   #   if(!is.null(lista) && !is.null(lista2)){
-                   #     if( !(.columnEquals(lista[[1]],C) && .columnEquals(lista[[2]],D) &&
-                   #        .columnEquals(lista2[[1]],A) && .columnEquals(lista2[[2]],B)) ){
-                   #       flagEQ <- FALSE
-                   #     }
-                   #   } else if(!is.null(lista)) {
-                   #     if( !(.columnEquals(lista[[1]],C) && .columnEquals(lista[[2]],D)) ){
-                   #       flagEQ <- FALSE
-                   #     }
-                   #   } else if(!is.null(lista2)) {
-                   #     if( !(.columnEquals(lista2[[1]],A) && .columnEquals(lista2[[2]],B)) ){
-                   #       flagEQ <- FALSE
-                   #     }
-                   #   }
-                   #
-                   # }
-
+                  # We check if the previous flag with the returned flags
+                  # of the add_sSimp
                   flagEQ <- flagEQ && lista[[2]] && lista2[[2]]
 
                   E1 <- lista[[1]][[1]]
@@ -166,14 +151,17 @@
 
      }
 
+
+   # We use a flag to check the equality because the equality in sets
+   # isn't efficient (State if it's important the order)
    if (flagEQ){
      break
    }
 
-# if (.matrixEquals(sigmaDO_lhs, sigma_lhs) &&
-#     .matrixEquals(sigmaDO_rhs, sigma_rhs)){
-#     break
-# }
+  # if (.matrixEquals(sigmaDO_lhs, sigma_lhs) &&
+  #     .matrixEquals(sigmaDO_rhs, sigma_rhs)){
+  #     break
+  # }
 
   }
 

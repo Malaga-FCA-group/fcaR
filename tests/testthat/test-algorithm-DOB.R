@@ -172,6 +172,34 @@ sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
 imp_out_ex_3 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 ###############################################################################
+
+# Example 4 (ex_Inf_Sci)
+
+# Input
+input <- system.file("Implications", "ex_Inf_Sci", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex_Inf_Sci_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_Inf_Sci <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_Inf_Sci <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+
+###############################################################################
 # Test Add-sSimp                                                              #
 ###############################################################################
 
@@ -204,7 +232,8 @@ test_that("Comprobe that it is possible that add-sSimp returns NULL." ,{
   C <- Matrix(lhs[,2], sparse=TRUE)
   D <- Matrix(rhs[,2], sparse=TRUE)
 
-  expect_null(.add_sSimp(A,B,C,D,lhs,rhs), NULL)
+  expect_null(.add_sSimp(A,B,C,D,lhs,rhs)[[1]])
+  expect_true(.add_sSimp(A,B,C,D,lhs,rhs)[[2]])
 
 })
 
@@ -218,13 +247,13 @@ test_that("Comprobe that add-sSimp works fine.", {
   C_p <- Matrix(c(0,1,1,0), sparse=TRUE)
   D_p <- Matrix(c(0,0,1,0), sparse=TRUE)
 
-  expect_false(is.null(.add_sSimp(A_p,B_p,C_p,D_p,lhs,rhs)))
+  expect_false(is.null(.add_sSimp(A_p,B_p,C_p,D_p,lhs,rhs)[[1]]))
 
   E_p <- Matrix(c(0,0,1,1), sparse=TRUE)
   F_p <- Matrix(c(0,0,1,0), sparse=TRUE)
   res <- list(E_p,F_p)
 
-  expect_equal(.add_sSimp(A_p,B_p,C_p,D_p,lhs,rhs), res)
+  expect_equal(.add_sSimp(A_p,B_p,C_p,D_p,lhs,rhs)[[1]], res)
 })
 
 
@@ -286,28 +315,55 @@ test_that("Comprobe that the DOB algorithm works fine with an real example (ex_D
   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
 })
 
-# test_that("Comprobe that the DBO algorithm works fine with an real example (ex_FDOB).", {
-#   lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
-#   rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
-#   attr <- imp_in_ex2_FDOBget_attributes()
-#
-#   lhs_fin <- imp_out_ex2$get_LHS_matrix()
-#   rhs_fin <- imp_out_ex2$get_RHS_matrix()
-#
-#   res <- .slGetDo(lhs_ini, rhs_ini, attr)
-#   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
-# })
-
 test_that("Comprobe that the DBO algorithm works fine with an real example (ex_FDOB).", {
-  lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
-  rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
-  attr <- imp_in_ex2_FDOBget_attributes()
+ lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
+ rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
+ attr <- imp_in_ex_FDOB$get_attributes()
 
-  lhs_fin <- imp_out_ex2$get_LHS_matrix()
-  rhs_fin <- imp_out_ex2$get_RHS_matrix()
+ res <- .slGetDo(lhs_ini, rhs_ini, attr)
+ sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+ expect_true(sol %~% imp_out_ex_FDOB)
+})
+
+test_that("Comprobe that the DBO algorithm works fine with an real example (ex_1).", {
+  lhs_ini <- imp_in_ex_1$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_1$get_RHS_matrix()
+  attr <- imp_in_ex_1$get_attributes()
+
 
   res <- .slGetDo(lhs_ini, rhs_ini, attr)
-  expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
+  sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+  expect_true( sol %~% imp_out_ex_1 )
+})
+
+test_that("Comprobe that the DBO algorithm works fine with an real example (ex_2).", {
+  lhs_ini <- imp_in_ex_2$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_2$get_RHS_matrix()
+  attr <- imp_in_ex_2$get_attributes()
+
+  res <- .slGetDo(lhs_ini, rhs_ini, attr)
+  sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+  expect_true( sol %~% imp_out_ex_2 )
+})
+
+test_that("Comprobe that the DBO algorithm works fine with an real example (ex_3).", {
+  lhs_ini <- imp_in_ex_3$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_3$get_RHS_matrix()
+  attr <- imp_in_ex_3$get_attributes()
+
+  res <- .slGetDo(lhs_ini, rhs_ini, attr)
+  sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+  expect_true( sol %~% imp_out_ex_3 )
+})
+
+test_that("Comprobe that the DBO algorithm works fine with an real example (ex_Inf_Sci).", {
+  lhs_ini <- imp_in_ex_Inf_Sci$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_Inf_Sci$get_RHS_matrix()
+  attr <- imp_in_ex_Inf_Sci$get_attributes()
+
+  res <- .slGetDo(lhs_ini, rhs_ini, attr)
+  sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+  expect_true( sol %~% imp_out_ex_Inf_Sci )
 })
 
 ###############################################################################
@@ -350,7 +406,7 @@ test_that("Comprobe that AddClosure works fine 2.",{
 
 test_that("Fix works fine if input arguments are NULL.",{
 
-  expect_equal(.fix_FDB(NULL,NULL,NULL,NULL), list(NULL,NULL))
+  expect_error(.fix_FDB(NULL,NULL,NULL,NULL), list(NULL,NULL))
 
   gamma <- Matrix(c(1,0,0, 0,0,1, 0,1,1), 3, 3, sparse = TRUE)
   mnl <- Matrix(c(1,0,0),3,1,sparse = TRUE)

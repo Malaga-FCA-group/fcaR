@@ -25,6 +25,9 @@
 #' @return
 #' A list of lhs and rhs "E -> F" and the flag
 #'
+#' @examples
+#' See in test or vignettes.
+#'
 #' @note
 #' CTRL + SHIFT + ALT + R to add the skeleton description
 #' .subset = equals or contains
@@ -39,6 +42,7 @@
     stop("Some argument introduced in Add_sSimp is NULL")
   }
 
+  # We make the two parameters
   inters <- B*C
   diff_aux <- .difference2( D, (.union(A,B)) )
 
@@ -76,6 +80,8 @@
       }
     }
 
+    # We apply a technique of using flags checking if the new implication
+    # is different to a combination with the implication passed as parameters
     impl <- list(E,F)
     flag <- TRUE
 
@@ -87,13 +93,6 @@
       flag <- FALSE
     }
 
-    # if(  (.columnEquals(E,A) && .columnEquals(F,B))
-    #    || (.columnEquals(E,C) && .columnEquals(F,D))
-    #    ) {
-    #  flag <- FALSE
-    # }
-
-    # Return a list with lhs and rhs instead of a implication
     return(list(impl,flag))
 
   } else {

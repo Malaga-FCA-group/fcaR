@@ -181,4 +181,37 @@ fc$implications$closure(S)
 
 .equal_sets(lh,lh)
 
+################################################################################
 
+# Example 3 (ex3)
+
+# Input
+input <- system.file("Implications", "ex3", package = "fcaR")
+imp_in <- parse_implications(input)
+imp_in
+
+# Output
+output <- system.file("Implications", "ex3_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
+
+# We have to prepare the data because the order of the attributes is incorrect
+# Input correct
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_3 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Output correct
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_3 <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+lhs_ini <- imp_in_ex_3$get_LHS_matrix()
+rhs_ini <- imp_in_ex_3$get_RHS_matrix()
+attr <- imp_in_ex_3$get_attributes()
+
+res <- .slGetDo(lhs_ini, rhs_ini, attr)
+sol <- ImplicationSet$new(lhs=res[[1]], rhs=res[[2]], attributes = attr )
+sol %~% imp_out_ex_3

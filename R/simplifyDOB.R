@@ -1,5 +1,5 @@
 #' @author
-#' NicolAs Felipe Trujillo Montero
+#' Nicolas Felipe Trujillo Montero
 #'
 #' @Title
 #' Application of the simplification function in the Simplify algorithm
@@ -18,7 +18,6 @@
 #'
 #' @examples
 #' See in test or vignettes.
-#'
 
 .simplifyDOB <- function(sigma_lhs, sigma_rhs, attr) {
 
@@ -51,6 +50,8 @@
 
   repeat {
 
+    # We use in each iteration of the repeat loop a system of flags
+    # to check if the sSigma and the sigma are equal.
     flagEQ <- TRUE
 
     # Inicializacion de sigmaDO (Direct-Optimal Basis) y sigma
@@ -88,6 +89,7 @@
             int <- A*C
             uni <- .union(B,D)
 
+            # We check if the "int = A" and "uni = B"
             if( (!.columnEquals(A,int)) || (!.columnEquals(B,uni)) ) {
              flagEQ <- FALSE
             }
@@ -105,6 +107,7 @@
                   diff1 <- .difference2(C,B)
                   diff2 <- .difference2(D,B)
 
+                  # We check if the "diff1 = C" and "diff2 = D"
                   if( (!.columnEquals(C,diff1)) || (!.columnEquals(D,diff2)) ) {
                      flagEQ <- FALSE
                   }
@@ -124,6 +127,7 @@
                     diff1 <- .difference2(A,D)
                     diff2 <- .difference2(B,D)
 
+                    # We check if the "diff1 = C" and "diff2 = D"
                     if(!.columnEquals(A,diff1) || !.columnEquals(B,diff2)){
                      flagEQ <- FALSE
                     }
@@ -159,16 +163,16 @@
 
     }
 
- # if (.matrixEquals(sSigma_lhs, sigma_lhs) &&
- #     .matrixEquals(sSigma_rhs, sigma_rhs)){
- #      break
- #    }
+   # We use a flag to check the equality because the equality in sets
+   # isn't efficient (State if it's important the order)
+   if ( flagEQ ){
+     break
+   }
 
-
-     # We use a flag to check the equality because the equality in sets isn't efficient (State if it's important the order)
-     if ( flagEQ ){
-       break
-     }
+   # if (.matrixEquals(sSigma_lhs, sigma_lhs) &&
+   #     .matrixEquals(sSigma_rhs, sigma_rhs)){
+   #      break
+   #    }
 
   }
 

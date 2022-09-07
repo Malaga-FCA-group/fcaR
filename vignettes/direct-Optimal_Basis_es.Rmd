@@ -21,7 +21,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-#PDF_Document
 
 # Introducción
 
@@ -58,9 +57,9 @@ fc$find_implications()
 fc$implications
 ```
 
-\*\* Una cosa a tener en cuenta es que la función find_implications() se
-basa en el uso del algoritmo `NextClosure` en conceptos formales para
-extraer bases de implicaciones.
+  \*\* Una cosa a tener en cuenta es que la función find_implications() se
+  basa en el uso del algoritmo `NextClosure` en conceptos formales para
+  extraer bases de implicaciones.
 
 3.- A partir del conjunto de implicaciones, podemos simplificarla usando
 operaciones lógicas como pueden ser la regla de reducción, composición,
@@ -86,14 +85,14 @@ Publicado en
 
 El algoritmo se basa en el uso de tres funciones:
 
-\*\* En todas las funciones de este algoritmo, se pasa como argumento Σ.
-En el artículo se expresa como un conjunto de implicaciones, pero en el
-código está expresado como un par de matrices dispersas lhs y rhs que
-indican en cada columna, el número de la columna junto con 1s en las
-posiciones donde cada atributo aparece, respectivamente, tanto en el
-lado izquierdo(lhs), como en el derecho(rhs).
+  \*\* En todas las funciones de este algoritmo, se pasa como argumento Σ.
+  En el artículo se expresa como un conjunto de implicaciones, pero en el
+  código está expresado como un par de matrices dispersas lhs y rhs que
+  indican en cada columna, el número de la columna junto con 1s en las
+  posiciones donde cada atributo aparece, respectivamente, tanto en el
+  lado izquierdo(lhs), como en el derecho(rhs).
 
-```{r}
+```{r basis}
 fc$implications
 fc$implications[1]
 fc$implications$get_LHS_matrix()
@@ -102,14 +101,14 @@ Matrix(fc$implications$get_LHS_matrix()[,1], sparse = TRUE)
 Matrix(fc$implications$get_RHS_matrix()[,1], sparse = TRUE)
 ```
 
-### Función add_sSimp
+### Función Add_sSimp
 
-La función add_sSimp toma como parámetros dos implicaciones (en el
-código implementado como 4 matrices dispersas columnas) y el conjunto de
-implicaciones Σ, y nos devuelve un conjunto con una implicación o con
-ninguna.
-
-[()]
+La función ".add_sSimp(A, B, C, D, sigma_lhs, sigma_rhs)" toma como parámetros
+dos implicaciones (en el código implementado como 4 matrices dispersas columnas)
+y el conjunto de implicaciones Σ, y nos devuelve un conjunto con una implicación
+o con ninguna, y el resultado de evaluar un flag que explicaremos más adelante 
+su uso. En este caso, el flag evalua si la implicacion resultante es una combinacion
+entre las partes de la izquierda y de la derecha, y se activa o desactiva si ocurre.
 
 <center>
 
@@ -119,9 +118,12 @@ ninguna.
 
 ### Función Simplify
 
-La función simplify toma como parámetro Σ, y nos devuelve un sistema
-simplificado de implicaciones equivalente al Σ que se pasa como
-argumento.
+La función ".simplifyDOB(sigma_lhs, sigma_rhs, attr)" toma como parámetro Σ y los atributos, 
+y nos devuelve un sistema simplificado de implicaciones equivalente al Σ que
+se pasa como argumento. Es importante recalcar que en el código se ha
+implementado, tanto en esta función como la siguiente, un sistema de flags/marcas
+para realizar la operación de igualdad de until de manera eficiente y no de forma 
+bruta, por el motivo explicado en el punto remarcado tras la siguiente función.
 
 <center>
 
@@ -131,10 +133,9 @@ argumento.
 
 ### Algoritmo Direct-Optimal Basis (Función SLgetdo)
 
-La función SLgetdo toma como parámetro Σ, y nos devuelve un sistema
-simplificado de implicaciones equivalente al Σ que se pasa como
-argumento. Esta función utiliza las dos funciones mencionadas
-anteriormente.
+La función ".slGetDo(sigma_lhs, sigma_rhs, attr)" toma como parámetro Σ y los atributos,
+y nos devuelve un sistema simplificado de implicaciones equivalente al Σ que se pasa como
+argumento. Esta función utiliza las dos funciones mencionadas anteriormente.
 
 <center>
 
@@ -142,53 +143,77 @@ anteriormente.
 
 </center>
 
-\*\* Hay que incluir que se han utilizado funciones auxiliares para
-realizar operaciones entre conjuntos, como pueden ser .union,
-.difference2, ... (Implementadas de base). Sin embargo, para este
+### Funciones Auxiliares utilizadas
+
+Hay que incluir que se han utilizado funciones auxiliares para
+realizar operaciones entre conjuntos, como pueden ser: .union(A,B),
+.difference2(A,B), ... (Implementadas de base). Sin embargo, para este
 algoritmo se han desarrollado dos funciones auxiliares más:
 
 a)  <b> Una función para comparar dos matrices columna
-    (.matrixEquals(A,B)) </b> (Importante!!: No usar para comparar
+    (.columnEquals(A,B)) </b> (Importante!!: No usar para comparar
     conjuntos de cardinal mayor que uno, ya que en un conjunto no
     influye el orden, por lo que {a,b} = {b,a} y esa característica es
     muy ineficiente como para realizarla con un algoritmo de fuerza
     bruta), por lo que implementamos en simplify y en SLgetdo un sistema
-    de flags para realizar la equivalencia.
+    de flags para realizar la igualdad.
 
-b)  <b> Una función para comprobar si un elemento x pertenece a un
-    conjunto dominio (.isElementOf_FDB(x, dominio)) </b> que usaremos en
-    el siguiente algoritmo.
+b)  <b> Una función para comparar dos matrices (.matrixEquals(A,B)) </b>
+    (Importante!!: Esta función, debido a lo que se ha comentado en el anterior
+    punto, solo se ha usado para realizar pruebas del algoritmo antes de aplicar 
+    los flags, para comprobar el funcionamiento del propio algoritmo.)
+
 
 Ejemplo para ver el funcionamiento (Obtenido del artículo de la
-introducción)
+introducción).
 
 1)  Primero, vemos la entrada y la salida del algoritmo.
 
 ```{r SLgetdo_1}
-# Input
-input <- system.file("Implications", "ex_implicationsDBO", package = "fcaR")
+# Entrada
+input <- system.file("Implications", "ex_implicationsDOB", package = "fcaR")
 imp_in <- parse_implications(input)
 imp_in
 
-# Output
-output <- system.file("Implications", "ex_implicationsDBO_sol", package = "fcaR")
+# Salida
+output <- system.file("Implications", "ex_implicationsDOB_sol", package = "fcaR")
 imp_out <- parse_implications(output)
 imp_out
+
+# Tenemos que preparar los datos porque el orden de los atributos es incorrecto
+# Entrada correcta
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Salida correcta
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
 
 ```
 
 2)  Ahora introduciremos al algoritmo la entrada para ver que nos sale
-    igual.
+    una salida que es equivalente (Importante saber que las bases no tienen
+    por qué salir igual)
 
 ```{r SLgetdo_2}
-sigma_lhs <- imp_in$get_LHS_matrix()
-sigma_rhs <- imp_in$get_RHS_matrix()
-attr <- imp_in$get_attributes()
+sigma_lhs <- imp_in_ex_DOB$get_LHS_matrix()
+sigma_rhs <- imp_in_ex_DOB$get_RHS_matrix()
+attr <- imp_in_ex_DOB$get_attributes()
 
-imp_simp <- .slGetDo(sigma_lhs,sigma_rhs)
+imp_simp <- .slGetDo(sigma_lhs,sigma_rhs,attr)
 res <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
 res
+
+# Función para comparar equivalencia 
+paste("La equivalencia entre la solucion del algoritmo y la del paper es: ",  res %~% imp_out_ex_DOB,sep="")
 ```
+
+  \*\* <i>Si se requiere observar más ejemplos, en la sección de los test del proyecto
+  "../tests/testthat/test-algorithm-DOB.R" se provee de varios más.</i>
 
 ## Algoritmo Más Efiente (Fast Direct-Optimal Basis)
 

@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 This document is a Rmarkdown compiled file by the own Rstudio for seeing the two algorithms with a simple and didactic form that we are going to show.
 
-These algorithms are based in the use of package fcaR to make Formal Concept Analysis (FCA). Thanks to this, we could find implications set analyzing from a dataframe. Once we found this set, we can use basic methods of simplifications to reduce the implication number of the set using canonical-basis, for example:
+These algorithms are based in the use of package fcaR to make Formal Concept Analysis (FCA). Thanks to this, we can find implications set analyzing from a dataframe. Once we found this set, we can use basic methods of simplifications to reduce the implication number of the set using canonical-basis, for example:
 
 1.- We load the necessary libraries (`fcaR` and `Matrix`): 
 
@@ -63,13 +63,11 @@ It is recommended, to understand more in depth the mathematical concepts of this
 
 Published in https://www.sciencedirect.com/science/article/abs/pii/S0166218X1730611X
 
-
-
 The algorithm is based in the use of three functions:
 
 ** In all of the functions of this algorithm, is given an argument &Sigma;. In the article &Sigma; is expressed like a implications set, but in the script is expressed like a couple of sparse matrix (lhs and rhs) that shows in each column, the column number together with 1s in the positions where each attribute appears, respectly, as much in the left side (lhs) as in the right side (rhs).
 
-```{r}
+```{r basis}
 fc$implications
 fc$implications[1]
 fc$implications$get_LHS_matrix()
@@ -80,57 +78,76 @@ Matrix(fc$implications$get_RHS_matrix()[,1], sparse = TRUE)
 
 ### Add_sSimp function
 
-The add_sSimp function takes as parameters two implications (in the script implemented as 4 columns sparse matrix) and the implications set &Sigma;, and it returns a set with an implication or an empty set.
+The ".add_sSimp(A, B, C, D, sigma_lhs, sigma_rhs)" function takes as parameters two implications (in the script implemented as 4 columns sparse matrix) and the implications set &Sigma;, and it returns a set with an implication or an empty set and a flag that we explain its use after the next function. In this case, the flag checks if the resultant implication is the combination between the left and the right part of the implications passed in the arguments, and it activates or desactivates if it occurs.
 
 <center><img src="../docs/images/dob_add_sSimp.png" alt="drawing" width="400"/></center>
 
 ### Simplify function
 
-The simplify function takes as parameter &Sigma;, and it returns an simplified implications set equivalent to &Sigma;.
+The ".simplifyDOB(sigma_lhs, sigma_rhs, attr)" function takes as parameter &Sigma; and the attributes, and it returns an simplified implications set equivalent to &Sigma;. It is important to remark that, in the script of this function and the next one, it is implemented a flag system to do the equality operation in the until section more efficient instead of checking the two sets using an brute force algorithm. The motive of the use of these flags is explained in the next function.
 
 <center><img src="../docs/images/dob_simplify_DOB.png" alt="drawing" width="400"/></center>
 
 ### Direct-Optimal Basis algorithm (SLgetdo Function)
 
-The SLgetdo function takes as parameter  &Sigma;, and it returns an simplified implications set equivalent to &Sigma;. This function use the two previous mentioned functions. 
+The ".slGetDo(sigma_lhs, sigma_rhs, attr)" function takes as parameter &Sigma; and the attributes, and it returns an simplified implications set equivalent to &Sigma;. This function use the two previous mentioned functions. 
 
 <center><img src="../docs/images/dob_SL_Get_DO.png" alt="drawing" width="400"/></center>
 
-** We have to add that we use auxiliary functions to make operations between sets like .union, .difference2, ... (Implemented base). Nevertheless, for this algorithm, it was developed two auxiliary functions more:
+** We have to add that we use auxiliary functions to make operations between sets like .union(A,B), .difference2(A,B), ... (Implemented base). Nevertheless, for this algorithm, it was developed two auxiliary functions more:
 
-  a) <b> A function to compare two column matrix (.matrixEquals(A,B)) </b> (Important!: we don't have to use to compare sets of cardinality greater than one, since in a set doesn't influence the order, so {a,b} = {b,a} and this feature is very inefficient to make with an brute-force algorithm).
+  a) <b> A function to compare two column matrix (.columnEquals(A,B)) </b> (Important!: we don't have to use to compare sets of cardinality greater than one, since in a set doesn't     influence the order, so {a,b} = {b,a} and this feature is very inefficient to make with an brute-force algorithm), so we implement, in simplify and in SLgetdo, a flag system to     do the equality.
   
-  b) <b> A function to check if an element belongs of an set "domain" (.isElementOf_FDB(x, domain)) </b> that we use in the next algorithm.
+  b) <b> A function to compare two matrix (.matrixEquals(A,B)) </b> (Important!: this function, due as the mentioned comment in the previous point, is only used to test the      algorithm before applying the flags, to check the algorithm performance.)
 
-Example to see the functioning (Obtained from the article in the introduction).
+Example to see the performance (Obtained from the article in the introduction).
 
 1) First, we check the input and the output of the algorithm.
 
 ```{r SLgetdo_1}
 # Input
-input <- system.file("Implications", "ex_implicationsDBO", package = "fcaR")
+input <- system.file("Implications", "ex_implicationsDOB", package = "fcaR")
 imp_in <- parse_implications(input)
 imp_in
 
 # Output
-output <- system.file("Implications", "ex_implicationsDBO_sol", package = "fcaR")
+output <- system.file("Implications", "ex_implicationsDOB_sol", package = "fcaR")
 imp_out <- parse_implications(output)
 imp_out
 
+# We have to prepare the data because the order of the attributes is incorrect.
+# Correct input.
+attrSorted <- sort(imp_in$get_attributes())
+sigma_lhs_Sorted <- imp_in$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_in$get_RHS_matrix()[attrSorted,]
+imp_in_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
+# Correct output
+attrSorted <- sort(imp_out$get_attributes())
+sigma_lhs_Sorted <- imp_out$get_LHS_matrix()[attrSorted,]
+sigma_rhs_Sorted <- imp_out$get_RHS_matrix()[attrSorted,]
+imp_out_ex_DOB <- ImplicationSet$new(lhs=sigma_lhs_Sorted, rhs=sigma_rhs_Sorted, attributes = attrSorted )
+
 ```
 
-2) Now, we introduce the input to the algorithm to check that it is equals.
+2) Now, we introduce the input to the algorithm to check that it is equivalent to the output.
+(It is important to know that the basis do not have to be the same.)
 
 ```{r SLgetdo_2}
-sigma_lhs <- imp_in$get_LHS_matrix()
-sigma_rhs <- imp_in$get_RHS_matrix()
-attr <- imp_in$get_attributes()
+sigma_lhs <- imp_in_ex_DOB$get_LHS_matrix()
+sigma_rhs <- imp_in_ex_DOB$get_RHS_matrix()
+attr <- imp_in_ex_DOB$get_attributes()
 
-imp_simp <- .slGetDo(sigma_lhs,sigma_rhs)
+imp_simp <- .slGetDo(sigma_lhs,sigma_rhs,attr)
 res <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
 res
+
+# Función para comparar equivalencia 
+paste("The equivalence between the solution of the algorithm and the paper is: ",  res %~% imp_out_ex_DOB,sep="")
 ```
 
+  \*\* <i>If it requires to see more examples, in the test section of the proyect
+  "../tests/testthat/test-algorithm-DOB.R" there are more test.</i>
 
 ## More efficient algorithm (Fast Direct-Optimal Basis)
 
