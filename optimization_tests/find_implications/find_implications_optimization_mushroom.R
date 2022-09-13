@@ -40,15 +40,16 @@ test2 <- function() {
   fc_mushroom_opt$find_implications()
 }
 
-bench::mark(
+findImplications_results <- bench::mark(
   test1(),
-  iterations = 1
+  test2(),
+  iterations = 1,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
-bench::mark(
-  test2(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+findImplications_results
+
+findImplications_results %>% kable(format = 'latex', booktabs = TRUE)
 
 
 ######################################################################################

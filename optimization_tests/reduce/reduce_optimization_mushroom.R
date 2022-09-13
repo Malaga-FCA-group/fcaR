@@ -42,15 +42,16 @@ test3 <- function() {
   fc_mushroom_opt$reduce_fast(TRUE)
 }
 
-bench::mark(
-  test1()
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
+reduce_results <- bench::mark(
+  test3(),
   test2(),
-  test3()
+  test1(),
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+reduce_results
+
+reduce_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "reduce"

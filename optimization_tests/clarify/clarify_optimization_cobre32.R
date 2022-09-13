@@ -42,16 +42,16 @@ test3 <- function() {
   fc_cobre32_opt$clarify(TRUE)
 }
 
-bench::mark(
-  fc_cobre32$clarify(TRUE),
-  iterations = 200
+clarify_results <- bench::mark(
+  test2(),
+  test3(),
+  iterations = 1000,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
-bench::mark(
-  fc_cobre32_opt$clarify(TRUE),
-  iterations = 200
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+clarify_results
 
+clarify_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "clarify"

@@ -56,7 +56,7 @@ test6 <- function() {
   fc_cobre32_opt$closure_fastest_matrix(S)
 }
 
-bench::mark(
+closure_results <- bench::mark(
   test2(),
   test3(),
   test4(),
@@ -65,6 +65,9 @@ bench::mark(
   iterations = 10000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+closure_results
+
+closure_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "closure"

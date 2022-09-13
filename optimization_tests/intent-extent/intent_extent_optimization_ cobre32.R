@@ -55,13 +55,16 @@ test5 <- function() {
   fc_cobre32_opt$intent_fast(S1)
 }
 
-bench::mark(
+intent_results <- bench::mark(
   test3(),
   test4(),
   test5(),
   iterations = 10000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+intent_results
+
+intent_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "intent"
@@ -102,13 +105,16 @@ test8 <- function() {
   fc_cobre32_opt$extent_fast(S2)
 }
 
-bench::mark(
+extent_results <- bench::mark(
   test6(),
   test7(),
   test8(),
   iterations = 10000
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+extent_results
+
+extent_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "extent"

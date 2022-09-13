@@ -43,15 +43,16 @@ test3 <- function() {
   fc_mushroom_opt$clarify(TRUE)
 }
 
-bench::mark(
-  fc_mushroom$clarify(TRUE),
-  iterations = 20
+clarify_results <- bench::mark(
+  test2(),
+  test3(),
+  iterations = 10,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
-bench::mark(
-  fc_mushroom_opt$clarify(TRUE),
-  iterations = 20
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+clarify_results
+
+clarify_results %>% kable(format = 'latex', booktabs = TRUE)
 
 
 ######################################################################################

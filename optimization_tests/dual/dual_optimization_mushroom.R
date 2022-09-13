@@ -42,16 +42,16 @@ test3 <- function() {
   fc_mushroom_opt$dual()
 }
 
-bench::mark(
+dual_results <- bench::mark(
   test2(),
-  iterations = 4
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
   test3(),
-  iterations = 4
+  iterations = 5,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+dual_results
+
+dual_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "dual"
