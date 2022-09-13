@@ -23,6 +23,8 @@ void populateMatches(int* matches_for_y, int* x_i, int* x_p, double* x, int* y_p
 
     if (curr_col >= y_end_index) continue;
 
+    // recorremos las filas de x e y en paralelo
+    //comprueba si x es subconjunto de y
     while(loc < end_loc){
 
       if (y_i[loc] == x_i[curr_col]) {

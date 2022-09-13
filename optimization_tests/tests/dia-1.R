@@ -2,6 +2,7 @@ library(fcaR)
 library(bench)
 library(profvis)
 library(jointprof)
+library(knitr)
 #library(ggplot2)
 
 fc_planets <- FormalContext$new(planets)
@@ -37,7 +38,8 @@ fc_planets <- FormalContext$new(planets)
 #TIPOS DE LA ESTRUCTURA DE UN FORMALCONTEXT
 ###########################################
 
-
+dframe %>%
+  kable(format = 'latex', booktabs = TRUE)
 
 S1 <- Set$new(attributes = fc_planets$objects)
 S1$assign(Earth = 1, Mars = 1)
@@ -162,6 +164,10 @@ test4 <- function(set) {
   for(i in seq(1000)) fc_planets$closure_fastest_matrix(set)
 }
 joint_pprof(test4(S2))
+
+dframe <- bench::mark(
+  test1(S2)
+)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
 bench::mark(
   test1(S2),
