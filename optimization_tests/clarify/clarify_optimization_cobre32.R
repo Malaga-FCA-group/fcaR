@@ -4,6 +4,7 @@ library(profvis)
 library(jointprof)
 library(arules)
 library(microbenchmark)
+library(knitr)
 
 fc_cobre32 <- FormalContext$new(cobre32)
 

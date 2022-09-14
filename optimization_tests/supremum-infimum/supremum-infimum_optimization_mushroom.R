@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 # data("Mushroom", package = "arules")
 
 # fc_mushroom <- FormalContext$new(Mushroom)
@@ -53,11 +54,15 @@ test3 <- function() {
   fc_cobre32_opt$concepts$supremum(S)
 }
 
-bench::mark(
+supremum_results <- bench::mark(
   test1(),
-  test3()
+  test3(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+supremum_results
+
+supremum_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
@@ -89,11 +94,15 @@ test4 <- function() {
   fc_cobre32_opt$concepts$infimum(S)
 }
 
-bench::mark(
+infimum_results <- bench::mark(
   test2(),
-  test4()
+  test4(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+infimum_results
+
+infimum_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "infimum"

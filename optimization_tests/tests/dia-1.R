@@ -38,8 +38,8 @@ fc_planets <- FormalContext$new(planets)
 #TIPOS DE LA ESTRUCTURA DE UN FORMALCONTEXT
 ###########################################
 
-dframe %>%
-  kable(format = 'latex', booktabs = TRUE)
+  dframe %>%
+    kable(format = 'latex', booktabs = TRUE)
 
 S1 <- Set$new(attributes = fc_planets$objects)
 S1$assign(Earth = 1, Mars = 1)

@@ -495,7 +495,7 @@ void is_subset(SparseVector A,
                bool* black_list) {
 
   reinitArray(res);
-
+  // metemos en el array res los indices de los valores de t.COUNT.array que en su interior tengan un 0
   if (t.COUNT.used > 0) {
 
     for (int i = 0; i < t.COUNT.used; i++) {

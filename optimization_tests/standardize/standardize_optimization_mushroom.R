@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 # data("Mushroom", package = "arules")
 
 fc_cobre32 <- FormalContext$new(cobre32)
@@ -44,16 +45,16 @@ test2 <- function() {
   fc_cobre32_opt$standardize()
 }
 
-bench::mark(
+standardize_results <- bench::mark(
   test1(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-bench::mark(
   test2(),
-  iterations = 1
+  iterations = 1,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+standardize_results
+
+standardize_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "standardize"

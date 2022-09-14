@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 # data("Mushroom", package = "arules")
 
 # fc_mushroom <- FormalContext$new(Mushroom)
@@ -51,12 +52,16 @@ test3 <- function() {
   fc_cobre32_opt$concepts$subconcepts(S)
 }
 
-bench::mark(
+subconcepts_results <- bench::mark(
   test1(),
   test3(),
+  iterations = 1,
   check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+subconcepts_results
+
+subconcepts_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "subconcepts"
@@ -88,11 +93,16 @@ test4 <- function() {
   fc_cobre32_opt$concepts$superconcepts(S)
 }
 
-bench::mark(
+superconcepts_results <- bench::mark(
   test2(),
-  test4()
+  test4(),
+  iterations = 1,
+  check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+superconcepts_results
+
+superconcepts_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "superconcepts"

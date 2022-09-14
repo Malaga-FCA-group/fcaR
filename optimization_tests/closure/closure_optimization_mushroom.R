@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 data("Mushroom", package = "arules")
 
 fc_mushroom <- FormalContext$new(Mushroom)

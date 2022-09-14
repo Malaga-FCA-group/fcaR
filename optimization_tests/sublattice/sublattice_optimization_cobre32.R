@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 # data("Mushroom", package = "arules")
 
 # fc_mushroom <- FormalContext$new(Mushroom)
@@ -47,11 +48,15 @@ test2 <- function() {
   fc_cobre32_opt$concepts$sublattice(idx)
 }
 
-bench::mark(
+sublattice_results <- bench::mark(
   test1(),
-  test2()
+  test2(),
+  iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+sublattice_results
+
+sublattice_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"

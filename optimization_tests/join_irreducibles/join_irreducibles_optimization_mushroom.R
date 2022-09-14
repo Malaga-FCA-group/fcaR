@@ -3,6 +3,7 @@ library(bench)
 library(profvis)
 library(jointprof)
 library(arules)
+library(knitr)
 data("Mushroom", package = "arules")
 
 fc_mushroom <- FormalContext$new(Mushroom)
@@ -46,12 +47,15 @@ test3 <- function() {
   fc_mushroom_opt$concepts$join_irreducibles()
 }
 
-bench::mark(
+join_irreducibles_results <- bench::mark(
   test2(),
   test3(),
   iterations = 1
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
 
+join_irreducibles_results
+
+join_irreducibles_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
