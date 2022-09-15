@@ -447,47 +447,47 @@ S4 compute_closure(S4 V, NumericMatrix I) {
 
 }
 
-//Created by Lorenzo
-//Computes the closure using vectors
-// [[Rcpp::export]]
-S4 compute_closure_vector(S4 V, S4 I) {
-
-  NumericMatrix temp = S4toNumericMatrix(I);
-
-  SparseVector R = S4toSparse(V);
-
-  SparseVector R2 = compute_closure(R, temp);
-
-  freeVector(&R);
-
-  S4 res = SparseToS4_fast(R2);
-
-  freeVector(&R2);
-
-  return res;
-
-}
-
-//Created by Lorenzo
-//Computes the closure using matrices
-// [[Rcpp::export]]
-S4 compute_closure_matrix(S4 V, S4 I) {
-
-  NumericMatrix temp = S4toNumericMatrix2(I);
-
-  SparseVector R = S4toSparse(V);
-
-  SparseVector R2 = compute_closure(R, temp);
-
-  freeVector(&R);
-
-  S4 res = SparseToS4_fast(R2);
-
-  freeVector(&R2);
-
-  return res;
-
-}
+// //Created by Lorenzo
+// //Computes the closure using vectors
+// // [[Rcpp::export]]
+// S4 compute_closure_vector(S4 V, S4 I) {
+//
+//   NumericMatrix temp = S4toNumericMatrix(I);
+//
+//   SparseVector R = S4toSparse(V);
+//
+//   SparseVector R2 = compute_closure(R, temp);
+//
+//   freeVector(&R);
+//
+//   S4 res = SparseToS4_fast(R2);
+//
+//   freeVector(&R2);
+//
+//   return res;
+//
+// }
+//
+// //Created by Lorenzo
+// //Computes the closure using matrices
+// // [[Rcpp::export]]
+// S4 compute_closure_matrix(S4 V, S4 I) {
+//
+//   NumericMatrix temp = S4toNumericMatrix2(I);
+//
+//   SparseVector R = S4toSparse(V);
+//
+//   SparseVector R2 = compute_closure(R, temp);
+//
+//   freeVector(&R);
+//
+//   S4 res = SparseToS4_fast(R2);
+//
+//   freeVector(&R2);
+//
+//   return res;
+//
+// }
 
 void is_subset(SparseVector A,
                const struct ImplicationTree t,
@@ -498,7 +498,7 @@ void is_subset(SparseVector A,
   // metemos en el array res los indices de los valores de t.COUNT.array que en su interior tengan un 0
   if (t.COUNT.used > 0) {
 
-    for (int i = 0; i < t.COUNT.used; i++) {
+    for (long long unsigned int i = 0; i < t.COUNT.used; i++) {
 
       if ((t.COUNT.array[i] == 0) & (black_list[i])) {
 

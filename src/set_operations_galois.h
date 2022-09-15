@@ -54,9 +54,9 @@ void compute_closure (SparseVector* B,
 
 S4 compute_closure(S4 V, NumericMatrix I);
 
-S4 compute_closure_vector(S4 V, S4 I);
-
-S4 compute_closure_matrix(S4 V, S4 I);
+// S4 compute_closure_vector(S4 V, S4 I);
+//
+// S4 compute_closure_matrix(S4 V, S4 I);
 
 void is_subset(SparseVector A,
                const struct ImplicationTree t,

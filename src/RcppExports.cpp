@@ -45,6 +45,52 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_closure_vector
+S4 compute_closure_vector(S4 V, S4 I);
+RcppExport SEXP _fcaR_compute_closure_vector(SEXP VSEXP, SEXP ISEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type V(VSEXP);
+    Rcpp::traits::input_parameter< S4 >::type I(ISEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_closure_vector(V, I));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_closure_matrix
+S4 compute_closure_matrix(S4 V, S4 I);
+RcppExport SEXP _fcaR_compute_closure_matrix(SEXP VSEXP, SEXP ISEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type V(VSEXP);
+    Rcpp::traits::input_parameter< S4 >::type I(ISEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_closure_matrix(V, I));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sort_c
+NumericVector sort_c(NumericVector v);
+RcppExport SEXP _fcaR_sort_c(SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(sort_c(v));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_grades_c
+List compute_grades_c(NumericMatrix mat);
+RcppExport SEXP _fcaR_compute_grades_c(SEXP matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_grades_c(mat));
+    return rcpp_result_gen;
+END_RCPP
+}
 // next_closure_implications
 List next_closure_implications(NumericMatrix I, List grades_set, StringVector attrs, bool save_concepts, bool verbose);
 RcppExport SEXP _fcaR_next_closure_implications(SEXP ISEXP, SEXP grades_setSEXP, SEXP attrsSEXP, SEXP save_conceptsSEXP, SEXP verboseSEXP) {
@@ -108,30 +154,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< S4 >::type V(VSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type I(ISEXP);
     rcpp_result_gen = Rcpp::wrap(compute_closure(V, I));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_closure_vector
-S4 compute_closure_vector(S4 V, S4 I);
-RcppExport SEXP _fcaR_compute_closure_vector(SEXP VSEXP, SEXP ISEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type V(VSEXP);
-    Rcpp::traits::input_parameter< S4 >::type I(ISEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_closure_vector(V, I));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_closure_matrix
-S4 compute_closure_matrix(S4 V, S4 I);
-RcppExport SEXP _fcaR_compute_closure_matrix(SEXP VSEXP, SEXP ISEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type V(VSEXP);
-    Rcpp::traits::input_parameter< S4 >::type I(ISEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_closure_matrix(V, I));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -300,40 +322,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sort_c
-NumericVector sort_c(NumericVector v);
-RcppExport SEXP _fcaR_sort_c(SEXP vSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(sort_c(v));
-    return rcpp_result_gen;
-END_RCPP
-}
-// compute_grades_c
-List compute_grades_c(NumericMatrix mat);
-RcppExport SEXP _fcaR_compute_grades_c(SEXP matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grades_c(mat));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fcaR_print_matrix", (DL_FUNC) &_fcaR_print_matrix, 1},
     {"_fcaR_print_vector", (DL_FUNC) &_fcaR_print_vector, 2},
     {"_fcaR_get_element_array", (DL_FUNC) &_fcaR_get_element_array, 4},
+    {"_fcaR_compute_closure_vector", (DL_FUNC) &_fcaR_compute_closure_vector, 2},
+    {"_fcaR_compute_closure_matrix", (DL_FUNC) &_fcaR_compute_closure_matrix, 2},
+    {"_fcaR_sort_c", (DL_FUNC) &_fcaR_sort_c, 1},
+    {"_fcaR_compute_grades_c", (DL_FUNC) &_fcaR_compute_grades_c, 1},
     {"_fcaR_next_closure_implications", (DL_FUNC) &_fcaR_next_closure_implications, 5},
     {"_fcaR_next_closure_concepts", (DL_FUNC) &_fcaR_next_closure_concepts, 5},
     {"_fcaR_compute_intent", (DL_FUNC) &_fcaR_compute_intent, 2},
     {"_fcaR_compute_extent", (DL_FUNC) &_fcaR_compute_extent, 2},
     {"_fcaR_compute_closure", (DL_FUNC) &_fcaR_compute_closure, 2},
-    {"_fcaR_compute_closure_vector", (DL_FUNC) &_fcaR_compute_closure_vector, 2},
-    {"_fcaR_compute_closure_matrix", (DL_FUNC) &_fcaR_compute_closure_matrix, 2},
     {"_fcaR_self_intersection_C", (DL_FUNC) &_fcaR_self_intersection_C, 4},
     {"_fcaR_is_subset_C", (DL_FUNC) &_fcaR_is_subset_C, 10},
     {"_fcaR_is_subset_C_fast", (DL_FUNC) &_fcaR_is_subset_C_fast, 6},
@@ -344,8 +346,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fcaR_set_difference", (DL_FUNC) &_fcaR_set_difference, 7},
     {"_fcaR_set_difference_single", (DL_FUNC) &_fcaR_set_difference_single, 7},
     {"_fcaR_set_intersection_single", (DL_FUNC) &_fcaR_set_intersection_single, 7},
-    {"_fcaR_sort_c", (DL_FUNC) &_fcaR_sort_c, 1},
-    {"_fcaR_compute_grades_c", (DL_FUNC) &_fcaR_compute_grades_c, 1},
     {NULL, NULL, 0}
 };
 

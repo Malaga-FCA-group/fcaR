@@ -759,118 +759,118 @@ NumericVector as_vector(SparseVector v) {
 
 }
 
-//Created by Lorenzo
-//Converts S4 object into NumericMatrix, using vectors inside
-NumericMatrix S4toNumericMatrix(S4 I) {
-
-  std::vector<int> i = I.slot("i");
-  std::vector<int> p = I.slot("p");
-  std::vector<double> x = I.slot("x");
-  std::vector<int> adims = I.slot("Dim");
-  //NumericVector vect(adims[0]*adims[1]);
-  std::vector<double> vect(adims[0]*adims[1]);
-
-  int it = 0;
-  for(long long unsigned int k=0; k<p.size()-1; k++) {
-    int ant = p[k];
-    int post = p[k+1];
-    int aux = post - ant;
-    int cont = 0;
-
-    for(int j=0; j<adims[0]; j++) {
-      if(cont<aux) {
-        if(j==i[ant]) {
-          vect[it] = x[ant];
-          ant++;
-          cont++;
-        } else{
-          vect[it] = 0;
-        }
-      } else {
-        vect[it] = 0;
-      }
-      it++;
-    }
-  }
-  //print(vect);
-  //NumericVector s = wrap(vect);
-  NumericMatrix res(adims[0], adims[1], vect.begin());
-
-
-  return(res);
-
-}
-
-//Created by Lorenzo
-//Converts S4 object into NumericMatrix, using matrices inside
-NumericMatrix S4toNumericMatrix2(S4 I) {
-
-  std::vector<int> i = I.slot("i");
-  std::vector<int> p = I.slot("p");
-  std::vector<double> x = I.slot("x");
-  std::vector<int> adims = I.slot("Dim");
-  NumericMatrix mat(adims[0],adims[1]);
-
-  int it = 0;
-  for(long long unsigned int k=0; k<p.size()-1; k++) {
-    int ant = p[k];
-    int post = p[k+1];
-    int aux = post - ant;
-    int cont = 0;
-
-    for(int j=0; j<adims[0]; j++) {
-      if(cont<aux) {
-        if(j==i[ant]) {
-          mat(j,k) = x[ant];
-          ant++;
-          cont++;
-        } else{
-          mat(j,k) = 0;
-        }
-      } else {
-        mat(j,k) = 0;
-      }
-      it++;
-    }
-  }
-  //print(vect);
-
-  return(mat);
-
-}
-
-//Created by Lorenzo
-//converts SparseVector into NumericVector
-NumericVector as_vector_slow(SparseVector v, int nrow, int ncol) {
-
-  NumericVector x(nrow*ncol);
-
-  int it = 0;
-  for(long long unsigned int i=0; i<v.p.used-1; i++) {
-    int ant = v.p.array[i];
-    int post = v.p.array[i+1];
-    int aux = post - ant;
-    int cont = 0;
-
-    for(int j=0; j<(int)v.length; j++) {
-      if(cont<aux) {
-        if(j==v.i.array[ant]) {
-          x[it] = v.x.array[ant];
-          ant++;
-          cont++;
-        } else{
-          x[it] = 0;
-        }
-      } else {
-        x[it] = 0;
-      }
-      it++;
-    }
-  }
-
-  return(x);
-
-}
+// //Created by Lorenzo
+// //Converts S4 object into NumericMatrix, using vectors inside
+// NumericMatrix S4toNumericMatrix(S4 I) {
+//
+//   std::vector<int> i = I.slot("i");
+//   std::vector<int> p = I.slot("p");
+//   std::vector<double> x = I.slot("x");
+//   std::vector<int> adims = I.slot("Dim");
+//   //NumericVector vect(adims[0]*adims[1]);
+//   std::vector<double> vect(adims[0]*adims[1]);
+//
+//   int it = 0;
+//   for(long long unsigned int k=0; k<p.size()-1; k++) {
+//     int ant = p[k];
+//     int post = p[k+1];
+//     int aux = post - ant;
+//     int cont = 0;
+//
+//     for(int j=0; j<adims[0]; j++) {
+//       if(cont<aux) {
+//         if(j==i[ant]) {
+//           vect[it] = x[ant];
+//           ant++;
+//           cont++;
+//         } else{
+//           vect[it] = 0;
+//         }
+//       } else {
+//         vect[it] = 0;
+//       }
+//       it++;
+//     }
+//   }
+//   //print(vect);
+//   //NumericVector s = wrap(vect);
+//   NumericMatrix res(adims[0], adims[1], vect.begin());
+//
+//
+//   return(res);
+//
+// }
+//
+// //Created by Lorenzo
+// //Converts S4 object into NumericMatrix, using matrices inside
+// NumericMatrix S4toNumericMatrix2(S4 I) {
+//
+//   std::vector<int> i = I.slot("i");
+//   std::vector<int> p = I.slot("p");
+//   std::vector<double> x = I.slot("x");
+//   std::vector<int> adims = I.slot("Dim");
+//   NumericMatrix mat(adims[0],adims[1]);
+//
+//   int it = 0;
+//   for(long long unsigned int k=0; k<p.size()-1; k++) {
+//     int ant = p[k];
+//     int post = p[k+1];
+//     int aux = post - ant;
+//     int cont = 0;
+//
+//     for(int j=0; j<adims[0]; j++) {
+//       if(cont<aux) {
+//         if(j==i[ant]) {
+//           mat(j,k) = x[ant];
+//           ant++;
+//           cont++;
+//         } else{
+//           mat(j,k) = 0;
+//         }
+//       } else {
+//         mat(j,k) = 0;
+//       }
+//       it++;
+//     }
+//   }
+//   //print(vect);
+//
+//   return(mat);
+//
+// }
+//
+// //Created by Lorenzo
+// //converts SparseVector into NumericVector
+// NumericVector as_vector_slow(SparseVector v, int nrow, int ncol) {
+//
+//   NumericVector x(nrow*ncol);
+//
+//   int it = 0;
+//   for(long long unsigned int i=0; i<v.p.used-1; i++) {
+//     int ant = v.p.array[i];
+//     int post = v.p.array[i+1];
+//     int aux = post - ant;
+//     int cont = 0;
+//
+//     for(int j=0; j<(int)v.length; j++) {
+//       if(cont<aux) {
+//         if(j==v.i.array[ant]) {
+//           x[it] = v.x.array[ant];
+//           ant++;
+//           cont++;
+//         } else{
+//           x[it] = 0;
+//         }
+//       } else {
+//         x[it] = 0;
+//       }
+//       it++;
+//     }
+//   }
+//
+//   return(x);
+//
+// }
 
 SparseVector as_sparse(NumericVector v) {
 
@@ -984,25 +984,25 @@ double get_element(SparseVector v, int n) {
 
 }
 
-// [[Rcpp::export]]
-NumericVector sort_c(NumericVector v) {
-
-  return v.sort();
-}
-
-// [[Rcpp::export]]
-List compute_grades_c(NumericMatrix mat) {
-
-  List res;
-
-  for(int i=0; i<mat.cols(); i++) {
-
-    NumericVector v = mat(_,i);
-    v.push_back(1);
-    v.push_front(0);
-    v = sort_unique(v);
-    res.push_back(v);
-  }
-
-  return res;
-}
+// // [[Rcpp::export]]
+// NumericVector sort_c(NumericVector v) {
+//
+//   return v.sort();
+// }
+//
+// // [[Rcpp::export]]
+// List compute_grades_c(NumericMatrix mat) {
+//
+//   List res;
+//
+//   for(int i=0; i<mat.cols(); i++) {
+//
+//     NumericVector v = mat(_,i);
+//     v.push_back(1);
+//     v.push_front(0);
+//     v = sort_unique(v);
+//     res.push_back(v);
+//   }
+//
+//   return res;
+// }

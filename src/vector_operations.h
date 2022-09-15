@@ -58,9 +58,9 @@ SparseVector S4toSparse(S4 A); //It was wrong and Lorenzo fixed it (modified)
 S4 SparseToS4(SparseVector V);
 S4 SparseToS4_fast(SparseVector V);
 
-NumericVector as_vector_slow(SparseVector v, int nrow, int ncol);
-NumericMatrix S4toNumericMatrix(S4 I); //Created by Lorenzo
-NumericMatrix S4toNumericMatrix2(S4 I); //Created by Lorenzo
+// NumericVector as_vector_slow(SparseVector v, int nrow, int ncol);
+// NumericMatrix S4toNumericMatrix(S4 I); //Created by Lorenzo
+// NumericMatrix S4toNumericMatrix2(S4 I); //Created by Lorenzo
 SparseVector as_sparse(NumericVector v);
 SparseVector as_sparse(double* v, int length);
 SparseVector as_sparse(double* v,
@@ -73,6 +73,6 @@ void as_sparse(SparseVector *res,
 
 double get_element(SparseVector v, int n);
 
-NumericVector sort_c(NumericVector v);
-
-List compute_grades_c(NumericMatrix mat, int tam);
+// NumericVector sort_c(NumericVector v);
+//
+// List compute_grades_c(NumericMatrix mat, int tam);
