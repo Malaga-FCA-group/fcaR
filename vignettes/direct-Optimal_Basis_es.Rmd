@@ -304,7 +304,7 @@ implicaciones (Uno con los que tienen el antecedente con cardinal 1
 
 <center>
 
-<img src="../docs/images/fdob_algorithm.png" alt="drawing" width="400"/>
+<img src="../docs/images/fdob_algorithm.png" alt="drawing" width="600"/>
 
 </center>
 
@@ -315,18 +315,15 @@ introducción)
 
 ```{r FastD-Basis_1}
 # Input
-input <- system.file("Implications", "ex1", package = "fcaR")
+input <- system.file("Implications", "ex_implicationsFDOB", package = "fcaR")
 imp_in <- parse_implications(input)
 imp_in
 
 # Output
-output1 <- system.file("Implications", "ex1_bin", package = "fcaR")
-imp_out_bin <- parse_implications(output1)
-imp_out_bin
+output <- system.file("Implications", "ex_implicationsFDOB_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
 
-output2 <- system.file("Implications", "ex1_n", package = "fcaR")
-imp_out_n <- parse_implications(output2)
-imp_out_n
 
 ```
 
@@ -337,10 +334,13 @@ imp_out_n
 sigma_lhs <- imp_in$get_LHS_matrix()
 sigma_rhs <- imp_in$get_RHS_matrix()
 attr <- imp_in$get_attributes()
-# 
-# imp_simp <- .algorithm_FDB(sigma_lhs,sigma_rhs)
-# res_bin <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
-# res_bin
-# res_n <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[3]], rhs = imp_simp[[4]])
-# res_n
+ 
+imp_simp <- .algorithm_FDB(sigma_lhs, sigma_rhs, attr)
+res <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attr )
+
+# Función para comparar equivalencia 
+paste("La equivalencia entre la solucion del algoritmo y la del paper es: ",  res %~% imp_out,sep="")
 ```
+
+\*\* <i>Si se requiere observar más ejemplos, en la sección de los test del proyecto
+"../tests/testthat/test-algorithm-DOB.R" se provee de varios más.</i>

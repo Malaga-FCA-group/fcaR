@@ -20,11 +20,11 @@
 #' @return
 #' Returns a 3-tuple simplified
 
-# A,B,C CAN'T BE NULL
 .shorten_FDB <- function (A,B,C, gamma) {
 
-  if(is.null(A) || is.null(B) || is.null(C)){
-    stop("A, B or C can't be NULL in shorten")
+  # Check if arguments are correct
+  if (is.null(A) || is.null(B) || is.null(C)) {
+    stop("Some argument introduced (not gamma) in shorten_FDB is NULL")
   }
 
   if(!is.null(gamma)){
@@ -34,7 +34,6 @@
       mult3_gamma <- dim(gamma)[2]/3
 
       for ( ind_mul3_gamma in 1:mult3_gamma ) {
-
 
         gamma_ind <-(ind_mul3_gamma-1) *3
 
@@ -52,10 +51,8 @@
           return(NULL)
         }
       }
-
     }
 
   }
-
     return(cbind(A,B,C))
 }

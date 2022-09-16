@@ -68,47 +68,49 @@
     # We do the if
     if (sum(Y) != 0) {
       gamma_new <- cbind(gamma_new, X, Y, Z)
-    }
 
+      if(is.null(mnl)){
+        mnl <- X
+      } else{
 
-    if(is.null(mnl)){
-      mnl <- X
-    } else{
+        bool <- any(apply(mnl, MARGIN = 2,
+                          FUN = function(col, X){
+                            W <- Matrix(col, sparse = TRUE);
+                            return( all(.subset(W,X)) )
+                          }, X))
 
-      bool <- any(apply(mnl, MARGIN = 2,
-                        FUN = function(col, X){
-                          W <- Matrix(col, sparse = TRUE);
-                          return( all(.subset(W,X)) )
-                        }, X))
+        # If bool is TRUE means that not exists W E Minimals ...
+        if(!bool){
 
-      # If bool is TRUE means that not exists W E Minimals ...
-      if(!bool){
+          # We see here which columns don't meet the condition to get them
+          res <- apply(mnl, MARGIN = 2,
+                       FUN = function(col, X){
+                         V <- Matrix(col, sparse = TRUE);
+                         return( !all(.subset(X,V)) )
+                       }, X)
 
-        # We see here which columns don't meet the condition to get them
-        res <- apply(mnl, MARGIN = 2,
-                     FUN = function(col, X){
-                       V <- Matrix(col, sparse = TRUE);
-                       return( !all(.subset(X,V)) )
-                     }, X)
+          # Here, we stay with the columns above and add the X at the minimals
+          mnl <- cbind(mnl[,res],X)
 
-        # Here, we stay with the columns above and add the X at the minimals
-        mnl <- cbind(mnl[,res],X)
+        }
 
       }
 
     }
 
+
+
+
   }
 
   len_mnl <- dim(mnl)[2]
 
-  # The last for
-  for(cont in 1:len_mnl){
-    X <- Matrix(mnl[,cont], sparse = TRUE)
-    gamma_new <- .addClosure_FDB(X,gamma_new, attr)
+  if(!is.null(len_mnl)){
+    # The last for
+    for(cont in 1:len_mnl){
+      X <- Matrix(mnl[,cont], sparse = TRUE)
+      gamma_new <- .addClosure_FDB(X,gamma_new, attr)
+    }
   }
-
-
-
   return(list(mnl,gamma_new))
 }

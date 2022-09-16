@@ -1,6 +1,6 @@
 #' @author Nicolás Felipe Trujillo Montero
 
-# In this test, we are going to check if all functions in the DBO algorithm,
+# In this test, we are going to check if all functions in the DOB algorithm,
 # (Direct-Optimal basis and Fast Direct-Optimal basis) pass the unitary tests.
 
 ###############################################################################
@@ -315,7 +315,7 @@ test_that("Comprobe that the DOB algorithm works fine with an real example (ex_D
   expect_true(.matrixEquals(res[[1]],lhs_fin) && .matrixEquals(res[[2]],rhs_fin))
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example (ex_FDOB).", {
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_FDOB).", {
  lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
  rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
  attr <- imp_in_ex_FDOB$get_attributes()
@@ -325,7 +325,7 @@ test_that("Comprobe that the DBO algorithm works fine with an real example (ex_F
  expect_true(sol %~% imp_out_ex_FDOB)
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example (ex_1).", {
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_1).", {
   lhs_ini <- imp_in_ex_1$get_LHS_matrix()
   rhs_ini <- imp_in_ex_1$get_RHS_matrix()
   attr <- imp_in_ex_1$get_attributes()
@@ -336,7 +336,7 @@ test_that("Comprobe that the DBO algorithm works fine with an real example (ex_1
   expect_true( sol %~% imp_out_ex_1 )
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example (ex_2).", {
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_2).", {
   lhs_ini <- imp_in_ex_2$get_LHS_matrix()
   rhs_ini <- imp_in_ex_2$get_RHS_matrix()
   attr <- imp_in_ex_2$get_attributes()
@@ -346,7 +346,7 @@ test_that("Comprobe that the DBO algorithm works fine with an real example (ex_2
   expect_true( sol %~% imp_out_ex_2 )
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example (ex_3).", {
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_3).", {
   lhs_ini <- imp_in_ex_3$get_LHS_matrix()
   rhs_ini <- imp_in_ex_3$get_RHS_matrix()
   attr <- imp_in_ex_3$get_attributes()
@@ -356,7 +356,7 @@ test_that("Comprobe that the DBO algorithm works fine with an real example (ex_3
   expect_true( sol %~% imp_out_ex_3 )
 })
 
-test_that("Comprobe that the DBO algorithm works fine with an real example (ex_Inf_Sci).", {
+test_that("Comprobe that the DOB algorithm works fine with an real example (ex_Inf_Sci).", {
   lhs_ini <- imp_in_ex_Inf_Sci$get_LHS_matrix()
   rhs_ini <- imp_in_ex_Inf_Sci$get_RHS_matrix()
   attr <- imp_in_ex_Inf_Sci$get_attributes()
@@ -404,15 +404,21 @@ test_that("Comprobe that AddClosure works fine 2.",{
 # Test Fix                                                                    #
 ###############################################################################
 
-test_that("Fix works fine if input arguments are NULL.",{
+test_that("Fix works fine if gamma are NULL.",{
 
-  expect_error(.fix_FDB(NULL,NULL,NULL,NULL), list(NULL,NULL))
+  expect_error(.fix_FDB(NULL,NULL,NULL,NULL))
 
-  gamma <- Matrix(c(1,0,0, 0,0,1, 0,1,1), 3, 3, sparse = TRUE)
-  mnl <- Matrix(c(1,0,0),3,1,sparse = TRUE)
-  gamma_res <- Matrix(c(1,0,0, 0,1,1, 1,1,1), 3, 3, sparse = TRUE)
+})
 
-  expect_equal(.fix_FDB(NULL,NULL,NULL,gamma),list(mnl,gamma_res))
+test_that("Fix works fine if A,B,C are NULL.",{
+
+  X <- Matrix(c(1,0,0,1),sparse = TRUE)
+
+  gamma <- cbind(X,X,X,X,X,X)
+  mnl <- X
+  gamma_new <- .addClosure_FDB(X,gamma)
+
+  expect_equal(.fix_FDB(NULL,NULL,NULL,gamma),list(mnl,gamma_new))
 
 })
 
@@ -430,8 +436,6 @@ test_that("Comprobe that fix works fine.",{
   expect_equal(res, .fix_FDB(A,B,C,gamma))
 })
 
-# Columnas vacias??????
-
 ###############################################################################
 # Test Shorten                                                                #
 ###############################################################################
@@ -443,12 +447,9 @@ library(devtools)
 library(Matrix)
 
 test_that("Shorten works fine if input arguments are NULL.", {
-  A <- Matrix(c(1,0,0), sparse = TRUE)
-  B <- Matrix(c(1,0,1), sparse = TRUE)
-  C <- Matrix(c(0,1,1), sparse = TRUE)
 
-  expect_error(.shorten_FDB(A,NULL,C,NULL))
-  expect_equal(.shorten_FDB(A,B,C,NULL),cbind(A,B,C))
+ X <- Matrix(c(1,0,0), sparse = TRUE)
+ expect_error(.shorten_FDB(NULL,X,X,X))
 })
 
 test_that("Comprobe that shorten works fine 1.",{
@@ -480,7 +481,7 @@ library(devtools)
 # Command Line = devtools::load_all()
 library(Matrix)
 
-test_that("Shorten works fine if input arguments are NULL.",{
+test_that("Join works fine if input arguments are NULL.",{
   A <- Matrix(c(1,1,0), sparse = TRUE)
   B <- Matrix(c(1,1,1), sparse = TRUE)
   C <- Matrix(c(0,1,1), sparse = TRUE)
@@ -505,3 +506,101 @@ test_that("Comprobe that join works fine.",{
 # Test Min-Covers                                                             #
 ###############################################################################
 
+library(usethis)
+library(devtools)
+# Command Line = devtools::load_all()
+library(Matrix)
+
+test_that("Min-Covers works fine if input arguments are NULL.",{
+  A <- Matrix(c(1,1,0), sparse = TRUE)
+  B <- Matrix(c(1,1,1), sparse = TRUE)
+  C <- Matrix(c(0,1,1), sparse = TRUE)
+  gamma <- cbind(A,B,C)
+
+  expect_error(.minCovers_FDB(A,B,C,NULL))
+
+})
+
+test_that("Min-Covers works fine with base condition.",{
+  A <- Matrix(c(0,0,1,0,1), sparse = TRUE)
+  B <- Matrix(c(1,1,0,0,0), sparse = TRUE)
+  C <- Matrix(c(0,0,1,1,1), sparse = TRUE)
+
+  D <- Matrix(c(0,1,0,0,1), sparse = TRUE)
+  E <- Matrix(c(1,0,1,0,0), sparse = TRUE)
+  F <- Matrix(c(0,1,0,1,1), sparse = TRUE)
+
+  G <- Matrix(c(1,0,0,0,1), sparse = TRUE)
+  H <- Matrix(c(0,1,1,0,0), sparse = TRUE)
+  I <- Matrix(c(1,0,0,1,1), sparse = TRUE)
+
+  gamma <- cbind(A,B,C,D,E,F,G,H,I)
+
+  expect_null(.minCovers_FDB(A,B,C,gamma))
+
+})
+
+###############################################################################
+# Test FastDBasis Algorithm                                                      #
+###############################################################################
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_DOB).", {
+  lhs_ini <- imp_in_ex_DOB$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_DOB$get_RHS_matrix()
+  attrSorted <- imp_in_ex_DOB$get_attributes()
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_DOB)
+})
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_FDOB).", {
+  lhs_ini <- imp_in_ex_FDOB$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_FDOB$get_RHS_matrix()
+  attrSorted <- imp_in_ex_FDOB$get_attributes()
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_FDOB)
+})
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_1).", {
+  lhs_ini <- imp_in_ex_1$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_1$get_RHS_matrix()
+  attrSorted <- imp_in_ex_1$get_attributes()
+
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_1)
+})
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_2).", {
+  lhs_ini <- imp_in_ex_2$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_2$get_RHS_matrix()
+  attrSorted <- imp_in_ex_2$get_attributes()
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_2)
+})
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_3).", {
+  lhs_ini <- imp_in_ex_3$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_3$get_RHS_matrix()
+  attrSorted <- imp_in_ex_3$get_attributes()
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_3)
+})
+
+test_that("Comprobe that the FDOB algorithm works fine with an real example (ex_Inf_Sci).", {
+  lhs_ini <- imp_in_ex_Inf_Sci$get_LHS_matrix()
+  rhs_ini <- imp_in_ex_Inf_Sci$get_RHS_matrix()
+  attrSorted <- imp_in_ex_Inf_Sci$get_attributes()
+
+  imp_simp <- .algorithm_FDB(lhs_ini, rhs_ini, attrSorted)
+  sol <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attrSorted )
+  expect_true(sol %~% imp_out_ex_Inf_Sci)
+})

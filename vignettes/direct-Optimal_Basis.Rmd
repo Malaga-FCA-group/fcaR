@@ -197,7 +197,7 @@ The mincovers function takes as parameters a 3-tuple of attributes and a set &Ga
 
 The .algorithm_FDB function takes as parameters am implications set &Sigma; and it returns a list with two implications set (One with all the implications with cardinality 1 &Sigma;<sub>bin</sub>, and the other without them &Sigma;<sub>n</sub>)
 
-<center><img src="../docs/images/fdob_algorithm.png" alt="drawing" width="400"/></center>
+<center><img src="../docs/images/fdob_algorithm.png" alt="drawing" width="600"/></center>
 
 Example to see the functioning (Obtained from the article in the introduction).
 
@@ -205,18 +205,15 @@ Example to see the functioning (Obtained from the article in the introduction).
 
 ```{r FastD-Basis_1}
 # Input
-input <- system.file("Implications", "ex1", package = "fcaR")
+# Input
+input <- system.file("Implications", "ex_implicationsFDOB", package = "fcaR")
 imp_in <- parse_implications(input)
 imp_in
 
 # Output
-output1 <- system.file("Implications", "ex1_bin", package = "fcaR")
-imp_out_bin <- parse_implications(output1)
-imp_out_bin
-
-output2 <- system.file("Implications", "ex1_n", package = "fcaR")
-imp_out_n <- parse_implications(output2)
-imp_out_n
+output <- system.file("Implications", "ex_implicationsFDOB_sol", package = "fcaR")
+imp_out <- parse_implications(output)
+imp_out
 
 ```
 
@@ -226,11 +223,13 @@ imp_out_n
 sigma_lhs <- imp_in$get_LHS_matrix()
 sigma_rhs <- imp_in$get_RHS_matrix()
 attr <- imp_in$get_attributes()
-# 
-# imp_simp <- .algorithm_FDB(sigma_lhs,sigma_rhs)
-# res_bin <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[1]], rhs = imp_simp[[2]])
-# res_bin
-# res_n <- ImplicationSet$new(attributes = attr, lhs = imp_simp[[3]], rhs = imp_simp[[4]])
-# res_n
+ 
+imp_simp <- .algorithm_FDB(sigma_lhs, sigma_rhs, attr)
+res <- ImplicationSet$new(lhs=cbind(imp_simp[[1]],imp_simp[[3]]), rhs=cbind(imp_simp[[2]],imp_simp[[4]]), attributes = attr )
+
+# Función para comparar equivalencia 
+paste("The equivalence between the solution of the algorithm and the paper is: ",  res %~% imp_out,sep="")
 ```
 
+  \*\* <i>If it requires to see more examples, in the test section of the proyect
+  "../tests/testthat/test-algorithm-DOB.R" there are more test.</i>

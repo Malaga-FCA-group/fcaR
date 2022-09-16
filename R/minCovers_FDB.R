@@ -35,6 +35,11 @@
   mnl <- res[[1]]
   gamma <- res[[2]]
 
+  # Base case
+  if(is.null(mnl) && is.null(gamma)){
+    return(NULL)
+  }
+
   phi <- NULL
 
   mult3_gamma <- dim(gamma)[2]/3
@@ -62,7 +67,7 @@
       min <- .minCovers_FDB(X,Y,Z,gamma,attr)
 
       if(!is.null(min)){
-        psi <- .union( cbind(X,Y,Z),min)
+        psi <- cbind( cbind(X,Y,Z),min)
       } else {
         psi <- cbind(X,Y,Z)
       }

@@ -53,11 +53,11 @@
 
   for ( index in 1:mult3_phi ) {
 
-    gamma_ind <-(ind_mul3_gamma-1) *3
+    phi_ind <-(index-1) *3
 
-    A <- Matrix(gamma[, gamma_ind+1], sparse = TRUE)
-    B <- Matrix(gamma[, gamma_ind+2], sparse = TRUE)
-    C <- Matrix(gamma[, gamma_ind+3], sparse = TRUE)
+    A <- Matrix(phi[, phi_ind+1], sparse = TRUE)
+    B <- Matrix(phi[, phi_ind+2], sparse = TRUE)
+    C <- Matrix(phi[, phi_ind+3], sparse = TRUE)
 
 
     if(sum(A)==1){

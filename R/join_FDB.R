@@ -32,11 +32,7 @@
 
       sh <- .shorten_FDB(X,Y,Z,gamma2)
 
-      if(!is.null(sh) && is.null(gamma1_new)){
-        gamma1_new <- sh
-      } else if (!is.null(sh)){
-        gamma1_new <- .union(sh,gamma1_new)
-      }
+      gamma1_new <- cbind(gamma1_new,sh)
 
     }
 
@@ -56,27 +52,15 @@
 
       sh <- .shorten_FDB(X,Y,Z,gamma1_new)
 
-      if(!is.null(sh) && is.null(gamma2_new)){
-        gamma2_new <- sh
-      } else if (!is.null(sh)){
-        gamma2_new <- .union(sh,gamma2_new)
-      }
+        gamma2_new <- cbind(gamma2_new,sh)
 
     }
 
   }
 
-  res <- NULL
 
-  if(is.null(gamma1_new) && is.null(gamma2_new)){
-    res <- NULL
-  } else if(is.null(gamma1_new)){
-    res <- gamma2_new
-  } else if(is.null(gamma2_new)){
-    res <- gamma1_new
-  } else {
-    res <- .union(gamma1_new,gamma2_new)
-  }
+    res <- cbind(gamma1_new,gamma2_new)
+
 
   return(res)
 

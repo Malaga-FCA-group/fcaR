@@ -31,4 +31,5 @@ imp_simp <- .slGetDo(sigma_lhs = imp_in_ex_DOB$get_LHS_matrix(),
                            sigma_rhs = imp_in_ex_DOB$get_RHS_matrix(),
                            attr = imp_in_ex_DOB$get_attributes())
 res <- ImplicationSet$new(attributes = imp_in_ex_DOB$get_attributes(), lhs = imp_simp[[1]], rhs = imp_simp[[2]])
-res
+
+res  %~% imp_out_ex_DOB
