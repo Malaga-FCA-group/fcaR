@@ -40,7 +40,7 @@ test2 <- function() {
 }
 
 test3 <- function() {
-  fc_cobre32_opt$clarify(TRUE)
+  fc_cobre32_opt$clarify2(TRUE)
 }
 
 clarify_results <- bench::mark(

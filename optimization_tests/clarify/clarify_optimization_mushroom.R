@@ -43,7 +43,7 @@ test2 <- function() {
 }
 
 test3 <- function() {
-  fc_mushroom_opt$clarify(TRUE)
+  fc_mushroom_opt$clarify2(TRUE)
 }
 
 test4 <- function() {

@@ -1016,7 +1016,7 @@ FormalContext_opt <- R6::R6Class(
     #' @return The clarified \code{FormalContext_opt}.
     #'
     #' @export
-    clarify = function(copy = FALSE) {
+    clarify2 = function(copy = FALSE) {
 
       if (private$is_many_valued) error_many_valued()
 
