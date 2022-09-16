@@ -251,7 +251,7 @@ void populateMatches2(int* matches_for_y, int* x_i, int* x_p, double* x, int* y_
         } else break;
 
       }
-      //if(curr_col >= y_end_index) break;
+      if(curr_col >= y_end_index) break;
 
       loc++;
       if(x_i[curr_col] < y_i[loc]) break;
@@ -296,7 +296,7 @@ void populateMatches_binary(int* matches_for_y, int* x_i, int* x_p, double* x, i
         curr_col++;
 
       } //else break;
-      //if(curr_col >= y_end_index) break;
+      if(curr_col >= y_end_index) break;
 
       loc++;
       if(x_i[curr_col] < y_i[loc]) break;

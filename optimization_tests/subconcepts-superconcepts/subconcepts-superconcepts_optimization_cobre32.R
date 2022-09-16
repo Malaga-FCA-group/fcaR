@@ -4,33 +4,29 @@ library(profvis)
 library(jointprof)
 library(arules)
 library(knitr)
-# data("Mushroom", package = "arules")
-
-# fc_mushroom <- FormalContext$new(Mushroom)
-# fc_mushroom
 
 fc_cobre32 <- FormalContext$new(cobre32)
 
 fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-fc_cobre32$find_implications()
+fc_cobre32$find_concepts()
 
-fc_cobre32_opt$find_implications()
+fc_cobre32_opt$find_concepts()
 
 S <- fc_cobre32$concepts$sub(6)
 
 C <- fc_cobre32$concepts[1:10]
 
 test1 <- function() {
-  fc_cobre32$concepts$supremum(C)
+  fc_cobre32$concepts$subconcepts(C)
 }
 
 test2 <- function() {
-  fc_cobre32$concepts$infimum(C)
+  fc_cobre32$concepts$superconcepts(S)
 }
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "subconcepts"
 ######################################################################################
 
 
@@ -51,26 +47,22 @@ system2(
 )
 
 test3 <- function() {
-  fc_cobre32_opt$concepts$supremum(S)
+  fc_cobre32_opt$concepts$subconcepts2(C)
 }
 
-supremum_results <- bench::mark(
-  test1(),
-  test3(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+subconcepts_results1 <- system.time(test1())
+subconcepts_results2 <- system.time(test3())
 
-supremum_results
-
-supremum_results %>% kable(format = 'latex', booktabs = TRUE)
+subconcepts_results1
+subconcepts_results2
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "supremum"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "subconcepts"
 ######################################################################################
 
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "infimum"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "superconcepts"
 ######################################################################################
 
 
@@ -91,19 +83,15 @@ system2(
 )
 
 test4 <- function() {
-  fc_cobre32_opt$concepts$infimum(S)
+  fc_cobre32_opt$concepts$superconcepts2(S)
 }
 
-infimum_results <- bench::mark(
-  test2(),
-  test4(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+superconcepts_results1 <- system.time(test2())
+superconcepts_results2 <- system.time(test4())
 
-infimum_results
-
-infimum_results %>% kable(format = 'latex', booktabs = TRUE)
+superconcepts_results1
+superconcepts_results2
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "infimum"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "superconcepts"
 ######################################################################################

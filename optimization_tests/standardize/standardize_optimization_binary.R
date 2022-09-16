@@ -6,7 +6,7 @@ library(arules)
 library(knitr)
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "standardize"
 ######################################################################################
 
 ####################################################
@@ -28,29 +28,29 @@ fc_prueba_opt$find_concepts()
 fc_prueba_opt_binary$find_concepts()
 
 test1 <- function() {
-  fc_prueba$concepts$join_irreducibles()
+  fc_prueba$standardize()
 }
 
 test2 <- function() {
-  fc_prueba_opt$concepts$join_irreducibles2()
+  fc_prueba_opt$standardize2()
 }
 
 test3 <- function() {
-  fc_prueba_opt_binary$concepts$join_irreducibles_binary()
+  fc_prueba_opt_binary$standardize_binary()
 }
 
-join_irreducibles_results1 <- system.time(test1())
-join_irreducibles_results2 <- system.time(test2())
-join_irreducibles_results3 <- system.time(test3())
+standardize_results1 <- system.time(test1())
+standardize_results2 <- system.time(test2())
+standardize_results3 <- system.time(test3())
 
-join_irreducibles_results1
-join_irreducibles_results2
-join_irreducibles_results3
+standardize_results1
+standardize_results2
+standardize_results3
 
 ####################################################
 # PRUEBAS CON CONJUNTO DE ENTRADA BINARIO ALEATORIO
 ####################################################
 
 ######################################################################################
-#                   ANÁLISIS DE RENDIMIENTO ----->     "join_irreducibles"
+#                   ANÁLISIS DE RENDIMIENTO ----->     "standardize"
 ######################################################################################

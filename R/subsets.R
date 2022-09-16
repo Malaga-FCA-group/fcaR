@@ -30,3 +30,23 @@
   return(M)
 
 }
+
+.equal_sets <- function(x, y = NULL, proper = FALSE) {
+
+  x <- methods::as(x, "dgCMatrix")
+  if (is.null(y)) y <- x
+  y <- methods::as(y, "dgCMatrix")
+
+  stopifnot("x" %in% methods::slotNames(x))
+  stopifnot("x" %in% methods::slotNames(y))
+
+
+  p <- as.integer(rep(0, x@Dim[2] + 1))
+  i <- is_equal_set_C(x@p, x@i, x@Dim, x@x,
+                             y@p, y@i, y@Dim, y@x,
+                             as.logical(proper), p)
+
+  Matrix::t(methods::new("ngCMatrix", p = p, i = i,
+                         Dim = c(y@Dim[2], x@Dim[2])))
+
+}

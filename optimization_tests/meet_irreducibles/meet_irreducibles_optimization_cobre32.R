@@ -4,18 +4,14 @@ library(profvis)
 library(jointprof)
 library(arules)
 library(knitr)
-# data("Mushroom", package = "arules")
-
-# fc_mushroom <- FormalContext$new(Mushroom)
-# fc_mushroom
 
 fc_cobre32 <- FormalContext$new(cobre32)
 
 fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-fc_cobre32$find_implications()
+fc_cobre32$find_concepts()
 
-fc_cobre32_opt$find_implications()
+fc_cobre32_opt$find_concepts()
 
 test1 <- function() {
   fc_cobre32$concepts$meet_irreducibles()
@@ -43,22 +39,14 @@ system2(
 )
 
 test2 <- function() {
-  fc_cobre32$concepts$meet_irreducibles()
+  fc_cobre32_opt$concepts$meet_irreducibles2()
 }
 
-test3 <- function() {
-  fc_cobre32_opt$concepts$meet_irreducibles()
-}
+meet_irreducibles_results1 <- system.time(test1())
+meet_irreducibles_results2 <- system.time(test2())
 
-meet_irreducibles_results <- bench::mark(
-  test2(),
-  test3(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-
-meet_irreducibles_results
-
-meet_irreducibles_results %>% kable(format = 'latex', booktabs = TRUE)
+meet_irreducibles_results1
+meet_irreducibles_results2
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "meet_irreducibles"

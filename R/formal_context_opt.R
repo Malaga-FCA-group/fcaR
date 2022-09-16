@@ -1267,7 +1267,7 @@ FormalContext_opt <- R6::R6Class(
     #' @return
     #' The standard context using the join- and meet- irreducible elements.
     #' @export
-    standardize = function() {
+    standardize2 = function() {
 
       if (private$is_many_valued) error_many_valued()
 
@@ -1277,8 +1277,52 @@ FormalContext_opt <- R6::R6Class(
 
       }
 
-      join_irr <- self$concepts$join_irreducibles()$to_list()
-      meet_irr <- self$concepts$meet_irreducibles()$to_list()
+      join_irr <- self$concepts$join_irreducibles2()$to_list()
+      meet_irr <- self$concepts$meet_irreducibles2()$to_list()
+
+      nj <- length(join_irr)
+      nm <- length(meet_irr)
+
+      I <- matrix(0, nrow = nj, ncol = nm)
+
+      for (i in seq(nj)) {
+
+        for (j in seq(nm)) {
+
+          I[i, j] <- ifelse(join_irr[[i]] %<=% meet_irr[[j]], 1, 0)
+
+        }
+
+      }
+
+      colnames(I) <- paste0("M", seq(nm))
+      rownames(I) <- paste0("J", seq(nj))
+
+      return(FormalContext_opt$new(I))
+
+    },
+
+    #' @description
+    #' Build the Standard Context
+    #'
+    #' @details
+    #' All concepts must be previously computed.
+    #'
+    #' @return
+    #' The standard context using the join- and meet- irreducible elements.
+    #' @export
+    standardize_binary = function() {
+
+      if (private$is_many_valued) error_many_valued()
+
+      if (self$concepts$is_empty()) {
+
+        stop("Concepts must be computed beforehand.\n", call. = FALSE)
+
+      }
+
+      join_irr <- self$concepts$join_irreducibles_binary()$to_list()
+      meet_irr <- self$concepts$meet_irreducibles_binary()$to_list()
 
       nj <- length(join_irr)
       nm <- length(meet_irr)

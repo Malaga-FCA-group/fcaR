@@ -107,18 +107,6 @@ sublattice_results3
 # PRUEBAS CON CONJUNTO DE ENTRADA BINARIO ALEATORIO
 ####################################################
 
-# sublattice_results <- bench::mark(
-#   test1(),
-#   test2(),
-#   test3(),
-#   iterations = NULL,
-#   check = FALSE
-# )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-#
-# sublattice_results
-#
-# sublattice_results %>% kable(format = 'latex', booktabs = TRUE)
-
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"
 ######################################################################################

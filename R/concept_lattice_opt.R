@@ -283,11 +283,38 @@ ConceptLattice_opt <- R6::R6Class(
     #'
     #' @export
     #'
-    join_irreducibles = function() {
+    join_irreducibles2 = function() {
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      if (is.null(private$reduced_matrix)) {
+
+        private$reduced_matrix <- .reduce_transitivity(private$subconcept_matrix)
+
+      }
+
+      idx <- which(Matrix::colSums(private$reduced_matrix) == 1)
+      self[idx]
+
+    },
+
+    #' @description
+    #' Join-irreducible Elements
+    #'
+    #' @return
+    #' The join-irreducible elements in the concept lattice.
+    #'
+    #' @export
+    #'
+    join_irreducibles_binary = function() {
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 
@@ -310,11 +337,34 @@ ConceptLattice_opt <- R6::R6Class(
     #'
     #' @export
     #'
-    meet_irreducibles = function() {
+    meet_irreducibles2 = function() {
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      M <- .reduce_transitivity(Matrix::t(private$subconcept_matrix))
+
+      idx <- which(Matrix::colSums(M) == 1)
+      self[idx]
+
+    },
+
+    #' @description
+    #' Meet-irreducible Elements
+    #'
+    #' @return
+    #' The meet-irreducible elements in the concept lattice.
+    #'
+    #' @export
+    #'
+    meet_irreducibles_binary = function() {
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 
@@ -382,13 +432,39 @@ ConceptLattice_opt <- R6::R6Class(
     #' The supremum of the list of concepts.
     #'
     #' @export
-    supremum = function(...) {
+    supremum2 = function(...) {
 
       idx <- private$to_indices(...)
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      return(self[join(private$subconcept_matrix, idx)]$to_list()[[1]])
+
+    },
+
+    #' @description
+    #' Supremum of Concepts
+    #'
+    #' @param ... See Details.
+    #'
+    #' @details
+    #' As argument, one can provide both integer indices or \code{Concepts}, separated by commas. The corresponding concepts are used to compute their supremum in the lattice.
+    #'
+    #' @return
+    #' The supremum of the list of concepts.
+    #'
+    #' @export
+    supremum_binary = function(...) {
+
+      idx <- private$to_indices(...)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 
@@ -408,13 +484,39 @@ ConceptLattice_opt <- R6::R6Class(
     #' The infimum of the list of concepts.
     #'
     #' @export
-    infimum = function(...) {
+    infimum2 = function(...) {
 
       idx <- private$to_indices(...)
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      return(self[meet(private$subconcept_matrix, idx)]$to_list()[[1]])
+
+    },
+
+    #' @description
+    #' Infimum of Concepts
+    #'
+    #' @param ... See Details.
+    #'
+    #' @details
+    #' As argument, one can provide both integer indices or \code{Concepts}, separated by commas. The corresponding concepts are used to compute their infimum in the lattice.
+    #'
+    #' @return
+    #' The infimum of the list of concepts.
+    #'
+    #' @export
+    infimum_binary = function(...) {
+
+      idx <- private$to_indices(...)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 
@@ -430,13 +532,39 @@ ConceptLattice_opt <- R6::R6Class(
     #' @return
     #' A list with the subconcepts.
     #' @export
-    subconcepts = function(C) {
+    subconcepts2 = function(C) {
 
       idx <- private$to_indices(C)
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      # Get the index of all subconcepts
+      M <- Matrix::t(private$subconcept_matrix)[idx, ]
+      candidates <- Matrix::which(M > 0)
+
+      self[candidates]
+
+    },
+
+    #' @description
+    #' Subconcepts of a Concept
+    #'
+    #' @param C (numeric or \code{SparseConcept}) The concept to which determine all its subconcepts.
+    #'
+    #' @return
+    #' A list with the subconcepts.
+    #' @export
+    subconcepts_binary = function(C) {
+
+      idx <- private$to_indices(C)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 
@@ -456,13 +584,39 @@ ConceptLattice_opt <- R6::R6Class(
     #' @return
     #' A list with the superconcepts.
     #' @export
-    superconcepts = function(C) {
+    superconcepts2 = function(C) {
 
       idx <- private$to_indices(C)
 
       if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
 
-        private$subconcept_matrix <- .subset(private$pr_extents)
+        private$subconcept_matrix <- .subset2(private$pr_extents)
+
+      }
+
+      # Get the index of all superconcepts
+      M <- private$subconcept_matrix[idx, ]
+      candidates <- which(M > 0)
+
+      self[candidates]
+
+    },
+
+    #' @description
+    #' Superconcepts of a Concept
+    #'
+    #' @param C (numeric or \code{SparseConcept}) The concept to which determine all its superconcepts.
+    #'
+    #' @return
+    #' A list with the superconcepts.
+    #' @export
+    superconcepts_binary = function(C) {
+
+      idx <- private$to_indices(C)
+
+      if ((self$size() > 0) & (is.null(private$subconcept_matrix))) {
+
+        private$subconcept_matrix <- .subset_binary(private$pr_extents)
 
       }
 

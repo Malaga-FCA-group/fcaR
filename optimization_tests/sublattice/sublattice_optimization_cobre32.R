@@ -4,10 +4,6 @@ library(profvis)
 library(jointprof)
 library(arules)
 library(knitr)
-# data("Mushroom", package = "arules")
-
-# fc_mushroom <- FormalContext$new(Mushroom)
-# fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
 fc_cobre32 <- FormalContext$new(cobre32)
 
@@ -53,16 +49,6 @@ sublattice_results2 <- system.time(test2())
 
 sublattice_results1
 sublattice_results2
-
-# sublattice_results <- bench::mark(
-#   test1(),
-#   test2(),
-#   iterations = 1
-# )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
-#
-# sublattice_results
-#
-# sublattice_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"

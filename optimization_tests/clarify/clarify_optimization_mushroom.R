@@ -11,6 +11,8 @@ fc_mushroom <- FormalContext$new(Mushroom)
 
 fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
+fc_mushroom_opt_binary <- FormalContext_opt$new(Mushroom)
+
 test1 <- function() {
   for(i in seq(10)) fc_mushroom$clarify(TRUE)
 }
@@ -44,9 +46,14 @@ test3 <- function() {
   fc_mushroom_opt$clarify(TRUE)
 }
 
+test4 <- function() {
+  fc_mushroom_opt_binary$clarify_binary(TRUE)
+}
+
 clarify_results <- bench::mark(
   test2(),
   test3(),
+  test4(),
   iterations = 10,
   check = FALSE
 )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]

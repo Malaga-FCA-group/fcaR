@@ -1,6 +1,6 @@
-.clarify_matrix <- function(I, rows, cols) {
+.clarify_matrix_binary <- function(I, rows, cols) {
 
-  identical <- .equal_sets(I)
+  identical <- .equal_sets_binary(I)
 
   equal_attributes <- which(Matrix::colSums(identical) > 1)
   independent_att <- which(Matrix::colSums(identical) == 1)
@@ -18,7 +18,7 @@
     new_att <- c(new_att,
                  paste0("[",
                         stringr::str_flatten(cols[i],
-                                    collapse = ", "),
+                                             collapse = ", "),
                         "]"))
     equal_attributes <- setdiff(equal_attributes, i)
 
