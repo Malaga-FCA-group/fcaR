@@ -227,8 +227,8 @@ FormalContext_opt <- R6::R6Class(
       self$implications <- ImplicationSet$new(attributes = attributes,
                                               I = self$I)
 
-      # Create a new empty ConceptLattice inside
-      self$concepts <- ConceptLattice$new(extents = NULL,
+      # Create a new empty ConceptLattice_opt inside
+      self$concepts <- ConceptLattice_opt$new(extents = NULL,
                                           intents = NULL,
                                           objects = self$objects,
                                           attributes = self$attributes,
@@ -1049,6 +1049,46 @@ FormalContext_opt <- R6::R6Class(
     },
 
     #' @description
+    #' Clarify a formal context
+    #'
+    #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext_opt} object is created with the clarified context, otherwise the current one is overwritten.
+    #'
+    #' @return The clarified \code{FormalContext_opt}.
+    #'
+    #' @export
+    clarify_binary = function(copy = FALSE) {
+
+      if (private$is_many_valued) error_many_valued()
+
+      # Redundant attributes
+      my_I <- .clarify_matrix_binary(Matrix::t(self$I),
+                              rows = self$objects,
+                              cols = self$attributes)
+
+      # And redundant objects
+      my_I <- .clarify_matrix_binary(Matrix::t(my_I),
+                              rows = colnames(my_I),
+                              cols = self$objects)
+      my_I <- Matrix::as.matrix(Matrix::t(my_I))
+
+      if (copy) {
+
+        #Accelerated by Lorenzo when FormalContext_opt$new was accelerated by 250%
+        fc2 <- FormalContext_opt$new(my_I)
+
+        return(fc2)
+
+      } else {
+        #Accelerated by Lorenzo when FormalContext_opt$initialize was accelerated by 250%
+        self$initialize(my_I)
+
+        return(invisible(self))
+
+      }
+
+    },
+
+    #' @description
     #' Reduce a formal context
     #'
     #' @param copy   (logical) If \code{TRUE}, a new \code{FormalContext_opt} object is created with the clarified and reduced context, otherwise the current one is overwritten.
@@ -1306,7 +1346,7 @@ FormalContext_opt <- R6::R6Class(
       }
 
 
-      self$concepts <- ConceptLattice$new(extents = my_extents,
+      self$concepts <- ConceptLattice_opt$new(extents = my_extents,
                                           intents = my_intents,
                                           objects = self$objects,
                                           attributes = self$attributes,
@@ -1412,7 +1452,7 @@ FormalContext_opt <- R6::R6Class(
 
       if (save_concepts) {
 
-        self$concepts <- ConceptLattice$new(extents = my_extents,
+        self$concepts <- ConceptLattice_opt$new(extents = my_extents,
                                             intents = my_intents,
                                             objects = self$objects,
                                             attributes = self$attributes,
@@ -1586,7 +1626,7 @@ FormalContext_opt <- R6::R6Class(
 
         if (!is.null(L$extents)) {
 
-          self$concepts <- ConceptLattice$new(
+          self$concepts <- ConceptLattice_opt$new(
             extents = L$extents,
             intents = L$intents,
             objects = L$objects,

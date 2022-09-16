@@ -1,7 +1,7 @@
-generate_context <- function(n_objects = 10,
-                             n_attributes = 10,
+generate_context <- function(n_objects = 400,
+                             n_attributes = 20,
                              grades = c(0, 1),
-                             density = 0.15) {
+                             density = 0.4) {
 
 
 
@@ -26,3 +26,4 @@ generate_context <- function(n_objects = 10,
   return(I)
 
 }
+

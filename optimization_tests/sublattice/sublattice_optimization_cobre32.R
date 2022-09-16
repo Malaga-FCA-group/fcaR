@@ -7,15 +7,15 @@ library(knitr)
 # data("Mushroom", package = "arules")
 
 # fc_mushroom <- FormalContext$new(Mushroom)
-# fc_mushroom
+# fc_mushroom_opt <- FormalContext_opt$new(Mushroom)
 
 fc_cobre32 <- FormalContext$new(cobre32)
 
 fc_cobre32_opt <- FormalContext_opt$new(cobre32)
 
-fc_cobre32$find_implications()
+fc_cobre32$find_concepts()
 
-fc_cobre32_opt$find_implications()
+fc_cobre32_opt$find_concepts()
 
 idx <- which(fc_cobre32$concepts$support() > 0.5)
 
@@ -45,18 +45,24 @@ system2(
 )
 
 test2 <- function() {
-  fc_cobre32_opt$concepts$sublattice(idx)
+  fc_cobre32_opt$concepts$sublattice2(idx)
 }
 
-sublattice_results <- bench::mark(
-  test1(),
-  test2(),
-  iterations = 1
-)[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+sublattice_results1 <- system.time(test1())
+sublattice_results2 <- system.time(test2())
 
-sublattice_results
+sublattice_results1
+sublattice_results2
 
-sublattice_results %>% kable(format = 'latex', booktabs = TRUE)
+# sublattice_results <- bench::mark(
+#   test1(),
+#   test2(),
+#   iterations = 1
+# )[c("expression", "min", "median", "itr/sec", "n_gc", "total_time", "mem_alloc")]
+#
+# sublattice_results
+#
+# sublattice_results %>% kable(format = 'latex', booktabs = TRUE)
 
 ######################################################################################
 #                   ANÁLISIS DE RENDIMIENTO ----->     "sublattice"

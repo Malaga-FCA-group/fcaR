@@ -57,6 +57,14 @@ is_subset_C <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
     .Call(`_fcaR_is_subset_C`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
 }
 
+is_subset_C2 <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
+    .Call(`_fcaR_is_subset_C2`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
+}
+
+is_subset_C_binary <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
+    .Call(`_fcaR_is_subset_C_binary`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
+}
+
 is_subset_C_fast <- function(X_P, X_I, X_DIM, X, PROPER, OUT_P) {
     .Call(`_fcaR_is_subset_C_fast`, X_P, X_I, X_DIM, X, PROPER, OUT_P)
 }
@@ -67,6 +75,10 @@ intersects_C <- function(X_P, X_I, X_DIM, Y_P, Y_I, Y_DIM, OUT_P) {
 
 is_equal_set_C <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
     .Call(`_fcaR_is_equal_set_C`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
+}
+
+is_equal_set_C_binary <- function(X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P) {
+    .Call(`_fcaR_is_equal_set_C_binary`, X_P, X_I, X_DIM, X, Y_P, Y_I, Y_DIM, Y, PROPER, OUT_P)
 }
 
 which_at_col <- function(x_i, x_p, col) {
