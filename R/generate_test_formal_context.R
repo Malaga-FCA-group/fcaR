@@ -1,4 +1,4 @@
-generate_context <- function(n_objects = 600,
+generate_context <- function(n_objects = 500,
                              n_attributes = 20,
                              grades = c(0, 1),
                              density = 0.4) {
