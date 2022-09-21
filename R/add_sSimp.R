@@ -27,12 +27,6 @@
 #'
 #' @examples
 #' See in test or vignettes.
-#'
-#' @note
-#' CTRL + SHIFT + ALT + R to add the skeleton description
-#' .subset = equals or contains
-#' NULL == Empty set
-
 
 .add_sSimp <- function(A, B, C, D, sigma_lhs, sigma_rhs) {
 
@@ -47,9 +41,7 @@
   diff_aux <- .difference2( D, (.union(A,B)) )
 
   # Equals between inters and diff_aux doesn't require
-  if ( !( all(.subset(A,C)) ) && ( sum(inters) != 0 ) &&
-        ( sum( diff_aux ) != 0 ) ## && !(.columnEquals(inters,diff_aux))
-       ) {
+  if ( !( all(.subset(A,C)) ) && ( sum(inters) != 0 ) && ( sum( diff_aux ) != 0 ) ) {
 
     # 1
     E <- .union(A, .difference2(C,B))
@@ -57,8 +49,10 @@
     # 2
     F <- diff_aux
 
+    # We obtain the number of Implication
     numImplicaciones <- dim(sigma_lhs)[2] # It could be possible use sigma_rhs too
 
+    # We go through the Implication Set
     for (ind in 1:numImplicaciones) {
 
       X <- Matrix(sigma_lhs[,ind], sparse = TRUE)
