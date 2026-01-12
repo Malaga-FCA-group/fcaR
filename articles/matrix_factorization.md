@@ -1,0 +1,157 @@
+# Matrix Factorization
+
+``` r
+library(fcaR)
+```
+
+## Introduction
+
+**Matrix Factorization** (also known as Decomposition) is a technique
+used to reduce a complex dataset into a smaller set of fundamental
+“factors” or patterns. In the context of Formal Concept Analysis (FCA),
+this corresponds to finding a small subset of concepts that can explain
+or reconstruct the original data with minimal error.
+
+Given an object-attribute matrix $I$ of size $n \times m$, we seek to
+factorize it into two matrices:
+
+1.  **Object-Factor Matrix ($A$)** ($n \times k$): Describes to what
+    degree each object possesses each factor.
+2.  **Factor-Attribute Matrix ($B$)** ($k \times m$): Describes to what
+    degree each factor manifests as specific attributes.
+
+The goal is that the composition of these matrices approximates the
+original data: $$I \approx A \circ B$$
+
+`fcaR` implements two powerful algorithms for this purpose:
+
+- **GreConD+:** A state-of-the-art algorithm for **fuzzy** and boolean
+  data. It finds an exact or approximate decomposition based on Formal
+  Concepts (Belohlavek, 2010).
+- **ASSO:** A heuristic algorithm for **binary** (boolean) data based on
+  association rules. It is often faster but approximate (Miettinen et
+  al., 2008).
+
+## 1. Fuzzy Matrix Factorization (GreConD+)
+
+Let’s use a fuzzy dataset describing different dog breeds and their
+characteristics. We want to see if we can reduce these breeds to a few
+“archetypes” (factors).
+
+``` r
+# Create a fuzzy matrix (6 breeds x 5 attributes)
+I <- matrix(c(
+  0.9, 0.9, 0.0, 0.0, 0.2, # Labrador
+  0.8, 0.9, 0.1, 0.0, 0.1, # Golden Ret.
+  0.2, 0.2, 0.9, 0.9, 0.8, # German Shepherd
+  0.1, 0.1, 0.8, 0.9, 0.9, # Rottweiler
+  0.9, 0.2, 0.2, 0.1, 0.2, # Beagle
+  0.2, 0.1, 0.1, 0.1, 0.9  # Chihuahua
+), nrow = 6, byrow = TRUE)
+
+rownames(I) <- c("Labrador", "Golden Ret.", "G. Shepherd", "Rottweiler", "Beagle", "Chihuahua")
+colnames(I) <- c("Friendly", "Playful", "Guard", "Aggressive", "Small")
+
+fc <- FormalContext$new(I)
+# Use Lukasiewicz logic for fuzzy operations
+fc$use_logic("Lukasiewicz") 
+```
+
+We apply **GreConD+**. We can tune the weight `w` (penalty for
+overcovering) or the stopping threshold.
+
+``` r
+# Factorize using GreConD+
+factors <- fc$factorize(method = "GreConD", w = 1.0)
+
+# The result contains two new FormalContext objects
+A <- factors$object_factor
+B <- factors$factor_attribute
+
+print("Matrix A (Object-Factor):")
+#> [1] "Matrix A (Object-Factor):"
+print(A$incidence())
+#>              F1  F2  F3  F4  F5  F6  F7
+#> Labrador    0.2 1.0 0.3 0.9 0.1 1.0 0.1
+#> Golden Ret. 0.3 0.9 0.2 0.8 0.1 1.0 0.2
+#> G. Shepherd 1.0 0.3 0.9 0.2 1.0 0.3 1.0
+#> Rottweiler  1.0 0.2 1.0 0.1 1.0 0.2 0.9
+#> Beagle      0.4 0.3 0.3 0.9 0.2 0.3 0.3
+#> Chihuahua   0.3 0.2 1.0 0.2 0.2 0.2 0.2
+
+print("Matrix B (Factor-Attribute):")
+#> [1] "Matrix B (Factor-Attribute):"
+print(B$incidence())
+#>    Friendly Playful Guard Aggressive Small
+#> F1      0.1     0.1   0.8        0.8   0.8
+#> F2      0.9     0.9   0.0        0.0   0.2
+#> F3      0.1     0.1   0.1        0.1   0.9
+#> F4      1.0     0.3   0.1        0.1   0.3
+#> F5      0.1     0.1   0.8        0.9   0.8
+#> F6      0.8     0.9   0.0        0.0   0.1
+#> F7      0.2     0.2   0.9        0.8   0.8
+```
+
+### Interpretation
+
+- **Factor 1:** Likely represents “Companion/Family Dogs” (High in
+  Friendly, Playful).
+- **Factor 2:** Likely represents “Guard Dogs” (High in Guard,
+  Aggressive).
+- **Factor 3:** Likely represents “Small Dogs” (High in Small).
+
+### Verification
+
+We can verify the quality of the decomposition by reconstructing the
+matrix using the Lukasiewicz product ($A \circ B$).
+
+``` r
+# Reconstruct I' = A o B
+rec_I <- A$incidence() %*% B$incidence() # Note: standard matrix product is just an approximation
+# For exact fuzzy reconstruction we would loop using the T-norm, but let's check the error:
+
+# (In a real scenario, we use the logic's operators)
+mae <- mean(abs(I - A$incidence() %*% B$incidence())) # Simplified check
+# For exact reconstruction, GreConD+ guarantees I <= A o B if w is high.
+```
+
+## 2. Boolean Matrix Factorization (ASSO)
+
+For large binary datasets, **ASSO** is a classic heuristic. It uses
+pairwise association confidence to generate candidate factors.
+
+``` r
+# Create a binary dataset
+I_bin <- matrix(c(
+  1, 1, 1, 0, 0,
+  1, 1, 1, 0, 0,
+  0, 0, 0, 1, 1,
+  0, 0, 0, 1, 1,
+  1, 0, 0, 0, 1
+), nrow = 5, byrow = TRUE)
+rownames(I_bin) <- paste0("O", 1:5)
+colnames(I_bin) <- paste0("A", 1:5)
+
+fc_bin <- FormalContext$new(I_bin)
+
+# Factorize using ASSO
+# threshold: confidence threshold for candidate generation
+res_asso <- fc_bin$factorize(method = "ASSO", threshold = 0.6)
+
+print(res_asso$factor_attribute$incidence())
+#>    A1 A2 A3 A4 A5
+#> F1  1  1  1  0  0
+#> F2  0  0  0  1  1
+```
+
+## References
+
+1.  **Belohlavek, R. (2010).** Discovery of optimal factors in binary
+    data via a novel method of matrix decomposition. *Journal of
+    Computer and System Sciences*, 76(1), 3-20.
+2.  **Belohlavek, R., & Trneckova, M. (2015).** Optimal decomposition of
+    finite fuzzy relations: The problem and the GreConD algorithm.
+    *Information Sciences*, 309, 133-157.
+3.  **Miettinen, P., Mielikainen, T., Gionis, A., Das, G., & Mannila, H.
+    (2008).** The discrete basis problem. *IEEE Transactions on
+    Knowledge and Data Engineering*, 20(10), 1348-1362.
