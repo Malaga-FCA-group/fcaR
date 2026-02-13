@@ -16,6 +16,7 @@
 ^appveyor\.yml$
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
+^\.agent$
 
 # qrtdown
 ^\.quarto$
