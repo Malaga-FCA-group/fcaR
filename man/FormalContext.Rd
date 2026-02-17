@@ -141,6 +141,7 @@ Hahsler M, Grun B, Hornik K (2005). “arules - a computational environment for 
 \item \href{#method-FormalContext-standardize}{\code{FormalContext$standardize()}}
 \item \href{#method-FormalContext-find_concepts}{\code{FormalContext$find_concepts()}}
 \item \href{#method-FormalContext-find_implications}{\code{FormalContext$find_implications()}}
+\item \href{#method-FormalContext-find_protoconcepts}{\code{FormalContext$find_protoconcepts()}}
 \item \href{#method-FormalContext-find_causal_rules}{\code{FormalContext$find_causal_rules()}}
 \item \href{#method-FormalContext-factorize}{\code{FormalContext$factorize()}}
 \item \href{#method-FormalContext-to_transactions}{\code{FormalContext$to_transactions()}}

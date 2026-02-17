@@ -1079,6 +1079,39 @@ FormalContext <- R6::R6Class(
     },
 
     #' @description
+    #' Find protoconcepts
+    #'
+    #' @param verbose (logical) Show verbose output.
+    #'
+    #' @return A list of protoconcepts, where each protoconcept is a list of two Sets (extent and intent).
+    #' @export
+    find_protoconcepts = function(verbose = FALSE) {
+      private$check_empty()
+
+      my_I <- Matrix::as.matrix(Matrix::t(self$I))
+
+      L <- find_protoconcepts_cpp(
+        I = my_I,
+        connection = private$connection,
+        name = private$logic,
+        verbose = verbose
+      )
+
+      res <- vector("list", length(L))
+
+      for (i in seq_along(L)) {
+        elt <- L[[i]]
+        # elt[[1]] is extent (S4), elt[[2]] is intent (S4)
+
+        S_ext <- Set$new(attributes = self$objects, M = elt[[1]])
+        S_int <- Set$new(attributes = self$attributes, M = elt[[2]])
+
+        res[[i]] <- list(extent = S_ext, intent = S_int)
+      }
+      return(res)
+    },
+
+    #' @description
     #' Find causal rules
     #'
     #' @param response_var (character) The name of the response variable.

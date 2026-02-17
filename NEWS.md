@@ -6,6 +6,10 @@ Improvements:
 * **Tidyverse for RuleSet:** The `dplyr` verbs (`filter()`, `arrange()`, `slice()`) now work on `RuleSet` objects in addition to `ImplicationSet`, via S3 method dispatch.
 * **Standard Context:** Added `get_standard_context()` method to `ImplicationSet`, which computes the standard formal context from a set of implications by finding the meet-irreducible closed sets.
 
+New Functionality:
+
+* **Protoconcepts:** Added `find_protoconcepts()` method to `FormalContext` to compute protoconcepts (pairs $(A, B)$ such that $A' = B''$) using an efficient C++ implementation.
+
 # fcaR 1.4.1
 
 * **JSON Import/Export:** Added `to_json()` methods and corresponding `*_from_json()` functions for `FormalContext`, `ConceptLattice`, `ImplicationSet`, and `RuleSet`. This allows for efficient serialization of all major data structures in `fcaR`, including recursive export of nested objects.

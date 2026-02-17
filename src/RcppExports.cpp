@@ -675,6 +675,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// find_protoconcepts_cpp
+List find_protoconcepts_cpp(NumericMatrix I, String connection, String name, bool verbose);
+RcppExport SEXP _fcaR_find_protoconcepts_cpp(SEXP ISEXP, SEXP connectionSEXP, SEXP nameSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type I(ISEXP);
+    Rcpp::traits::input_parameter< String >::type connection(connectionSEXP);
+    Rcpp::traits::input_parameter< String >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_protoconcepts_cpp(I, connection, name, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_intent
 S4 compute_intent(S4 V, NumericMatrix I, String connection, String name);
 RcppExport SEXP _fcaR_compute_intent(SEXP VSEXP, SEXP ISEXP, SEXP connectionSEXP, SEXP nameSEXP) {
@@ -988,6 +1002,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fcaR_next_closure_concepts", (DL_FUNC) &_fcaR_next_closure_concepts, 7},
     {"_fcaR_binary_next_closure_concepts", (DL_FUNC) &_fcaR_binary_next_closure_concepts, 2},
     {"_fcaR_get_closed_sets_implications", (DL_FUNC) &_fcaR_get_closed_sets_implications, 4},
+    {"_fcaR_find_protoconcepts_cpp", (DL_FUNC) &_fcaR_find_protoconcepts_cpp, 4},
     {"_fcaR_compute_intent", (DL_FUNC) &_fcaR_compute_intent, 4},
     {"_fcaR_compute_extent", (DL_FUNC) &_fcaR_compute_extent, 4},
     {"_fcaR_compute_closure", (DL_FUNC) &_fcaR_compute_closure, 4},

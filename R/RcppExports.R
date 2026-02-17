@@ -97,6 +97,10 @@ binary_next_closure_implications <- function(I, verbose = FALSE) {
     .Call(`_fcaR_binary_next_closure_implications`, I, verbose)
 }
 
+LinCbO_binary <- function(I, attrs) {
+    .Call(`_fcaR_LinCbO_binary`, I, attrs)
+}
+
 FastCbO_binary <- function(I, attrs, verbose = FALSE) {
     .Call(`_fcaR_FastCbO_binary`, I, attrs, verbose)
 }
@@ -147,6 +151,10 @@ calculate_grades_rcpp <- function(concept_ids, edge_from, edge_to) {
 
 calculate_lattice_layout_rcpp <- function(concept_ids, grades, edge_from, edge_to, method) {
     .Call(`_fcaR_calculate_lattice_layout_rcpp`, concept_ids, grades, edge_from, edge_to, method)
+}
+
+binary_lincbo_implications <- function(I, verbose = FALSE) {
+    .Call(`_fcaR_binary_lincbo_implications`, I, verbose)
 }
 
 calculate_stability_sparse_rcpp <- function(mat) {

@@ -204,6 +204,19 @@ fc_planets$concepts
 fc_planets$implications
 ```
 
+
+## Protoconcepts
+
+In addition to concepts, one can compute *protoconcepts*. A protoconcept is a pair $(A, B)$ of object and attribute sets such that $A' = B''$. This definition generalizes concepts (where $A' = B$ and $B' = A$, which implies $A' = B''$) and is useful in certain applications.
+
+To find all protoconcepts, use `find_protoconcepts()`:
+```{r}
+P <- fc_planets$find_protoconcepts()
+length(P)
+```
+The result is a list of pairs (extent, intent). Each element of the list matches a concept or a protoconcept.
+
+
 ## Standard Context
 
 Once we have computed the concepts, we can build the _standard context_ (J, M, $\le$), where J is the set of join-irreducible concepts and M are the meet-irreducible ones. Join and meet are another name for supremum and infimum operations in the concept lattice.
