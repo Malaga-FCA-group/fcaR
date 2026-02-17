@@ -978,3 +978,146 @@ List binary_next_closure_concepts(IntegerMatrix I, bool verbose = false) {
 
   return concepts;
 }
+// [[Rcpp::export]]
+List get_closed_sets_implications(S4 lhs, S4 rhs, StringVector attrs, bool verbose = false) {
+
+  int n_attributes = attrs.size();
+  
+  // Manual conversion of S4 dgCMatrix to SparseVector for LHS
+  IntegerVector lhs_p = lhs.slot("p");
+  IntegerVector lhs_i = lhs.slot("i");
+  NumericVector lhs_x = lhs.slot("x");
+  IntegerVector lhs_dim = lhs.slot("Dim");
+  int n_implications = lhs_dim[1]; // Number of columns = Number of implications
+
+  SparseVector LHS_sv;
+  // Initialize struct fields manually to emulate a proper SparseVector wrapper around the data
+  // standard initVector might allocate small size. We want exact copy.
+  LHS_sv.length = lhs_dim[0];
+  
+  // Alloc and Copy P
+  LHS_sv.p.size = lhs_p.size();
+  LHS_sv.p.used = lhs_p.size();
+  LHS_sv.p.array = (int*)calloc(lhs_p.size(), sizeof(int));
+  memcpy(LHS_sv.p.array, lhs_p.begin(), lhs_p.size() * sizeof(int));
+  
+  // Alloc and Copy I
+  LHS_sv.i.size = lhs_i.size();
+  LHS_sv.i.used = lhs_i.size();
+  LHS_sv.i.array = (int*)calloc(lhs_i.size(), sizeof(int));
+  memcpy(LHS_sv.i.array, lhs_i.begin(), lhs_i.size() * sizeof(int));
+  
+  // Alloc and Copy X
+  LHS_sv.x.size = lhs_x.size();
+  LHS_sv.x.used = lhs_x.size();
+  LHS_sv.x.array = (double*)calloc(lhs_x.size(), sizeof(double));
+  memcpy(LHS_sv.x.array, lhs_x.begin(), lhs_x.size() * sizeof(double));
+
+  // Manual conversion of S4 dgCMatrix to SparseVector for RHS
+  IntegerVector rhs_p = rhs.slot("p");
+  IntegerVector rhs_i = rhs.slot("i");
+  NumericVector rhs_x = rhs.slot("x");
+  IntegerVector rhs_dim = rhs.slot("Dim");
+
+  SparseVector RHS_sv;
+  RHS_sv.length = rhs_dim[0];
+  
+  RHS_sv.p.size = rhs_p.size();
+  RHS_sv.p.used = rhs_p.size();
+  RHS_sv.p.array = (int*)calloc(rhs_p.size(), sizeof(int));
+  memcpy(RHS_sv.p.array, rhs_p.begin(), rhs_p.size() * sizeof(int));
+  
+  RHS_sv.i.size = rhs_i.size();
+  RHS_sv.i.used = rhs_i.size();
+  RHS_sv.i.array = (int*)calloc(rhs_i.size(), sizeof(int));
+  memcpy(RHS_sv.i.array, rhs_i.begin(), rhs_i.size() * sizeof(int));
+  
+  RHS_sv.x.size = rhs_x.size();
+  RHS_sv.x.used = rhs_x.size();
+  RHS_sv.x.array = (double*)calloc(rhs_x.size(), sizeof(double));
+  memcpy(RHS_sv.x.array, rhs_x.begin(), rhs_x.size() * sizeof(double));
+  
+  // Build ImplicationTree
+  ImplicationTree tree;
+  initImplicationTree(&tree, n_attributes);
+  
+  for (int k = 0; k < n_implications; k++) {
+     int p_start = LHS_sv.p.array[k];
+     int p_end = LHS_sv.p.array[k+1];
+     
+     SparseVector col; 
+     initVector(&col, n_attributes);
+     
+     // Copy elements
+     for (int m = p_start; m < p_end; m++) {
+       insertArray(&col.i, LHS_sv.i.array[m]);
+       insertArray(&col.x, LHS_sv.x.array[m]);
+     }
+     
+     addImplicationToTree(&tree, col);
+     freeVector(&col); 
+  }
+  
+  // Algorithm state
+  SparseVector Concepts;
+  initMatrix(&Concepts, n_attributes);
+  
+  SparseVector A;
+  initVector(&A, n_attributes);
+  
+  SparseVector empty;
+  initVector(&empty, n_attributes);
+  
+  SparseVector closure_empty;
+  initVector(&closure_empty, n_attributes);
+  
+  
+  semantic_closure(empty, tree, LHS_sv, RHS_sv, &closure_empty);
+  cloneVector(&A, closure_empty);
+  add_column(&Concepts, A);
+  
+  if (verbose) {
+    Rprintf("Found concept 1\n");
+  }
+  
+  SparseVector B;
+  initVector(&B, n_attributes);
+  
+  List grades_set(n_attributes);
+  NumericVector binary_grades = NumericVector::create(0, 1);
+  for (int k = 0; k < n_attributes; k++) {
+    grades_set[k] = binary_grades;
+  }
+  
+  while (cardinal(A) < n_attributes) {
+     compute_next_closure(A, n_attributes, n_attributes, grades_set, tree, LHS_sv, RHS_sv, attrs, &B);
+     
+     cloneVector(&A, B);
+     add_column(&Concepts, A);
+     
+     if (verbose && (Concepts.p.used % 100 == 0)) {
+       Rprintf("Found %d concepts\n", (int)(Concepts.p.used - 1));
+     }
+     
+     if (checkInterrupt()) {
+       break;
+     }
+  }
+  
+  // Convert result to S4
+  S4 res = SparseToS4_fast(Concepts);
+  
+  // Cleanup
+  freeVector(&Concepts);
+  freeVector(&A);
+  freeVector(&B);
+  freeVector(&empty);
+  freeVector(&closure_empty);
+  
+  freeVector(&LHS_sv);
+  freeVector(&RHS_sv);
+  
+  freeImplicationTree(&tree);
+  
+  return List::create(_["closed_sets"] = res);
+}

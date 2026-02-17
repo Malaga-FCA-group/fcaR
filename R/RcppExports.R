@@ -193,6 +193,10 @@ binary_next_closure_concepts <- function(I, verbose = FALSE) {
     .Call(`_fcaR_binary_next_closure_concepts`, I, verbose)
 }
 
+get_closed_sets_implications <- function(lhs, rhs, attrs, verbose = FALSE) {
+    .Call(`_fcaR_get_closed_sets_implications`, lhs, rhs, attrs, verbose)
+}
+
 compute_intent <- function(V, I, connection, name) {
     .Call(`_fcaR_compute_intent`, V, I, connection, name)
 }

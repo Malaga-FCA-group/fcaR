@@ -209,7 +209,21 @@ imps %~% imps2
 imps %~% imps2[1:9]
 ```
 
-## Recommendations
+## Standard Context
+
+The `ImplicationSet` allows us to recover the underlying lattice structure (the lattice of closed sets) by computing the **standard context**. This context has the meet-irreducible closed sets of the implication set as objects, and the original attributes as attributes:
+
+```{r}
+# Get the standard context from the implications of the planets context
+sc <- fc_planets$implications$get_standard_context()
+
+# We can inspect the new context
+sc
+```
+
+The concept lattice of this standard context is isomorphic to the lattice of closed sets of the original implication set.
+
+## Recommendation systems
 
 One of the final applications of an `ImplicationSet` is the easy development of a recommendation system where, from an attribute set, the system would infer the value to other attribute. This is done by the `recommend()` function, which internally computes the closure of the attribute set:
 ```{r}

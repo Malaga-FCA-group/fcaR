@@ -537,6 +537,100 @@ ImplicationSet <- R6::R6Class(
     },
 
     #' @description
+    #' Get the standard formal context associated with the implication set.
+    #'
+    #' @details
+    #' The standard formal context \eqn{K = (J, M, I)}{K = (J, M, I)} associated to a set of implications on \eqn{M}{M} is such that its concept lattice is isomorphic to the lattice of closed sets of the implication set.
+    #' The objects \eqn{J}{J} of this context are the meet-irreducible closed sets of the implication set.
+    #'
+    #' @return A \code{FormalContext} object where the objects are the meet-irreducible closed sets and the attributes are the attributes of the implication set.
+    #' @export
+    get_standard_context = function() {
+      if (self$is_empty()) {
+        # If no implications, any set is closed.
+        # But wait, usually the empty set of implications on M
+        # means the lattice is 2^M.
+        # The standard context for 2^M is (M, M, !=).
+        I <- matrix(1, nrow = length(private$attributes),
+                    ncol = length(private$attributes))
+        diag(I) <- 0
+        colnames(I) <- private$attributes
+        rownames(I) <- paste0("C", seq_len(nrow(I)))
+        return(FormalContext$new(I))
+      }
+
+      # Find all closed sets using C++ optimization
+      res <- get_closed_sets_implications(
+        private$lhs_matrix,
+        private$rhs_matrix,
+        private$attributes,
+        verbose = FALSE
+      )
+      
+      attrs <- private$attributes
+      n_attrs <- length(attrs)
+      
+      closed_sets_matrix <- res$closed_sets
+      n_closed <- ncol(closed_sets_matrix)
+      
+      # Convert to list of sparse vectors for the logic below
+      # (We could optimize the logic to work on the matrix, but this is a minimal change)
+      all_closed <- lapply(seq_len(n_closed), function(i) closed_sets_matrix[, i, drop = FALSE])
+
+
+      if (length(all_closed) <= 1) {
+         # Only top, or no attributes
+         I <- matrix(1, nrow = 1, ncol = n_attrs)
+         colnames(I) <- attrs
+         rownames(I) <- "C1"
+         return(FormalContext$new(I))
+      }
+
+      # Identify meet-irreducibles using optimized matrix operations
+      # We follow the same logic as in ConceptLattice$meet_irreducibles:
+      # 1. Compute subset relation matrix S (S_ij = 1 iff C_i <= C_j)
+      # 2. Compute transitive reduction of the inverse relation (>=) to get covering relation
+      # 3. Meet-irreducibles are elements with exactly one cover
+      
+      # .subset expects a Matrix, which closed_sets_matrix already is
+      # Note: .subset and .reduce_transitivity are internal fcaR functions
+      
+      S <- .subset(closed_sets_matrix)
+      
+      # Transpose to get superconcept relation (>=)
+      # Reduce transitivity to get covering relation (immediate superconcepts)
+      M <- .reduce_transitivity(Matrix::t(S))
+      
+      # Elements with exactly one upper cover are meet-irreducibles
+      # (ColSums gives the in-degree in the covering graph, which corresponds to number of covers)
+      is_meet_irr <- (Matrix::colSums(M) == 1)
+      
+      meet_irreducibles_mat <- closed_sets_matrix[, is_meet_irr, drop = FALSE]
+      
+      # Convert to list of columns for constructing incidence matrix
+      # (though we can construct it directly maybe? The old code made a list then rbind)
+      # Let's keep it consistent:
+      meet_irreducibles <- lapply(seq_len(ncol(meet_irreducibles_mat)), function(i) meet_irreducibles_mat[, i, drop = FALSE])
+
+
+      if (length(meet_irreducibles) == 0) {
+        # Fallback (shouldn't happen for finite lattices unless trivial)
+        I <- matrix(1, nrow = 1, ncol = n_attrs)
+        colnames(I) <- attrs
+        rownames(I) <- "C1"
+        return(FormalContext$new(I))
+      }
+
+      # Build incidence matrix
+      mi_matrix <- do.call(rbind, lapply(meet_irreducibles, Matrix::t))
+      I <- as.matrix(mi_matrix)
+      colnames(I) <- attrs
+      rownames(I) <- paste0("C", seq_len(nrow(I)))
+
+      return(FormalContext$new(I))
+    },
+
+    #' @description
     #' Sets the hedge to use when computing closures
     #'
     #'

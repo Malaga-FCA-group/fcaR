@@ -17,6 +17,7 @@
 ^CRAN-RELEASE$
 ^CRAN-SUBMISSION$
 ^\.agent$
+^papers$
 
 # qrtdown
 ^\.quarto$

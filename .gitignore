@@ -21,3 +21,4 @@ _quarto.yml
 /.quarto/
 **/*.quarto_ipynb
 .agent
+papers
