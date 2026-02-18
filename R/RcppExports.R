@@ -205,6 +205,10 @@ get_closed_sets_implications <- function(lhs, rhs, attrs, verbose = FALSE) {
     .Call(`_fcaR_get_closed_sets_implications`, lhs, rhs, attrs, verbose)
 }
 
+find_protoconcepts_cpp <- function(I, connection = "standard", name = "Zadeh", verbose = FALSE) {
+    .Call(`_fcaR_find_protoconcepts_cpp`, I, connection, name, verbose)
+}
+
 compute_intent <- function(V, I, connection, name) {
     .Call(`_fcaR_compute_intent`, V, I, connection, name)
 }
