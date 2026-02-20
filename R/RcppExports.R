@@ -149,8 +149,8 @@ calculate_lattice_layout_rcpp <- function(concept_ids, grades, edge_from, edge_t
     .Call(`_fcaR_calculate_lattice_layout_rcpp`, concept_ids, grades, edge_from, edge_to, method)
 }
 
-binary_lincbo_implications <- function(I, verbose = FALSE) {
-    .Call(`_fcaR_binary_lincbo_implications`, I, verbose)
+binary_lincbo_implications <- function(I, save_concepts = FALSE, verbose = FALSE) {
+    .Call(`_fcaR_binary_lincbo_implications`, I, save_concepts, verbose)
 }
 
 calculate_stability_sparse_rcpp <- function(mat) {

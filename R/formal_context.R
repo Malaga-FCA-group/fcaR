@@ -992,6 +992,7 @@ FormalContext <- R6::R6Class(
         if (method == "LinCbO") {
           L <- binary_lincbo_implications(
             I,
+            save_concepts = save_concepts,
             verbose = verbose
           )
         } else {
@@ -1002,7 +1003,7 @@ FormalContext <- R6::R6Class(
         }
       } else {
         if (method == "LinCbO") {
-          warning(
+          message(
             "LinCbO is only available for binary contexts. Falling back to NextClosure.",
             call. = FALSE
           )

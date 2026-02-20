@@ -7,11 +7,10 @@ test_that("LinCbO correctness on planets", {
     fc_lc$find_implications(method = "LinCbO", verbose = FALSE)
 
     # Method calls with parentheses
-    # Standard LinCbO (Single Pass) finds a redundant basis (20 rules) and subset of concepts (7)
-    # This differs from NextClosure (10 rules, 12 concepts).
-    # We test for stability of this output.
-    expect_equal(fc_lc$implications$cardinality(), 20)
-    expect_equal(fc_lc$concepts$size(), 7)
+    # The new optimized LinCbO mathematically guarantees the canonical Guigues-Duquenne basis.
+    # It must match NextClosure (10 rules, 12 concepts).
+    expect_equal(fc_lc$implications$cardinality(), 10)
+    expect_equal(fc_lc$concepts$size(), 12)
 })
 
 test_that("LinCbO on random contexts", {
@@ -60,7 +59,7 @@ test_that("LinCbO edge cases", {
 test_that("LinCbO fallback on fuzzy context", {
     m <- matrix(c(0.2, 0.5, 0.8, 1.0), nrow = 2, ncol = 2)
     fc <- FormalContext$new(m)
-    expect_warning(
+    expect_message(
         fc$find_implications(method = "LinCbO"),
         "LinCbO is only available for binary contexts"
     )

@@ -222,12 +222,18 @@ public:
   };
   std::vector<FinalRule> results;
 
+  struct FinalConcept {
+    std::vector<int> intent, extent;
+  };
+  std::vector<FinalConcept> concepts;
+
   int step_count;
+  bool save_concepts;
   
   // Single global count stack to avoid vector depth pools entirely
   std::vector<int> count_stack;
 
-  LinCbOSolver(NumericMatrix I) : nO(I.nrow()), nA(I.ncol()), list_m(I.ncol()), step_count(0) {
+  LinCbOSolver(NumericMatrix I, bool sc) : nO(I.nrow()), nA(I.ncol()), list_m(I.ncol()), step_count(0), save_concepts(sc) {
     attr_data.resize(nA);
     obj_data.resize(nO);
     for (int j = 0; j < nA; ++j) attr_data[j].init(nO);
@@ -245,8 +251,7 @@ public:
     count_stack.reserve(2 * nA * nA * 100);
   }
 
-  inline void formal_closure(const FastBitset &A, FastBitset &res) const {
-    FastBitset ext;
+  inline void formal_closure(const FastBitset &A, FastBitset &res, FastBitset &ext) const {
     ext.init(nO);
     ext.set();
     for (int j = A.find_first(); j < nA; j = A.find_next(j)) {
@@ -327,8 +332,8 @@ public:
       return;
     }
 
-    FastBitset B_pp;
-    formal_closure(B_star, B_pp);
+    FastBitset B_pp, ext;
+    formal_closure(B_star, B_pp, ext);
 
     if (B_star != B_pp) {
       int r_idx = T.size();
@@ -364,6 +369,16 @@ public:
         step(B_pp, y, diff, cur_offset);
       }
     } else {
+      if (save_concepts) {
+        FinalConcept fc;
+        for (int k = B_star.find_first(); k < nA; k = B_star.find_next(k)) {
+          fc.intent.push_back(k);
+        }
+        for (int k = ext.find_first(); k < nO; k = ext.find_next(k)) {
+          fc.extent.push_back(k);
+        }
+        concepts.push_back(std::move(fc));
+      }
       for (int i = nA - 1; i > y; --i) {
         if (!B_star.test(i)) {
           FastBitset Bn;
@@ -398,20 +413,37 @@ public:
     }
 
     S4 L("dgCMatrix"), R("dgCMatrix");
-    auto mk = [&](S4 &s, std::vector<int> &idx, std::vector<int> &p) {
+    auto mk = [&](S4 &s, std::vector<int> &idx, std::vector<int> &p, int n_rows, int n_cols) {
       s.slot("i") = wrap(idx);
       s.slot("p") = wrap(p);
       s.slot("x") = NumericVector(idx.size(), 1.0);
-      s.slot("Dim") = IntegerVector::create(nA, (int)results.size());
+      s.slot("Dim") = IntegerVector::create(n_rows, n_cols);
     };
-    mk(L, li, lp);
-    mk(R, ri, rp);
+    mk(L, li, lp, nA, results.size());
+    mk(R, ri, rp, nA, results.size());
+    
+    if (save_concepts) {
+      std::vector<int> ci, cp, ei, ep;
+      cp.push_back(0);
+      ep.push_back(0);
+      for (const auto &c : concepts) {
+        for (int v : c.intent) ci.push_back(v);
+        cp.push_back(cp.back() + c.intent.size());
+        for (int v : c.extent) ei.push_back(v);
+        ep.push_back(ep.back() + c.extent.size());
+      }
+      S4 C("dgCMatrix"), E("dgCMatrix");
+      mk(C, ci, cp, nA, concepts.size());
+      mk(E, ei, ep, nO, concepts.size());
+      return List::create(_["concepts"] = C, _["extents"] = E, _["LHS"] = L, _["RHS"] = R);
+    }
+    
     return List::create(_["LHS"] = L, _["RHS"] = R);
   }
 };
 
 // [[Rcpp::export]]
-List binary_lincbo_implications(NumericMatrix I, bool verbose = false) {
-  LinCbOSolver solver(I);
+List binary_lincbo_implications(NumericMatrix I, bool save_concepts = false, bool verbose = false) {
+  LinCbOSolver solver(I, save_concepts);
   return solver.solve();
 }

@@ -523,14 +523,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // binary_lincbo_implications
-List binary_lincbo_implications(NumericMatrix I, bool verbose);
-RcppExport SEXP _fcaR_binary_lincbo_implications(SEXP ISEXP, SEXP verboseSEXP) {
+List binary_lincbo_implications(NumericMatrix I, bool save_concepts, bool verbose);
+RcppExport SEXP _fcaR_binary_lincbo_implications(SEXP ISEXP, SEXP save_conceptsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type I(ISEXP);
+    Rcpp::traits::input_parameter< bool >::type save_concepts(save_conceptsSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(binary_lincbo_implications(I, verbose));
+    rcpp_result_gen = Rcpp::wrap(binary_lincbo_implications(I, save_concepts, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1002,7 +1003,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fcaR_InClose_binary", (DL_FUNC) &_fcaR_InClose_binary, 3},
     {"_fcaR_calculate_grades_rcpp", (DL_FUNC) &_fcaR_calculate_grades_rcpp, 3},
     {"_fcaR_calculate_lattice_layout_rcpp", (DL_FUNC) &_fcaR_calculate_lattice_layout_rcpp, 5},
-    {"_fcaR_binary_lincbo_implications", (DL_FUNC) &_fcaR_binary_lincbo_implications, 2},
+    {"_fcaR_binary_lincbo_implications", (DL_FUNC) &_fcaR_binary_lincbo_implications, 3},
     {"_fcaR_calculate_stability_sparse_rcpp", (DL_FUNC) &_fcaR_calculate_stability_sparse_rcpp, 1},
     {"_fcaR_calculate_density_rcpp", (DL_FUNC) &_fcaR_calculate_density_rcpp, 3},
     {"_fcaR_calculate_separation_rcpp", (DL_FUNC) &_fcaR_calculate_separation_rcpp, 1},
