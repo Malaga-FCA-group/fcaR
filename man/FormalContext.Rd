@@ -592,7 +592,11 @@ A list with all the concepts in the formal context.
 \subsection{Method \code{find_implications()}}{
 Use modified Ganter algorithm to compute both concepts and implications
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_implications(save_concepts = TRUE, verbose = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_implications(
+  save_concepts = TRUE,
+  verbose = FALSE,
+  method = c("LinCbO", "NextClosure")
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -601,11 +605,33 @@ Use modified Ganter algorithm to compute both concepts and implications
 \item{\code{save_concepts}}{(logical) \code{TRUE} will also compute and save the concept lattice. \code{FALSE} is usually faster, since it only computes implications.}
 
 \item{\code{verbose}}{(logical) \code{TRUE} will provide a verbose output.}
+
+\item{\code{method}}{(character) Algorithm to use for binary contexts. One of \code{"LinCbO"} (default, Janostik, Konecny, Krajca) or \code{"NextClosure"} (Ganter's algorithm). For non-binary (fuzzy) contexts, NextClosure is always used.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Nothing, just updates the internal fields \code{concepts} and \code{implications}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FormalContext-find_protoconcepts"></a>}}
+\if{latex}{\out{\hypertarget{method-FormalContext-find_protoconcepts}{}}}
+\subsection{Method \code{find_protoconcepts()}}{
+Find protoconcepts
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FormalContext$find_protoconcepts(verbose = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{verbose}}{(logical) Show verbose output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of protoconcepts, where each protoconcept is a list of two Sets (extent and intent).
 }
 }
 \if{html}{\out{<hr>}}

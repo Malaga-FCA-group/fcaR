@@ -5,6 +5,7 @@ Improvements:
 * **OOP Refactoring:** `ImplicationSet` now inherits from `RuleSet`, following proper object-oriented design. Shared methods (filtering, subsetting, printing, serialization, etc.) live in the parent `RuleSet` class, eliminating ~600 lines of duplicated code. `ImplicationSet` retains only FCA-specific methods (`closure()`, `apply_rules()`, `to_basis()`, `to_direct_optimal()`, etc.).
 * **Tidyverse for RuleSet:** The `dplyr` verbs (`filter()`, `arrange()`, `slice()`) now work on `RuleSet` objects in addition to `ImplicationSet`, via S3 method dispatch.
 * **Standard Context:** Added `get_standard_context()` method to `ImplicationSet`, which computes the standard formal context from a set of implications by finding the meet-irreducible closed sets.
+* **Default Implication Algorithm:** The default algorithm for finding the Duquenne-Guigues basis of implications in binary formal contexts is now `LinCbO`, achieving performance improvements of up to 100x compared to `NextClosure`.
 
 New Functionality:
 

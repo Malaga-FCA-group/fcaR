@@ -97,10 +97,6 @@ binary_next_closure_implications <- function(I, verbose = FALSE) {
     .Call(`_fcaR_binary_next_closure_implications`, I, verbose)
 }
 
-LinCbO_binary <- function(I, attrs) {
-    .Call(`_fcaR_LinCbO_binary`, I, attrs)
-}
-
 FastCbO_binary <- function(I, attrs, verbose = FALSE) {
     .Call(`_fcaR_FastCbO_binary`, I, attrs, verbose)
 }

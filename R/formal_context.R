@@ -966,26 +966,47 @@ FormalContext <- R6::R6Class(
     #'
     #' @param save_concepts (logical) \code{TRUE} will also compute and save the concept lattice. \code{FALSE} is usually faster, since it only computes implications.
     #' @param verbose   (logical) \code{TRUE} will provide a verbose output.
+    #' @param method (character) Algorithm to use for binary contexts. One of \code{"LinCbO"} (default, Janostik, Konecny, Krajca) or \code{"NextClosure"} (Ganter's algorithm). For non-binary (fuzzy) contexts, NextClosure is always used.
     #'
     #' @return Nothing, just updates the internal fields \code{concepts} and \code{implications}.
     #'
     #'
     #' @export
-    find_implications = function(save_concepts = TRUE, verbose = FALSE) {
+    find_implications = function(
+      save_concepts = TRUE,
+      verbose = FALSE,
+      method = c("LinCbO", "NextClosure")
+    ) {
       private$check_empty()
 
       if (private$is_many_valued) {
         error_many_valued()
       }
 
+      method <- match.arg(method)
+
       if (all(self$I@x == 1)) {
         I <- self$incidence()
         mode(I) <- "integer"
-        L <- binary_next_closure_implications(
-          I,
-          verbose = verbose
-        )
+
+        if (method == "LinCbO") {
+          L <- binary_lincbo_implications(
+            I,
+            verbose = verbose
+          )
+        } else {
+          L <- binary_next_closure_implications(
+            I,
+            verbose = verbose
+          )
+        }
       } else {
+        if (method == "LinCbO") {
+          warning(
+            "LinCbO is only available for binary contexts. Falling back to NextClosure.",
+            call. = FALSE
+          )
+        }
         my_I <- Matrix::as.matrix(Matrix::t(self$I))
         grades_set <- rep(list(self$grades_set), length(self$attributes))
         attrs <- self$attributes
@@ -1033,9 +1054,6 @@ FormalContext <- R6::R6Class(
         L$RHS <- L3$rhs
       }
 
-      # Since the previous function gives the list of intents of
-      # the computed concepts, now we will compute the corresponding
-      # extents.
       if (save_concepts) {
         my_intents <- L$concepts
         my_extents <- L$extents
