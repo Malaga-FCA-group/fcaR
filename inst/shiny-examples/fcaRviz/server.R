@@ -2,7 +2,6 @@
 # server.R - VERSIÓN 3.2 (FINAL: CONVERSATIONAL SUB-LATTICE & HIERARCHY)
 # ==============================================================================
 
-source("uiHome.R")
 source("uiUploadData.R")
 source("uiBasicOperations.R")
 source("uiImplications.R")
@@ -1522,27 +1521,36 @@ server <- function(input, output, session) {
   })
   output$intentResult <- renderUI({
     req(input$intentOptions, vals$fc)
-    S <- Set$new(vals$fc$objects)
-    sapply(input$intentOptions, function(x) do.call(S$assign, setNames(list(1), x)))
-    res <- vals$fc$intent(S)
-    append_to_history_log(paste0("Computed intent for object subset: {", paste(input$intentOptions, collapse = ", "), "}"))
-    HTML(paste("<pre>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    tryCatch({
+      S <- Set$new(vals$fc$objects)
+      sapply(input$intentOptions, function(x) do.call(S$assign, setNames(list(1), x)))
+      res <- vals$fc$intent(S)
+      HTML(paste("<pre class='p-2 bg-light border rounded text-dark fs-6 mb-0'>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    }, error = function(e) {
+      div(class = "text-danger small mt-2", paste("Error computing intent:", e$message))
+    })
   })
   output$extentResult <- renderUI({
     req(input$extentOptions, vals$fc)
-    S <- Set$new(vals$fc$attributes)
-    sapply(input$extentOptions, function(x) do.call(S$assign, setNames(list(1), x)))
-    res <- vals$fc$extent(S)
-    append_to_history_log(paste0("Computed extent for attribute subset: {", paste(input$extentOptions, collapse = ", "), "}"))
-    HTML(paste("<pre>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    tryCatch({
+      S <- Set$new(vals$fc$attributes)
+      sapply(input$extentOptions, function(x) do.call(S$assign, setNames(list(1), x)))
+      res <- vals$fc$extent(S)
+      HTML(paste("<pre class='p-2 bg-light border rounded text-dark fs-6 mb-0'>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    }, error = function(e) {
+      div(class = "text-danger small mt-2", paste("Error computing extent:", e$message))
+    })
   })
   output$closureResult <- renderUI({
     req(input$closureOptions, vals$fc)
-    S <- Set$new(vals$fc$attributes)
-    sapply(input$closureOptions, function(x) do.call(S$assign, setNames(list(1), x)))
-    res <- vals$fc$closure(S)
-    append_to_history_log(paste0("Computed closure for attribute subset: {", paste(input$closureOptions, collapse = ", "), "}"))
-    HTML(paste("<pre>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    tryCatch({
+      S <- Set$new(vals$fc$attributes)
+      sapply(input$closureOptions, function(x) do.call(S$assign, setNames(list(1), x)))
+      res <- vals$fc$closure(S)
+      HTML(paste("<pre class='p-2 bg-light border rounded text-dark fs-6 mb-0'>", paste(capture.output(print(res)), collapse = "\n"), "</pre>"))
+    }, error = function(e) {
+      div(class = "text-danger small mt-2", paste("Error computing closure:", e$message))
+    })
   })
   observeEvent(input$createLatex, { showModal(modalDialog(title = "LaTeX Code", verbatimTextOutput("latexTable"), easyClose = TRUE)) })
   output$latexTable <- renderText({ req(vals$fc); vals$fc$to_latex() })
