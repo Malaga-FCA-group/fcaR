@@ -445,7 +445,7 @@ uiConcepts <- tagList(
                       checkboxInput("enable_threshold", "Enable Concept Limit Warning", value = TRUE),
                       conditionalPanel(
                         condition = "input.enable_threshold == true",
-                        numericInput("safety_threshold", "Limit Threshold (Concepts):", value = 800, min = 10, step = 50)
+                        numericInput("safety_threshold", "Limit Threshold (Concepts):", value = 500, min = 10, step = 50)
                       ),
                       radioButtons("labeling_mode", "Labeling Mode:",
                                    choices = c("Classic Reduced (FCA)" = "classic_reduced",

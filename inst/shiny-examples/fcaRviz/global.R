@@ -648,20 +648,15 @@ getGraph <- function(concepts, fc = NULL, filter_ids = NULL, scale_support = FAL
   ints <- as.matrix(sub_concepts$intents())
   sizes <- base::colSums(exts)
 
-  # Matriz de Adyacencia
-  M <- matrix(0, nrow = n, ncol = n)
-  for(padre in 1:n) {
-    for(hijo in 1:n) {
-      if(padre != hijo && sizes[padre] > sizes[hijo]) {
-        intersection_size <- sum(exts[, hijo] & exts[, padre])
-        if(intersection_size == sizes[hijo]) { M[padre, hijo] <- 1 }
-      }
-    }
-  }
+  # Vectorized Adjacency Matrix (Inclusion extent(hijo) subset of extent(padre) with sizes[padre] > sizes[hijo])
+  diff_mat <- crossprod(!exts, exts) # rows: padre, cols: hijo (counts elements in hijo not in padre)
+  M <- (diff_mat == 0) & (matrix(sizes, n, n) > matrix(sizes, n, n, byrow = TRUE))
+  diag(M) <- 0
+  storage.mode(M) <- "numeric"
 
   # Reducción Transitiva
   path_len_2 <- (M %*% M) > 0
-  M_reduced <- M & (!path_len_2)
+  M_reduced <- (M == 1) & (!path_len_2)
 
   # --- ETIQUETAS REDUCIDAS ---
   if (!is.null(fc)) {

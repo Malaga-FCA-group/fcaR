@@ -173,8 +173,11 @@ server <- function(input, output, session) {
   bg_calc <- reactiveValues(
     process = NULL,
     start_time = NULL,
-    task_type = NULL # "concepts" or "implications"
+    task_type = NULL # "concepts", "implications", or "lattice_properties"
   )
+  
+  lattice_props_data <- reactiveVal(NULL)
+  lattice_props_calculating <- reactiveVal(FALSE)
 
   # Polling observer for background processes
   observe({
@@ -201,19 +204,91 @@ server <- function(input, output, session) {
       
       status <- p$get_exit_status()
       if (!is.null(status) && status != 0) {
+        if (type == "lattice_properties") {
+          lattice_props_calculating(FALSE)
+        }
         shinyalert("Error", "The background calculation failed or ran out of memory. Try reducing context size.", type = "error")
         return()
       }
       
       tryCatch({
         res <- p$get_result()
+        
+        if (type == "lattice_properties") {
+          lattice_props_data(res)
+          lattice_props_calculating(FALSE)
+          vals$trigger <- vals$trigger + 1
+          return()
+        }
+        
         vals$fc <- res
         vals$trigger <- vals$trigger + 1
         
         if (type == "concepts") {
           n_c <- tryCatch(vals$fc$concepts$size(), error = function(e) 0)
           append_to_history_log(paste0("Computed concept lattice (", n_c, " concepts, elapsed: ", elapsed, "s)"))
-          shinyalert("Done!", "Concepts computed successfully.", type = "success")
+          
+          # Reset and start background calculation of lattice properties
+          lattice_props_data(NULL)
+          lattice_props_calculating(TRUE)
+          callr::r_bg(function(fc_concepts) {
+            library(fcaR)
+            cl <- fc_concepts
+            is_dist <- tryCatch(cl$is_distributive(), error = function(e) NA)
+            is_mod <- tryCatch(cl$is_modular(), error = function(e) NA)
+            is_semi <- tryCatch(cl$is_semimodular(), error = function(e) NA)
+            is_atom <- tryCatch(cl$is_atomic(), error = function(e) NA)
+            w_val <- tryCatch(cl$width(), error = function(e) NA)
+            d_val <- tryCatch(cl$dimension(), error = function(e) NA)
+            list(
+              is_dist = is_dist,
+              is_mod = is_mod,
+              is_semi = is_semi,
+              is_atom = is_atom,
+              width = w_val,
+              dimension = d_val
+            )
+          }, args = list(fc_concepts = vals$fc$concepts)) -> bg_props_proc
+          
+          # Use local observer to watch background properties
+          observe({
+            req(lattice_props_calculating())
+            if (!bg_props_proc$is_alive()) {
+              if (bg_props_proc$get_exit_status() == 0) {
+                res_props <- tryCatch(bg_props_proc$get_result(), error = function(e) NULL)
+                lattice_props_data(res_props)
+              }
+              lattice_props_calculating(FALSE)
+            } else {
+              invalidateLater(1500)
+            }
+          })
+          
+          thresh <- 500
+          if (!is.null(input$enable_threshold)) {
+            thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 500) else Inf
+          }
+          
+          if (n_c > thresh) {
+            force_render_val(FALSE)
+            showModal(modalDialog(
+              title = tagList(icon("triangle-exclamation", class = "text-warning"), " Large Lattice Warning"),
+              tags$div(
+                p(paste0("The concept lattice contains ", strong(n_c), " concepts, exceeding the recommended limit of ", thresh, ".")),
+                p(class = "text-danger fw-bold", "⚠️ A lattice of this size will likely be unreadable, and rendering it in the browser may take significant time or freeze the application."),
+                p("Do you want to render the full interactive visualization anyway?"),
+                p(class = "text-muted small", "(If you cancel, the full network will remain paused. You can still safely explore with the Micro Explorer or filters.)")
+              ),
+              easyClose = FALSE,
+              footer = tagList(
+                actionButton("btnConfirmRenderLargeLattice", "Render Anyway", class = "btn-warning", icon = icon("play")),
+                actionButton("btnCancelRenderLargeLattice", "Cancel (Do Not Render)", class = "btn-secondary")
+              )
+            ))
+          } else {
+            force_render_val(TRUE)
+            shinyalert("Done!", paste0("Concepts computed successfully (", n_c, " concepts)."), type = "success")
+          }
         } else {
           # Update implications statistics & cached objects
           n_imp <- tryCatch(vals$fc$implications$cardinality(), error = function(e) 0)
@@ -1799,9 +1874,20 @@ server <- function(input, output, session) {
   })
   observeEvent(input$goBackConc, { updateRadioGroupButtons(session, "main_nav", selected = "basic_operations"); removeModal() })
 
+  force_render_val <- reactiveVal(FALSE)
+
   observeEvent(input$btnForceRender, {
-    req(vals$fc)
-    vals$force_interactive_render <- TRUE
+    force_render_val(TRUE)
+  })
+
+  observeEvent(input$btnConfirmRenderLargeLattice, {
+    removeModal()
+    force_render_val(TRUE)
+  })
+
+  observeEvent(input$btnCancelRenderLargeLattice, {
+    removeModal()
+    force_render_val(FALSE)
   })
 
   # --- ACTIVE SELECTED CONCEPT ID STATE & SYNCHRONIZATION ---
@@ -1814,9 +1900,9 @@ server <- function(input, output, session) {
     req(vals$fc)
     if (!tryCatch(vals$fc$concepts$is_empty(), error = function(e) TRUE)) {
       n <- vals$fc$concepts$size()
-      thresh <- 800
+      thresh <- 500
       if (!is.null(input$enable_threshold)) {
-        thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 800) else Inf
+        thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 500) else Inf
       }
       if (n > 0 && n <= thresh) {
         try({
@@ -1993,9 +2079,9 @@ server <- function(input, output, session) {
     show_lattice_node_info(C_0, pin = TRUE)
     
     # Compute and highlight Ideal & Filter (ConExp style)
-    thresh <- 800
+    thresh <- 200
     if (!is.null(input$enable_threshold)) {
-      thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 800) else Inf
+      thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 200) else Inf
     }
     if (isTRUE(input$exploration_mode == "macro") && n <= thresh) {
       try({
@@ -2354,6 +2440,7 @@ server <- function(input, output, session) {
   # --- RENDER LATTICE CONTAINER ---
   output$latticeContainer <- renderUI({
     vals$trigger
+    force_render <- isTRUE(force_render_val())
     req(vals$fc)
     if (tryCatch(vals$fc$concepts$is_empty(), error = function(e) TRUE)) return(NULL)
     
@@ -2387,7 +2474,7 @@ server <- function(input, output, session) {
       return(tagList(style_tag, visNetworkOutput("interactivePlot", height = "100%")))
     }
     
-    if (n_filtered > 5000) {
+    if (n_filtered > 5000 && !force_render) {
       return(div(class="alert alert-danger", 
                  tags$h4(tags$strong("⚠️ Visual Bottleneck: Lattice Too Large")),
                  p(paste("The filtered lattice contains", n_filtered, "concepts, which exceeds the absolute safety threshold of 5000 nodes.")),
@@ -2400,46 +2487,61 @@ server <- function(input, output, session) {
              ))
     }
     
-    thresh <- 800
+    thresh <- 500
     if (!is.null(input$enable_threshold)) {
-      thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 800) else Inf
+      thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 500) else Inf
     }
-    if (n_filtered > thresh) {
-      if (vals$force_interactive_render) {
-        return(tagList(style_tag, visNetworkOutput("interactivePlot", height = "100%")))
-      } else {
-        return(tagList(
-          div(class="alert alert-warning",
-              tags$h4(tags$strong("⚠️ Warning: Large Lattice Detected")),
-              p(paste("This concept lattice contains", n_filtered, "concepts (filtered). Rendering the full interactive lattice automatically may cause your browser to lag or freeze (Visual Bottleneck).")),
-              p("To explore this data safely, we recommend:"),
-              tags$ul(
-                tags$li("Reducing the formal context using ", tags$strong("Clarify"), " or ", tags$strong("Reduce"), " in the Basic Operations section."),
-                tags$li("Using targeted attribute filters or sub-posets to focus on specific zones."),
-                tags$li("Exploring via the ", tags$strong("Micro Explorer"), " (focal navigation mode).")
-              ),
-              p("Alternatively, you can view the static plot below or force the full interactive layout if you are on a high-performance system:"),
-              div(class="d-flex gap-2 mt-2",
-                  actionButton("btnForceRender", "Force Interactive Render Anyway", class="btn-warning btn-sm", icon = icon("play")),
-                  downloadButton("downloadStaticPlot", "Download Static Plot (PDF)", class="btn-outline-secondary btn-sm")
-              )
-          ),
-          h5("Static Concept Lattice Plot"),
-          plotOutput("staticPlot", height="700px")
-        ))
-      }
+    if (n_filtered > thresh && !force_render) {
+      return(tagList(
+        style_tag,
+        div(
+          class = "p-4 text-center d-flex flex-column align-items-center justify-content-center h-100",
+          div(
+            class = "card shadow-sm border-warning p-4 text-start",
+            style = "max-width: 680px; width: 100%; border-left: 5px solid #ffc107;",
+            div(class = "d-flex align-items-center gap-3 mb-3",
+                icon("triangle-exclamation", class = "fa-2x text-warning"),
+                div(
+                  h4(class = "m-0 fw-bold text-dark", "Macro Lattice Render Paused"),
+                  span(class = "badge bg-warning text-dark mt-1", paste(n_filtered, "concepts detected"))
+                )
+            ),
+            p(class = "text-muted",
+              "Full visualization was not rendered because this concept lattice exceeds the safety threshold."
+            ),
+            tags$h6(class = "fw-bold mt-2", "Safe exploration alternatives:"),
+            tags$ul(
+              class = "text-muted small",
+              tags$li("Use ", tags$strong("Micro Explorer"), " (top-right mode) for local neighborhood navigation."),
+              tags$li("Filter objects or attributes in the sidebar accordion to isolate sub-lattices."),
+              tags$li("Reduce the context using ", tags$strong("Clarify"), " or ", tags$strong("Reduce"), " in Basic Operations.")
+            ),
+            hr(class = "my-3"),
+            div(class = "d-flex justify-content-between align-items-center flex-wrap gap-2",
+                actionButton("btnForceRender", "Render Interactive Lattice", class = "btn btn-warning btn-sm", icon = icon("play")),
+                downloadButton("downloadStaticPlot", "Download Lattice PDF", class = "btn btn-outline-secondary btn-sm")
+            )
+          )
+        )
+      ))
     }
     
-    # Default case: n_filtered <= threshold
+    # Default case: n_filtered <= threshold OR force_render is TRUE
     tagList(style_tag, visNetworkOutput("interactivePlot", height = "100%"))
   })
 
-  # --- CONCEPT METRICS REACTIVE ---
+  # --- CONCEPT METRICS REACTIVE (LAZY EVALUATION) ---
   concepts_metrics <- reactive({
     vals$trigger
     req(vals$fc)
     ready <- tryCatch(!vals$fc$concepts$is_empty(), error = function(e) FALSE)
     req(ready)
+    
+    color_mode <- if (!is.null(input$color_mode)) input$color_mode else "irreducibles"
+    # Only compute intensive metrics if the user actually selects a metric color mode
+    if (color_mode == "irreducibles") {
+      return(NULL)
+    }
     
     concepts <- vals$fc$concepts
     n_size <- concepts$size()
@@ -2636,11 +2738,11 @@ server <- function(input, output, session) {
       # Macro view
       curr_ids <- current_filtered_ids()
       n_filtered <- if (is.null(curr_ids)) n else length(curr_ids)
-      thresh <- 800
+      thresh <- 500
       if (!is.null(input$enable_threshold)) {
-        thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 800) else Inf
+        thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 500) else Inf
       }
-      if (n_filtered > thresh && !vals$force_interactive_render) return(NULL)
+      if (n_filtered > thresh && !isTRUE(force_render_val())) return(NULL)
       tryCatch({ 
         g <- getGraph(
           vals$fc$concepts, 
@@ -2733,9 +2835,26 @@ server <- function(input, output, session) {
   output$staticPlot <- renderPlot({ 
     vals$trigger
     req(vals$fc)
-    if(vals$fc$concepts$size() <= 5000) {
-      plot_lattice_static(vals$fc$concepts, vals$fc, layout_val = input$vizLayout, filter_ids = current_filtered_ids())
+    n <- vals$fc$concepts$size()
+    if (n == 0) return(NULL)
+    
+    thresh <- 200
+    if (!is.null(input$enable_threshold)) {
+      thresh <- if (isTRUE(input$enable_threshold)) (if (!is.null(input$safety_threshold)) input$safety_threshold else 200) else Inf
     }
+    
+    # Avoid freeze if lattice is massive (> 1000 concepts)
+    if (n > 1000 && !vals$force_interactive_render) {
+      plot(NULL, xlim = c(0, 1), ylim = c(0, 1), type = "n", xlab = "", ylab = "", 
+           main = paste("Lattice too large for static layout (", n, "concepts ). Please use Micro Explorer."))
+      return(NULL)
+    }
+    
+    tryCatch({
+      plot_lattice_static(vals$fc$concepts, vals$fc, layout_val = input$vizLayout, filter_ids = current_filtered_ids())
+    }, error = function(e) {
+      plot(NULL, xlim = c(0, 1), ylim = c(0, 1), type = "n", xlab = "", ylab = "", main = paste("Static plot error:", e$message))
+    })
   })
 
   output$downloadStaticPlot <- downloadHandler(
@@ -2921,23 +3040,34 @@ server <- function(input, output, session) {
     if (!ready) return(p(class="text-muted small", "No concept lattice loaded yet."))
     
     cl <- vals$fc$concepts
-    
-    # Calculate properties with tryCatch
-    is_dist <- tryCatch(cl$is_distributive(), error = function(e) NA)
-    is_mod <- tryCatch(cl$is_modular(), error = function(e) NA)
-    is_semi <- tryCatch(cl$is_semimodular(), error = function(e) NA)
-    is_atom <- tryCatch(cl$is_atomic(), error = function(e) NA)
-    w_val <- tryCatch(cl$width(), error = function(e) NA)
-    d_val <- tryCatch(cl$dimension(), error = function(e) NA)
+    n_c <- cl$size()
     
     make_badge <- function(val) {
-      if (is.na(val)) return(span(class="badge bg-secondary", "Unknown"))
+      if (is.null(val) || is.na(val)) return(span(class="badge bg-secondary", "Unknown"))
       if (isTRUE(val)) {
         span(class="badge bg-success", "Yes")
       } else {
         span(class="badge bg-danger", "No")
       }
     }
+    
+    props <- lattice_props_data()
+    is_calc <- isTRUE(lattice_props_calculating())
+    
+    is_dist <- if (!is.null(props)) props$is_dist else NA
+    is_mod <- if (!is.null(props)) props$is_mod else NA
+    is_semi <- if (!is.null(props)) props$is_semi else NA
+    is_atom <- if (!is.null(props)) props$is_atom else NA
+    w_val <- if (!is.null(props)) props$width else NA
+    d_val <- if (!is.null(props)) props$dimension else NA
+    
+    status_row <- if (is_calc) {
+      tags$tr(
+        tags$td(colspan = 2, class = "text-muted small pt-2 text-center",
+                span(icon("spinner", class = "fa-spin text-primary me-1")),
+                "Computing algebraic properties in background...")
+      )
+    } else NULL
     
     tagList(
       div(
@@ -2950,19 +3080,20 @@ server <- function(input, output, session) {
         tags$table(
           class = "table table-sm table-borderless small mb-0",
           tags$tbody(
-            tags$tr(tags$td(strong("Number of Concepts:")), tags$td(class="text-end", cl$size())),
-            tags$tr(tags$td(strong("Distributive:")), tags$td(class="text-end", make_badge(is_dist))),
-            tags$tr(tags$td(strong("Modular:")), tags$td(class="text-end", make_badge(is_mod))),
-            tags$tr(tags$td(strong("Semimodular:")), tags$td(class="text-end", make_badge(is_semi))),
-            tags$tr(tags$td(strong("Atomic:")), tags$td(class="text-end", make_badge(is_atom))),
-            tags$tr(tags$td(strong("Lattice Width:")), tags$td(class="text-end", ifelse(is.na(w_val), "-", w_val))),
-            tags$tr(tags$td(strong("Lattice Dimension:")), tags$td(class="text-end", ifelse(is.na(d_val), "-", d_val)))
+            tags$tr(tags$td(strong("Number of Concepts:")), tags$td(class="text-end fw-bold text-primary", n_c)),
+            tags$tr(tags$td(strong("Distributive:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else make_badge(is_dist))),
+            tags$tr(tags$td(strong("Modular:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else make_badge(is_mod))),
+            tags$tr(tags$td(strong("Semimodular:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else make_badge(is_semi))),
+            tags$tr(tags$td(strong("Atomic:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else make_badge(is_atom))),
+            tags$tr(tags$td(strong("Lattice Width:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else ifelse(is.na(w_val), "-", w_val))),
+            tags$tr(tags$td(strong("Lattice Dimension:")), tags$td(class="text-end", if (is.null(props) && is_calc) span(class="text-muted", "...") else ifelse(is.na(d_val), "-", d_val))),
+            status_row
           )
         )
       )
     )
   })
-
+    
   # --- OBSERVADOR PARA EL MODAL INFORMATIVO ---
   observeEvent(input$btnLatticeInfo, {
     showModal(modalDialog(
